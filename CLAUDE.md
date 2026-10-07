@@ -17,7 +17,7 @@ Client work by **Yahya** (freelance web developer). The site is in **French**. B
 npm run build         # dist/index.html, dist/lab.html, dist/bubbletea-3d.js   (no dependencies, Node only)
 npm run build:debug   # same + window.__dbg hook for the tests (dist/*.debug.*)
 npm run serve         # http://localhost:8080  (serves dist/)
-npm test              # builds debug pages, runs tests/run_all.py   (needs: pip install -r requirements.txt && playwright install chromium)
+npm test              # builds debug pages, runs tests/run_all.py (containment, roulette, rig, bear, stress)  (needs: pip install -r requirements.txt && playwright install chromium)
 npm run test:fast     # skips the slow stress test
 ```
 `dist/index.html` is a **single self-contained file** (loads Three.js r159 from jsDelivr and fonts from Google). `dist/lab.html` is a developer bench for the cup alone.
@@ -26,14 +26,14 @@ npm run test:fast     # skips the slow stress test
 ```
 src/site.template.html      the whole page (HTML + CSS + page scripts). Contains the placeholder /*__BUBBLETEA_3D__*/
 src/lab.template.html       the cup test bench, same placeholder
-src/3d/01..07-*.js          ONE script (an IIFE) cut in 7 slices on its section markers; build.mjs concatenates them in order
-build.mjs                   slices -> dist/. The build reproduces the last published pages BYTE FOR BYTE (checked at hand-over)
+src/3d/01..08-*.js          ONE script (an IIFE) cut in 8 slices; build.mjs concatenates them in order
+build.mjs                   slices -> dist/ (node build.mjs; --debug also exposes window.__dbg for the tests)
 tests/                      Playwright (Python) tests with real assertions; helpers.py explains the setup
 vendor/three.min.js         Three.js r159 UMD, used by the tests (CDN request is intercepted)
 docs/                       HISTORY.md, DECISIONS.md, BACKLOG.md, reference photos, early transcript
 ```
-3D slices: 01 renderer/scene/studio light/backdrop · 02 exact glass profile + cup glass · 03 flavours + liquid shader · 04 toppings (physics, instancing, shaders) · 05 label/lid/heart/straw/shadow · 06 mascot bear · 07 camera framing, interaction, state, public API, render loop.
-Public API (must keep working): `window.mryeCup = { flavors, setFlavor(base,id), setTea(hex,isMilk), setTopping(name), setSize('M'|'L'), setMascot(bool) }`.
+3D slices: 01 renderer/scene/studio light/backdrop · 02 exact glass profile + cup glass · 03 flavours + liquid shader · 04 toppings (physics, instancing, shaders) · 05 label/lid/heart/straw/shadow · 06 mascot bear MODEL (quad-sphere pieces, bone rig, fur shader, face, apron) · 07 mascot bear ANIMATION (clips, look-at, blink, click-to-wave, wireframe/bones views, layout) · 08 camera framing, interaction, state, public API, render loop.
+Public API (must keep working): `window.mryeCup = { flavors, setFlavor(base,id), setTea(hex,isMilk), setTopping(name), setSize('M'|'L'), setMascot(bool), bear }` with `bear = { play('wave'|'cheer'|'nod'|'tilt'), setWire(bool), setBones(bool), rig, clips }`.
 The page script in `site.template.html` (`render()`, `setTempBadge()`, the roulette IIFE) drives it.
 
 ## Hard rules (each one cost hours; do not break)
@@ -46,7 +46,7 @@ The page script in `site.template.html` (`render()`, `setTempBadge()`, the roule
 7. Colour: `Color.setHSL` needs `THREE.SRGBColorSpace`; **vertex colours are linear** (build them with `new THREE.Color('#hex')`). Tone mapping ACES, exposure ~0.72.
 8. Do not cut `settle()` iterations to save CPU (13 floating beads at 90 iterations). The cheap fix was starting beads low.
 9. The label is ONE front sticker (`LBL_T` 1.62 rad), not wrapped round the cup.
-10. Mascot SDF mesh: interpolate on lattice edges from the LOWER id to the higher; no per-vertex noise (folds the many tiny triangles); one CPU rotation matrix drives both the shader (head) and the face meshes; the apron is draped on the torso field, then settled along the full-body gradient to `BH * 0.34 + 0.016` above the mesh (the plush fuzz is `BH * 0.34` tall, so a fixed small gap lets fur poke through) and must end above the thighs; face features are placed with `faceZ(x, y)` (bisection on the field) so they sit ON the surface, never float; pocket slits are painted in the apron texture.
+10. **Mascot bear = rigged plush** (slices 06-07). Pieces are all-quad cube-spheres (`bQuadSphere(n)`, keep `n` EVEN so a vertex ring lies on the centre planes where the seams are), merged to ONE mesh per bone; everything is defined in the `BONE_DEFS` and `PARTS` tables (tune against the photo). `bLocal()` converts a world rest position to bone-local and is only valid for bones WITHOUT a rest rotation (arms and legs use local `pos` instead). **The Head is its own node**: face, ears, muzzle all hang from `rig.Head`, it is driven LIVE (pointer look-at + nod spring), never by a clip (a test enforces it). Clips are authored in `bClip` as offsets on the rest pose (`rot`) or absolute eulers (`abs`); one-shots are blended over idle by my own weight envelope (idle weight = 1 - env) so every clip starts and ends on the idle pose. Face features are placed with `bHeadZ/bMuzzleZ` (analytic surface) so they sit ON the surface. Patches (soles, inner ear) and stitches are computed per pixel in the fur shader from interpolated attributes (colour thresholds on a coarse mesh go jagged). The apron is laid on the torso at rest, then settled just outside torso, pelvis and legs (`bClearD`, offset 0.024, a test checks clearance); it follows the spine only, so it cannot be rigged round a bend: keep it above the lap. Pocket slits are painted in the apron texture.
 11. Published-page constraints (Claude.ai artifact): scripts only from `cdn.jsdelivr.net/npm`, `cdnjs.cloudflare.com`; no remote images; no other network. Outside Claude.ai these can be relaxed, but keep the page self-contained.
 12. Keep: adaptive pixel ratio, IntersectionObserver pause, `prefers-reduced-motion`, WebGL context-loss fallback, no `maximum-scale=1` (accessibility).
 
@@ -56,7 +56,7 @@ The page script in `site.template.html` (`render()`, `setTempBadge()`, the roule
 - **Toppings** (same look in milk and fruit): tapioca = 120 loose dark-brown beads (**"perfect", untouched**); multifruit 140; red beans 240; **grass jelly = 135 irregular charcoal chunks, ONLY in a heap on the bottom**, flat faces against the glass.
 - **Temperature**: normal "Froid/Chaud" pills + the flame/snowflake badge at the top right of the cup (pops on change; fruit tea = always snowflake). The 3D fireball was removed at Yahya's request.
 - **Order card** (price large), **oval roulette menu**, light pool behind the cup + contact shadow that follows the cup size.
-- **Mascot bear** (v22 refresh, compared with the photo; colours, face proportions and shading were measured on it, see DECISIONS.md): caramel fur `#b08856`, cream muzzle, small brown nose, close-set bead eyes, smile with a tongue, darker inner ears, baked ambient occlusion in the creases, fine plush texture (bump 0.0045: stronger bump looks like cracked leather). Modelled from `docs/reference/shop-front-with-the-bear.png`. One smooth mesh (signed-distance field), arms hanging at the sides with small round paws, legs forward with big cream-soled feet, short bib apron with the print and two orange pocket slits. Tune proportions in the `BP` table in `src/3d/06-mascot-bear.js`.
+- **Mascot bear** (rigged plush, built from the real shop photo + the client's teddy references; see DECISIONS.md): caramel fur `#b08856`, cream muzzle and flat cream soles, small brown nose, bead eyes, open smile with a tongue, darker inner ears, stitched seams (head centre, torso centre, arm sides), baked shading in the creases, fine plush grain (bump 0.0045: stronger looks like cracked leather), branded dark-green apron (幸福食光 / Mr.Ye, orange pocket slits). Rig and clips as in rule 10; the client's request was literally "rigged and animated, Head = separate group, match the wireframe, don't forget the Mr Ye apron". The reference images he sent are NOT in the repo (unknown rights); `docs/reference/shop-front-with-the-bear.png` is the main one.
 
 ## How we work (important)
 - Yahya writes in **French and English mixed**; answer in the language of his message. Short, concrete answers. He wants **visual proof**: after any visual change, screenshot it (Playwright) next to the reference photo and look at it before claiming it is done.
@@ -66,9 +66,9 @@ The page script in `site.template.html` (`render()`, `setTempBadge()`, the roule
 - Never touch third-party photos for the site without rights (Google Maps photos are customers' copyright). Real dish photos must come from the client.
 
 ## Status
-v22 (bear refresh) is on the PR branch; the live GitHub Pages site is built from `main` by `.github/workflows/pages.yml` (repo: YahyaALAoui2002/Mr-Ya-web-site). Before/after renders: `docs/bear-v22-views.png`, `docs/bear-v22-closeup.png`. Tests in this container need `pip install playwright==1.56.0` to match the preinstalled Chromium.
+**Live site: https://yahyaalaoui2002.github.io/Mr-Ya-web-site/** (lab bench `/lab.html`), built from `main` by `.github/workflows/pages.yml`; needs **Settings > Pages > Source: GitHub Actions** (a repo setting only the owner can change). Repo: YahyaALAoui2002/Mr-Ya-web-site. The bear is the rigged plush (renders: `docs/bear-rig-views.png`, `docs/bear-rig-wire.png`). Tests in this container need `pip install playwright==1.56.0` to match the preinstalled Chromium. Software-GL numbers for the bear: 16 meshes, ~32k triangles, built synchronously at load (the old SDF bear was ~69k triangles and a 0.4 s time-sliced build). **Real-device performance is unmeasured.**
 
-## Status at hand-over (v21)
+## Status at hand-over (v21, historical: this was the single-mesh SDF bear)
 Published as Claude.ai artifacts (can only be updated from a Claude.ai chat, not from here): site `https://claude.ai/artifact/UW4U6Z9EdRHreHQP6cG3Xm`, lab `https://claude.ai/artifact/RZLAFPLEPgfnv7pyW6Cp6v`. All four tests pass (containment 0 violations, roulette 11/11, bear 7/7, stress 9/9).
 Software-GL numbers with everything built: 54 draw calls, ~181k triangles (bear body ~69k on desktop, ~35k on phones). **Real-device performance is unmeasured.**
 Next: see `docs/BACKLOG.md`. First task Yahya mentioned: put the site on a public GitHub repo / GitHub Pages so he can show it (README has the steps; no credentials were available in the chat).

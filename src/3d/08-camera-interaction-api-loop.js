@@ -43,6 +43,7 @@
     if (reduceMotion) return;
     pulseV = Math.max(-0.3, Math.min(0.3, pulseV + 0.16 * k));
     mascot.nodV = Math.max(-1.2, Math.min(1.2, mascot.nodV + 0.9 * k));
+    if (mascot.onReact) mascot.onReact(k);
     if (!dragging && Math.abs(vel) < 0.01) vel += (Math.random() < 0.5 ? -1 : 1) * 0.005 * k;
     needs = true;
   }
@@ -77,6 +78,7 @@
       topNow = top; needs = true; slosh(0.09); react(0.8);
     },
     setMascot(on) { mascot.on = !!on; resize(); needs = true; },
+    bear: bearApi,                                      // the rig: bear.play('wave'|'cheer'|'nod'|'tilt'), bear.setWire(bool), bear.setBones(bool), bear.rig (THREE.Bone nodes), bear.clips
     setSize(sz) { const t = sz === 'M' ? 0.88 : 1; if (t === scaleTarget) return; slosh(0.06); react(1.4); scaleTarget = t; needs = true; },
   };
 

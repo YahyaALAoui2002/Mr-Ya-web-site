@@ -1,3 +1,5 @@
+> **Historical.** The SDF bear described here was replaced by the rigged plush (see DECISIONS.md). The 12 bugs below are kept because the lessons (edge interpolation order, vertex colours are linear, no per-vertex noise on tiny triangles) still matter.
+
 # Review notes: "MASCOT v2: single-mesh SDF teddy" (what was wrong, what I changed)
 
 I ran the pasted file unmodified in a Three.js r159 test page. **It produced 0 triangles** (no bear at all); it had only been syntax-checked.

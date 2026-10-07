@@ -21,6 +21,9 @@ body{margin:0;background:var(--paper);color:var(--ink);font:500 15px/1.4 "Familj
 .opt span{display:inline-block;padding:7px 12px;border-radius:999px;border:1.5px solid var(--rule);cursor:pointer;white-space:nowrap}
 .opt input:checked+span{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .opt input:focus-visible+span{outline:2px solid var(--label);outline-offset:2px}
+.pill{font:inherit;color:inherit;background:none;padding:7px 12px;border-radius:999px;border:1.5px solid var(--rule);cursor:pointer;white-space:nowrap}
+.pill:hover{border-color:var(--ink)}
+.pill:focus-visible{outline:2px solid var(--label);outline-offset:2px}
 .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;vertical-align:-1px;box-shadow:inset 0 0 0 1px rgb(0 0 0 / .2)}
 .fallback-3d{position:absolute;inset:0;display:grid;place-items:center;padding:24px;color:var(--soft);text-align:center}
 .hint{position:absolute;left:0;right:0;bottom:10px;text-align:center;color:var(--soft);font-size:13px;pointer-events:none}
@@ -51,6 +54,15 @@ body{margin:0;background:var(--paper);color:var(--ink);font:500 15px/1.4 "Familj
     <label class="opt"><input type="radio" name="top" value="multifruit"><span>Multifruit</span></label>
     <label class="opt"><input type="radio" name="top" value="haricot"><span>Haricot rouge</span></label>
     <label class="opt"><input type="radio" name="top" value="gelee"><span>Gelée d'herbe</span></label>
+  </div>
+  <div class="grp"><b>Mascotte</b>
+    <label class="opt"><input type="checkbox" id="bearOn" checked><span>Visible</span></label>
+    <button type="button" class="pill" data-bear="wave">Salut</button>
+    <button type="button" class="pill" data-bear="cheer">Hourra</button>
+    <button type="button" class="pill" data-bear="nod">Oui</button>
+    <button type="button" class="pill" data-bear="tilt">Curieux</button>
+    <label class="opt"><input type="checkbox" id="bearWire"><span>Fil de fer</span></label>
+    <label class="opt"><input type="checkbox" id="bearBones"><span>Squelette</span></label>
   </div>
   <div class="grp"><b>Taille</b>
     <label class="opt"><input type="radio" name="size" value="M"><span>50 cl</span></label>
@@ -90,6 +102,14 @@ body{margin:0;background:var(--paper);color:var(--ink);font:500 15px/1.4 "Familj
   }
   const go = () => { const [base, id] = f.flavor.value.split(':'); api.setFlavor(base, id); api.setTopping(f.top.value); api.setSize(f.size.value); setTempBadge(base === 'lait' && f.temp.value === 'chaud'); };
   f.addEventListener('change', go); go();
+  // the mascot: play a clip, wireframe (grey clay + quad edges), skeleton (bones)
+  const bear = api.bear;
+  if (bear) {
+    f.querySelectorAll('[data-bear]').forEach(b => b.addEventListener('click', () => bear.play(b.dataset.bear)));
+    document.getElementById('bearOn').addEventListener('change', e => api.setMascot(e.target.checked));
+    document.getElementById('bearWire').addEventListener('change', e => bear.setWire(e.target.checked));
+    document.getElementById('bearBones').addEventListener('change', e => bear.setBones(e.target.checked));
+  }
 })();
 </script>
 </body></html>
