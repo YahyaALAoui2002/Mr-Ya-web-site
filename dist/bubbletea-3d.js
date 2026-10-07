@@ -688,159 +688,164 @@
   shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.001;
   scene.add(shadow);
 
-  /* ---------- Mascot: the restaurant's teddy bear, seated beside the cup ----------
-     Modelled from the photo of the shop front. The plush body (head, ears, muzzle, arms, legs, feet) is ONE smooth mesh: a signed
-     distance field of ~20 soft blobs, polygonised once at load (marching tetrahedra, time-sliced so the page never freezes). The apron,
-     eyes, nose and mouth are separate small meshes. The head turns inside the vertex shader, so the single mesh still follows the pointer. */
-  /* ===== SDF teddy body: ONE smooth plush mesh, generated once at load (marching tetrahedra) ===== */
+  /* ---------- Mascot: the restaurant's teddy bear, seated beside the cup (MODEL: parts, rig, face, apron) ----------
+     Built the way a plush toy is sewn: separate pieces (torso, pelvis, head, muzzle, ears, arms with paws, legs with feet) joined at creases,
+     each piece an all-quad "quad sphere" (a subdivided cube pushed onto a sphere: no poles, clean quad rings, like the reference wireframes).
+     The pieces hang on a real bone hierarchy (THREE.Bone, names below) so the bear can be animated: see slice 07. The HEAD is its own node
+     ("Head": head, muzzle, ears, eyes, nose, mouth all hang from it) and turns independently of the body. The branded apron hangs on the spine.
+     Rest pose and every proportion live in BONE_DEFS and PARTS: tune them against docs/reference/shop-front-with-the-bear.png. */
   const bClamp01 = (x) => x < 0 ? 0 : x > 1 ? 1 : x;
   const bSstep = (a, b, x) => { const t = bClamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
   const bHex = (hex) => { const c = new THREE.Color(hex); return [c.r, c.g, c.b]; };          // sRGB hex -> linear colour (vertex colours are linear)
-  const BTAN = bHex('#b08856'), BCREAM = bHex('#efdcb6'), BEAR_IN = bHex('#6e4326');       // caramel fur, cream muzzle/soles, darker inner ear (all measured on the shop photo)
-  /* proportions: ONE table to tune against the photo. c/r = ellipsoid, a/b/rad = capsule, k = how softly it blends into the rest */
-  const BP = [];
-  const bPart = (sym, o) => {
-    const mir = (v, s) => v ? [v[0] * s, v[1], v[2]] : undefined;
-    for (const s of (sym ? [-1, 1] : [1])) BP.push({ c: mir(o.c, s), a: mir(o.a, s), b: mir(o.b, s), r: o.r, rad: o.rad, k: o.k, col: o.col });
-  };
-  bPart(0, { c: [0, 0.55, -0.06], r: [1.14, 0.60, 1.04], k: 0.55, col: BTAN });          // hips
-  bPart(0, { c: [0, 1.02, 0.10], r: [1.18, 1.00, 1.06], k: 0.60, col: BTAN });           // heavy belly
-  bPart(0, { c: [0, 1.60, 0.02], r: [1.00, 0.90, 0.88], k: 0.55, col: BTAN });           // chest
-  bPart(0, { a: [0, 1.95, 0.06], b: [0, 2.42, 0.10], rad: 0.55, k: 0.60, col: BTAN });   // neck
-  bPart(0, { c: [0, 2.91, 0.10], r: [0.90, 0.84, 0.86], k: 0.32, col: BTAN });           // head
-  bPart(0, { c: [0, 2.78, 0.74], r: [0.42, 0.33, 0.32], k: 0.20, col: BCREAM });         // muzzle (short and wide like the real bear, not a snout)
-  bPart(1, { c: [0.70, 3.49, -0.02], r: [0.31, 0.31, 0.21], k: 0.14, col: BTAN });       // ears
-  bPart(1, { c: [0.68, 3.46, 0.12], r: [0.19, 0.19, 0.10], k: 0.10, col: BEAR_IN });     // inner ears
-  /* ARMS hang down the OUTER sides of the body and end in small round paws. LEGS stretch forward, apart, and end in big feet with a cream sole facing the viewer. */
-  bPart(1, { a: [1.02, 1.95, 0.06], b: [1.50, 0.98, 0.38], rad: 0.31, k: 0.16, col: BTAN });     // arm: shoulder to wrist
-  bPart(1, { c: [1.54, 0.84, 0.46], r: [0.31, 0.33, 0.31], k: 0.12, col: BTAN });                // paw (small, round)
-  bPart(1, { a: [0.64, 0.64, 0.08], b: [0.86, 0.60, 1.18], rad: 0.50, k: 0.22, col: BTAN });     // thigh, forward
-  bPart(1, { a: [0.86, 0.60, 1.18], b: [0.92, 0.54, 1.82], rad: 0.43, k: 0.20, col: BTAN });     // lower leg
-  bPart(1, { c: [0.94, 0.56, 2.0], r: [0.46, 0.43, 0.46], k: 0.16, col: BTAN });                 // foot (big, rounded)
-  bPart(1, { c: [0.94, 0.62, 2.34], r: [0.31, 0.35, 0.15], k: 0.07, col: BCREAM });              // cream sole pad, facing the viewer
-  bPart(0, { c: [0, 0.72, -0.96], r: [0.30, 0.28, 0.26], k: 0.30, col: BTAN });          // tail
-  bPart(0, { c: [0, 1.02, 0.60], r: [0.72, 0.80, 0.40], k: 0.22, col: BCREAM });         // cream belly patch
-  const BTORSO = 4;                                    // the first four parts (hips, belly, chest, neck) are what the apron is draped on
-  const _bcol = [0, 0, 0];
-  function bPrim(pt, x, y, z) {
-    if (pt.rad !== undefined) {                        // capsule
-      const ax = x - pt.a[0], ay = y - pt.a[1], az = z - pt.a[2], bx = pt.b[0] - pt.a[0], by = pt.b[1] - pt.a[1], bz = pt.b[2] - pt.a[2];
-      let h = (ax * bx + ay * by + az * bz) / (bx * bx + by * by + bz * bz); h = h < 0 ? 0 : h > 1 ? 1 : h;
-      const dx = ax - bx * h, dy = ay - by * h, dz = az - bz * h;
-      return Math.sqrt(dx * dx + dy * dy + dz * dz) - pt.rad;
-    }
-    const qx = (x - pt.c[0]) / pt.r[0], qy = (y - pt.c[1]) / pt.r[1], qz = (z - pt.c[2]) / pt.r[2];
-    const k0 = Math.sqrt(qx * qx + qy * qy + qz * qz);
-    if (k0 < 1e-5) return -Math.min(pt.r[0], pt.r[1], pt.r[2]);
-    const k1 = Math.sqrt(qx * qx / (pt.r[0] * pt.r[0]) + qy * qy / (pt.r[1] * pt.r[1]) + qz * qz / (pt.r[2] * pt.r[2]));
-    return k0 * (k0 - 1) / k1;                         // ellipsoid distance (iq's approximation)
-  }
-  /* smooth union of parts [0, n): polynomial smooth-min, the colour is carried along with the same weight */
-  function bField(x, y, z, colOut, n) {
-    const N = n || BP.length;
-    let pt = BP[0], d = bPrim(pt, x, y, z), r = pt.col[0], g = pt.col[1], b = pt.col[2];
-    for (let i = 1; i < N; i++) {
-      pt = BP[i];
-      const pd = bPrim(pt, x, y, z), k = pt.k, h = bClamp01(0.5 + 0.5 * (pd - d) / k);      // NB: (pd - d): h -> 1 where the accumulated shape is the nearer one
-      d = pd * (1 - h) + d * h - k * h * (1 - h);
-      const hc = bSstep(0.12, 0.88, h);                                                      // colour boundaries crisper than the shape blend
-      r = pt.col[0] * (1 - hc) + r * hc; g = pt.col[1] * (1 - hc) + g * hc; b = pt.col[2] * (1 - hc) + b * hc;
-    }
-    if (n === undefined) d = Math.max(d, -y);          // flat base: everything below the ground is cut away
-    if (colOut) { colOut[0] = r; colOut[1] = g; colOut[2] = b; }
-    return d;
-  }
-  const bHash = (x, y, z) => { const s = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453; return s - Math.floor(s); };
-  function bNoise(x, y, z) {
-    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z), xf = x - xi, yf = y - yi, zf = z - zi;
-    const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), w = zf * zf * (3 - 2 * zf);
-    let acc = 0;
-    for (let dz = 0; dz <= 1; dz++) for (let dy = 0; dy <= 1; dy++) for (let dx = 0; dx <= 1; dx++)
-      acc += bHash(xi + dx, yi + dy, zi + dz) * (dx ? u : 1 - u) * (dy ? v : 1 - v) * (dz ? w : 1 - w);
-    return acc * 2 - 1;
-  }
-  /* the head (and only the head) turns: 1 on the head + ears, 0 on the body and the shoulders, soft across the neck */
-  const bHeadMask = (x, y) => bSstep(2.05, 2.3, y) * (1 - bSstep(0.75, 1.0, Math.abs(x)) * (1 - bSstep(2.7, 3.05, y)));
-  const BAO_H = [0.05, 0.12, 0.24, 0.42], BAO_W = [0.3, 0.3, 0.25, 0.15], BAO_GAIN = 1.5;       // baked occlusion: 4 field samples along the normal
-  const BMIN = [-2.15, -0.02, -1.35], BMAX = [2.15, 3.9, 2.75];
-  const BH = (typeof innerWidth !== 'undefined' && innerWidth < 760) ? 0.1 : 0.072;       // lattice step: coarser on phones (the fine fur is done in the shader)
-  const BNX = Math.ceil((BMAX[0] - BMIN[0]) / BH) + 1, BNY = Math.ceil((BMAX[1] - BMIN[1]) / BH) + 1, BNZ = Math.ceil((BMAX[2] - BMIN[2]) / BH) + 1;
-  /* marching tetrahedra, written as a generator so it can be time-sliced (it yields once per lattice slice) */
-  function* bearGeometryGen() {
-    const NXY = BNX * BNY, NTOT = NXY * BNZ, latId = (i, j, k) => i + j * BNX + k * NXY;
-    const F = new Float32Array(NTOT);
-    for (let k = 0; k < BNZ; k++) {
-      for (let j = 0; j < BNY; j++) for (let i = 0; i < BNX; i++) F[latId(i, j, k)] = bField(BMIN[0] + i * BH, BMIN[1] + j * BH, BMIN[2] + k * BH, null);
-      yield;
-    }
-    const pos = [], nor = [], col = [], hd = [], bl = [], idx = [], vmap = new Map();
-    const EP = BH * 0.4, FUZZ = BH * 0.34, FFREQ = 3.2;                    // coherent, low-frequency lumpiness: per-vertex jitter folds the many tiny triangles
-    const CO = [[0,0,0],[1,0,0],[1,1,0],[0,1,0],[0,0,1],[1,0,1],[1,1,1],[0,1,1]];
-    const TETS = [[0,5,1,6],[0,1,2,6],[0,2,3,6],[0,3,7,6],[0,7,4,6],[0,4,5,6]];
-    const cid = new Int32Array(8);
-    function vert(idA, idB, vA, vB) {                  // welded vertex on a lattice edge
-      const lo = idA < idB ? idA : idB, hi = idA < idB ? idB : idA, key = lo * NTOT + hi;
-      let id = vmap.get(key); if (id !== undefined) return id;
-      const vlo = idA < idB ? vA : vB, vhi = idA < idB ? vB : vA, t = vlo / (vlo - vhi);      // t runs from the LOWER lattice id to the higher one, whichever order the edge was listed in
-      const ai = lo % BNX, aj = ((lo / BNX) | 0) % BNY, ak = (lo / NXY) | 0, bi = hi % BNX, bj = ((hi / BNX) | 0) % BNY, bk = (hi / NXY) | 0;
-      const px = BMIN[0] + (ai + (bi - ai) * t) * BH, py = BMIN[1] + (aj + (bj - aj) * t) * BH, pz = BMIN[2] + (ak + (bk - ak) * t) * BH;
-      const gx = bField(px + EP, py, pz) - bField(px - EP, py, pz), gy = bField(px, py + EP, pz) - bField(px, py - EP, pz), gz = bField(px, py, pz + EP) - bField(px, py, pz - EP);
-      const gl = Math.sqrt(gx * gx + gy * gy + gz * gz) || 1, nx = gx / gl, ny = gy / gl, nz = gz / gl;
-      const f = bNoise(px * FFREQ, py * FFREQ, pz * FFREQ) * FUZZ * (py > 0.06 ? 1 : 0);   // plush fuzz, not on the flat base
-      const qx = px + nx * f, qy = Math.max(0, py + ny * f), qz = pz + nz * f;
-      bField(qx, qy, qz, _bcol);
-      const gm = gl / (2 * EP);                          // |grad f|: the smooth unions make the field a little slower than a true distance, so measure against it
-      let occ = 0; for (let m = 0; m < 4; m++) { const h = BAO_H[m]; occ += BAO_W[m] * bClamp01(1 - bField(qx + nx * h, qy + ny * h, qz + nz * h) / (gm * h)); }
-      occ = bClamp01(occ * BAO_GAIN);
-      id = pos.length / 3; pos.push(qx, qy, qz); nor.push(nx, ny, nz);
-      col.push(_bcol[0] * (1 - 0.50 * occ), _bcol[1] * (1 - 0.62 * occ), _bcol[2] * (1 - 0.75 * occ));      // creases go warm brown, not grey
-      hd.push(bHeadMask(qx, qy));
-      bl.push(bSstep(0.45, 0.85, qy) * (1 - bSstep(1.55, 2.05, qy)) * (1 - bSstep(0.55, 1.25, Math.hypot(qx, qz - 0.1))));
-      vmap.set(key, id); return id;
-    }
-    function tri(a, b, c) {                            // wind outward, judged against the averaged vertex normals
-      const ax = pos[a*3], ay = pos[a*3+1], az = pos[a*3+2];
-      const e1x = pos[b*3] - ax, e1y = pos[b*3+1] - ay, e1z = pos[b*3+2] - az, e2x = pos[c*3] - ax, e2y = pos[c*3+1] - ay, e2z = pos[c*3+2] - az;
-      const fx = e1y * e2z - e1z * e2y, fy = e1z * e2x - e1x * e2z, fz = e1x * e2y - e1y * e2x;
-      const sx = nor[a*3] + nor[b*3] + nor[c*3], sy = nor[a*3+1] + nor[b*3+1] + nor[c*3+1], sz = nor[a*3+2] + nor[b*3+2] + nor[c*3+2];
-      if (fx * sx + fy * sy + fz * sz < 0) idx.push(a, c, b); else idx.push(a, b, c);
-    }
-    for (let k = 0; k < BNZ - 1; k++) {
-      for (let j = 0; j < BNY - 1; j++) for (let i = 0; i < BNX - 1; i++) {
-        let neg = 0;
-        for (let c = 0; c < 8; c++) { cid[c] = latId(i + CO[c][0], j + CO[c][1], k + CO[c][2]); if (F[cid[c]] < 0) neg++; }
-        if (neg === 0 || neg === 8) continue;
-        for (const tet of TETS) {
-          const v = [F[cid[tet[0]]], F[cid[tet[1]]], F[cid[tet[2]]], F[cid[tet[3]]]], ins = [], out = [];
-          for (let m = 0; m < 4; m++) (v[m] < 0 ? ins : out).push(m);
-          if (ins.length === 0 || ins.length === 4) continue;
-          const e = (a, b) => vert(cid[tet[a]], cid[tet[b]], v[a], v[b]);
-          if (ins.length === 1 || out.length === 1) {   // one vertex apart from the other three: a triangle
-            const s = ins.length === 1 ? ins[0] : out[0], o = ins.length === 1 ? out : ins;
-            tri(e(s, o[0]), e(s, o[1]), e(s, o[2]));
-          } else {                                      // two against two: a quad, in cyclic order (a,c) (a,d) (b,d) (b,c)
-            const [a, b] = ins, [c, d] = out;
-            const p0 = e(a, c), p1 = e(a, d), p2 = e(b, d), p3 = e(b, c);
-            tri(p0, p1, p2); tri(p0, p2, p3);
-          }
-        }
+  const bSoftMin = (a, b, k) => { const h = bClamp01(0.5 + 0.5 * (b - a) / k); return b * (1 - h) + a * h - k * h * (1 - h); };
+  const BTAN = bHex('#b08856'), BCREAM = bHex('#efdcb6'), BEAR_IN = bHex('#6e4326');            // caramel fur, cream muzzle/soles, dark inner ear (measured on the shop photo)
+
+  /* ===== 1. Quad sphere: n x n quads on each of the 6 cube faces, projected onto the unit sphere (all quads, 6n^2 + 2 welded vertices) ===== */
+  const bQuadCache = new Map();
+  function bQuadSphere(n) {
+    if (bQuadCache.has(n)) return bQuadCache.get(n);
+    const dirs = [], quads = [], ids = new Map(), M = n + 1;
+    const vid = (a, b, c) => {
+      const key = (a * M + b) * M + c; let id = ids.get(key); if (id !== undefined) return id;
+      const x = 2 * a / n - 1, y = 2 * b / n - 1, z = 2 * c / n - 1;
+      id = dirs.length / 3; ids.set(key, id);
+      dirs.push(x * Math.sqrt(1 - y * y / 2 - z * z / 2 + y * y * z * z / 3), y * Math.sqrt(1 - z * z / 2 - x * x / 2 + z * z * x * x / 3), z * Math.sqrt(1 - x * x / 2 - y * y / 2 + x * x * y * y / 3));
+      return id;
+    };
+    for (let k = 0; k < 3; k++) for (const s of [0, n]) {                       // the face on axis k, at its low (0) or high (n) end
+      const iu = (k + 1) % 3, iv = (k + 2) % 3;
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+        const q = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]].map(([u, v]) => { const p = [0, 0, 0]; p[k] = s; p[iu] = u; p[iv] = v; return vid(p[0], p[1], p[2]); });
+        if (s === 0) q.reverse();                                                // the low face looks the other way: keep every quad counter-clockwise seen from outside
+        quads.push(q[0], q[1], q[2], q[3]);
       }
-      yield;
+    }
+    const V = dirs.length / 3, seen = new Set(), lines = [];
+    for (let i = 0; i < quads.length; i += 4) for (let e = 0; e < 4; e++) {      // every quad edge once (the wireframe view draws QUADS, not triangles)
+      const a = quads[i + e], b = quads[i + (e + 1) % 4], key = a < b ? a * V + b : b * V + a;
+      if (!seen.has(key)) { seen.add(key); lines.push(a, b); }
+    }
+    const tris = []; for (let i = 0; i < quads.length; i += 4) tris.push(quads[i], quads[i + 1], quads[i + 2], quads[i], quads[i + 2], quads[i + 3]);
+    const r = { dirs: new Float32Array(dirs), tris: new Uint32Array(tris), lines: new Uint32Array(lines), V };
+    bQuadCache.set(n, r); return r;
+  }
+
+  /* ===== 2. The rig: bones in WORLD rest coordinates [x, y, z] (the bear faces +z; +x is the bear's LEFT), parent first ===== */
+  const BONE_DEFS = [
+    ['root', null, [0, 0, 0]],
+    ['hips', 'root', [0, 0.62, -0.04]],
+    ['spine', 'hips', [0, 1.0, 0.0]],
+    ['neck', 'spine', [0, 2.2, 0.06]],
+    ['Head', 'neck', [0, 2.45, 0.08]],                                              // the head group: everything on the head hangs from this node
+    ['earL', 'Head', [0.74, 3.5, -0.02]], ['earR', 'Head', [-0.74, 3.5, -0.02]],
+    ['shoulderL', 'spine', [1.0, 1.95, 0.04], [-0.22, 0, 0.34]], ['shoulderR', 'spine', [-1.0, 1.95, 0.04], [-0.22, 0, -0.34]],   // arms hang down and a little out and forward
+    ['hipL', 'hips', [0.7, 0.55, 0.1], [0, 0.12, 0]], ['hipR', 'hips', [-0.7, 0.55, 0.1], [0, -0.12, 0]],                         // legs stretch forward, toes slightly out
+  ];
+  const bear = new THREE.Group(); bear.name = 'MrYeBear'; scene.add(bear);
+  const rig = {}, bw = {};
+  for (const [name, parent, w, rot] of BONE_DEFS) {
+    const b = new THREE.Bone(); b.name = name; bw[name] = w;
+    const pw = parent ? bw[parent] : [0, 0, 0];
+    b.position.set(w[0] - pw[0], w[1] - pw[1], w[2] - pw[2]);
+    if (rot) b.rotation.set(rot[0], rot[1], rot[2]);
+    (parent ? rig[parent] : bear).add(b); rig[name] = b;
+  }
+  rig.Head.rotation.order = 'YXZ';
+  bear.updateMatrixWorld(true);
+  const bLocal = (bone, x, y, z) => [x - bw[bone][0], y - bw[bone][1], z - bw[bone][2]];     // world rest position -> bone-local (valid for bones without a rest rotation)
+
+  /* ===== 3. The pieces. r = radii, taper = wider (+) or narrower (-) towards the top, n = quads per cube-face edge (keep EVEN: a ring of
+     vertices then lies exactly on the centre planes, where the seams are). seams: grooves sewn along a ring. patch = a second colour,
+     thresholded in the shader (smooth edge whatever the mesh density). ao = baked occlusion 0..1 from the direction on the piece. ===== */
+  const bSeam = (f, u, w, mask) => ({ f, u, w, mask });                                  // groove where f(dir) = 0, stitch coordinate u(dir), width in quads
+  const bSeamX = (mask) => bSeam((dx) => dx, (dx, dy, dz) => (dz >= 0 ? dy : 2 - dy) * 5, 1.0, mask);        // down the centre plane x = 0, front and back
+  const bUnder = (k, dy) => k * bSstep(-0.2, -0.95, dy);                                  // darker underneath (ground contact, chin shadow)
+  const PARTS = [
+    { mesh: 'torso', bone: 'spine', pos: bLocal('spine', 0, 1.38, 0.06), r: [1.12, 1.10, 1.0], taper: -0.10, n: 18, col: BTAN, seams: [bSeamX()],
+      ao: (dx, dy) => bUnder(0.75, dy) },
+    { mesh: 'pelvis', bone: 'hips', pos: bLocal('hips', 0, 0.56, -0.06), r: [1.18, 0.60, 1.06], n: 12, col: BTAN, ao: (dx, dy) => bUnder(0.9, dy) },
+    { mesh: 'pelvis', bone: 'hips', pos: bLocal('hips', 0, 0.72, -1.0), r: [0.30, 0.28, 0.26], n: 6, col: BTAN, ao: (dx, dy) => bUnder(0.6, dy) },       // tail
+    { mesh: 'head', bone: 'Head', pos: bLocal('Head', 0, 2.93, 0.10), r: [0.95, 0.88, 0.90], n: 20, col: BTAN, seams: [bSeamX((dx, dy) => bSstep(-0.35, 0.05, dy))],
+      ao: (dx, dy, dz) => bUnder(0.7, dy) * bSstep(-0.6, 0.2, dz) },
+    { mesh: 'head', bone: 'Head', pos: bLocal('Head', 0, 2.78, 0.76), r: [0.44, 0.34, 0.34], n: 10, col: BCREAM, ao: (dx, dy) => bUnder(0.3, dy) },          // muzzle
+  ];
+  for (const s of [1, -1]) {
+    const side = s > 0 ? 'L' : 'R';
+    PARTS.push(
+      { mesh: 'ear' + side, bone: 'ear' + side, pos: [0, 0, 0], rot: [0, s * 0.5, 0], r: [0.32, 0.32, 0.20], n: 8, col: BTAN,                          // ear with a dark inner patch on its front
+        patch: { t: 0.64, s: 0.1, col: BEAR_IN }, ao: (dx, dy) => bUnder(0.4, dy) },
+      { mesh: 'arm' + side, bone: 'shoulder' + side, pos: [0, -0.70, 0], r: [0.36, 0.80, 0.36], taper: -0.10, n: 12, col: BTAN,                      // one smooth limb, a little wider at the paw
+        seams: [bSeam((dx, dy, dz) => dz, (dx, dy) => dy * 3, 1.0)], ao: (dx, dy) => 0.5 * bSstep(0.1, 0.9, -s * dx) + bUnder(0.3, dy) },
+      { mesh: 'leg' + side, bone: 'hip' + side, pos: [0, 0, 1.1], r: [0.52, 0.49, 1.2], flatZ: 0.98, n: 14, col: BTAN,                                    // one smooth leg ending in a flat sole facing the viewer
+        patch: { t: 0.815, s: 0.05, col: BCREAM }, ao: (dx, dy, dz) => bUnder(0.85, dy) + 0.3 * bSstep(0.2, 0.9, -s * dx) },
+    );
+  }
+
+  const BM = new THREE.Matrix4(), BV = new THREE.Vector3(), BQ = new THREE.Quaternion(), BE = new THREE.Euler(), BONE = new THREE.Vector3(1, 1, 1);
+  const bPartMatrix = (df) => new THREE.Matrix4().compose(new THREE.Vector3(df.pos[0], df.pos[1], df.pos[2]), new THREE.Quaternion().setFromEuler(new THREE.Euler(...(df.rot || [0, 0, 0]))), BONE);
+  function bBuildPart(df) {                            // -> typed arrays in the BONE's frame
+    const qs = bQuadSphere(df.n), D = qs.dirs, V = qs.V;
+    const pos = new Float32Array(V * 3), col = new Float32Array(V * 3), col2 = new Float32Array(V * 3), dir = new Float32Array(V * 3), pt = new Float32Array(V * 2), st = new Float32Array(V * 2);
+    BM.copy(bPartMatrix(df));
+    const sdepth = df.seamDepth || 0.014, c2 = df.patch ? df.patch.col : df.col;
+    for (let i = 0; i < V; i++) {
+      const dx = D[i * 3], dy = D[i * 3 + 1], dz = D[i * 3 + 2], sc = 1 + (df.taper || 0) * dy;
+      let x = df.r[0] * dx * sc, y = df.r[1] * dy, z = df.r[2] * dz * sc;
+      if (df.flatZ !== undefined) z = bSoftMin(z, df.flatZ, 0.07);
+      let g = 0, u = 0;
+      for (const s of df.seams || []) {
+        const t = Math.max(0, 1 - Math.abs(s.f(dx, dy, dz)) / (s.w * 2 / df.n)) * (s.mask ? s.mask(dx, dy, dz) : 1);
+        if (t > g) { g = t; u = s.u(dx, dy, dz); }
+      }
+      const k = 1 - sdepth * g; x *= k; y *= k; z *= k;                                // the groove: a V-shaped crease along the lattice ring
+      const occ = df.ao ? df.ao(dx, dy, dz) : 0, sh = 1 - 0.28 * g, ar = (1 - 0.50 * occ) * sh, ag = (1 - 0.62 * occ) * sh, ab = (1 - 0.75 * occ) * sh;      // creases go warm brown, not grey
+      col[i * 3] = df.col[0] * ar; col[i * 3 + 1] = df.col[1] * ag; col[i * 3 + 2] = df.col[2] * ab;
+      col2[i * 3] = c2[0] * ar; col2[i * 3 + 1] = c2[1] * ag; col2[i * 3 + 2] = c2[2] * ab;
+      dir[i * 3] = dx; dir[i * 3 + 1] = dy; dir[i * 3 + 2] = dz; pt[i * 2] = df.patch ? df.patch.t : 2; pt[i * 2 + 1] = df.patch ? df.patch.s : 1;      // no patch: threshold 2 is never reached
+      st[i * 2] = g; st[i * 2 + 1] = u;
+      BV.set(x, y, z).applyMatrix4(BM); pos[i * 3] = BV.x; pos[i * 3 + 1] = BV.y; pos[i * 3 + 2] = BV.z;
+    }
+    return { pos, col, col2, dir, pt, st, tris: qs.tris, lines: qs.lines, V };
+  }
+  function bMergeParts(list) {                         // several pieces -> ONE geometry (one draw call), seams of the piece borders preserved
+    let V = 0, T = 0, L = 0; for (const p of list) { V += p.V; T += p.tris.length; L += p.lines.length; }
+    const pos = new Float32Array(V * 3), col = new Float32Array(V * 3), col2 = new Float32Array(V * 3), dir = new Float32Array(V * 3), pt = new Float32Array(V * 2), st = new Float32Array(V * 2), idx = new Uint32Array(T), lines = new Uint32Array(L);
+    let v = 0, t = 0, l = 0;
+    for (const p of list) {
+      pos.set(p.pos, v * 3); col.set(p.col, v * 3); col2.set(p.col2, v * 3); dir.set(p.dir, v * 3); pt.set(p.pt, v * 2); st.set(p.st, v * 2);
+      for (let i = 0; i < p.tris.length; i++) idx[t + i] = p.tris[i] + v;
+      for (let i = 0; i < p.lines.length; i++) lines[l + i] = p.lines[i] + v;
+      v += p.V; t += p.tris.length; l += p.lines.length;
     }
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
-    geo.setAttribute('aHead', new THREE.Float32BufferAttribute(hd, 1));
-    geo.setAttribute('aBelly', new THREE.Float32BufferAttribute(bl, 1));
-    geo.setIndex(new THREE.BufferAttribute(new Uint32Array(idx), 1));
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.setAttribute('aCol2', new THREE.BufferAttribute(col2, 3));
+    geo.setAttribute('aDir', new THREE.BufferAttribute(dir, 3)); geo.setAttribute('aPatchT', new THREE.BufferAttribute(pt, 2)); geo.setAttribute('aStitch', new THREE.BufferAttribute(st, 2));
+    geo.setIndex(new THREE.BufferAttribute(idx, 1)); geo.computeVertexNormals(); geo.userData.lines = lines;
+    return geo;
+  }
+  /* a plain ellipsoid piece (no vertex colours): eyes, nose, tongue, mouth */
+  function bEllipsoid(n, r, p, taper) {
+    const qs = bQuadSphere(n), pos = new Float32Array(qs.V * 3);
+    for (let i = 0; i < qs.V; i++) {
+      const dx = qs.dirs[i * 3], dy = qs.dirs[i * 3 + 1], dz = qs.dirs[i * 3 + 2], sc = 1 + (taper || 0) * dy;
+      pos[i * 3] = p[0] + r[0] * dx * sc; pos[i * 3 + 1] = p[1] + r[1] * dy; pos[i * 3 + 2] = p[2] + r[2] * dz * sc;
+    }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setIndex(new THREE.BufferAttribute(qs.tris, 1)); geo.computeVertexNormals(); geo.userData.lines = qs.lines;
+    return geo;
+  }
+  function bMergeGeos(list) {                          // position + normal + index only
+    let V = 0, T = 0; for (const g of list) { V += g.attributes.position.count; T += g.index.count; }
+    const pos = new Float32Array(V * 3), nor = new Float32Array(V * 3), idx = new Uint32Array(T); let v = 0, t = 0;
+    for (const g of list) {
+      pos.set(g.attributes.position.array, v * 3); nor.set(g.attributes.normal.array, v * 3);
+      for (let i = 0; i < g.index.count; i++) idx[t + i] = g.index.array[i] + v;
+      v += g.attributes.position.count; t += g.index.count;
+    }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); geo.setIndex(new THREE.BufferAttribute(idx, 1));
     return geo;
   }
 
-  const bear = new THREE.Group();
-  const mascot = { on: true, ready: false, baseYaw: -0.5, head: null, nod: 0, nodV: 0, yaw: 0, pitch: 0, tYaw: 0, tPitch: 0 };
-  scene.add(bear);
-  const BPIVOT = new THREE.Vector3(0, 2.43, 0.08);
+  /* ===== 4. Fur material: one shader for every plush piece (vertex colours + patches + stitches + fine fur grain + soft warm rim) ===== */
   const furTex = canvasTex(512, 512, (g, w, h) => {                           // tileable plush strokes (strokes near an edge are repeated on the opposite side)
     g.fillStyle = '#f7f1e6'; g.fillRect(0, 0, w, h);
     for (let i = 0; i < 15000; i++) {
@@ -852,30 +857,28 @@
       }
     }
   }, { wrap: true });
-  const furU = { uPivot: { value: BPIVOT }, uHeadRot: { value: new THREE.Matrix3() }, uBreath: { value: 0 }, uFur: { value: furTex }, uBump: { value: 0.0045 } };
+  const furU = { uFur: { value: furTex }, uBump: { value: 0.0045 } };
   const furMat = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.94, sheen: 0.6, sheenRoughness: 0.6, sheenColor: new THREE.Color(0xf6d9a0), envMapIntensity: 0.75 });
   furMat.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, furU);
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', `#include <common>
-        attribute float aHead; attribute float aBelly;
-        uniform vec3 uPivot; uniform mat3 uHeadRot; uniform float uBreath;
-        varying vec3 vBearP; varying vec3 vBearN;`)
-      .replace('#include <beginnormal_vertex>', `#include <beginnormal_vertex>
-        objectNormal = normalize(mix(objectNormal, uHeadRot * objectNormal, aHead));`)
+        attribute vec2 aStitch; attribute vec2 aPatchT; attribute vec3 aDir; attribute vec3 aCol2;
+        varying vec3 vBearP; varying vec3 vBearN; varying vec2 vStitch; varying vec2 vPatchT; varying vec3 vDir; varying vec3 vCol2;`)
       .replace('#include <begin_vertex>', `#include <begin_vertex>
-        vBearP = position; vBearN = normal;                                       // the fur texture stays attached to the surface
-        transformed.xz *= 1.0 + uBreath * aBelly;
-        vec3 hp = transformed - uPivot; transformed = uPivot + mix(hp, uHeadRot * hp, aHead);`);
+        vBearP = position; vBearN = normal; vStitch = aStitch; vPatchT = aPatchT; vDir = aDir; vCol2 = aCol2;       // the fur texture stays attached to the surface`);
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', `#include <common>
-        uniform sampler2D uFur; uniform float uBump; varying vec3 vBearP; varying vec3 vBearN;
+        uniform sampler2D uFur; uniform float uBump; varying vec3 vBearP; varying vec3 vBearN; varying vec2 vStitch; varying vec2 vPatchT; varying vec3 vDir; varying vec3 vCol2;
         float furH(vec3 p, vec3 n) {                                              // triplanar plush strokes: no UV seams on a generated mesh
           vec3 w = pow(abs(n), vec3(4.0)); w /= (w.x + w.y + w.z);
           return texture2D(uFur, p.zy * 0.9).r * w.x + texture2D(uFur, p.xz * 0.9).r * w.y + texture2D(uFur, p.xy * 0.9).r * w.z;
         }`)
       .replace('#include <color_fragment>', `#include <color_fragment>
-        diffuseColor.rgb *= mix(0.9, 1.09, furH(vBearP, normalize(vBearN)));`)
+        float patchM = clamp(0.5 + (normalize(vDir).z - vPatchT.x) / vPatchT.y, 0.0, 1.0);      // patches (soles, inner ear): the edge is computed PER PIXEL from the interpolated direction, so it is a clean circle on any mesh density
+        diffuseColor.rgb = mix(diffuseColor.rgb, vCol2, smoothstep(0.42, 0.58, patchM));
+        diffuseColor.rgb *= mix(0.9, 1.09, furH(vBearP, normalize(vBearN)));
+        diffuseColor.rgb *= 1.0 - 0.34 * smoothstep(0.55, 0.9, vStitch.x) * (0.35 + 0.65 * step(0.5, fract(vStitch.y)));   // stitches along the seams`)
       .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
         { float fh = furH(vBearP, normalize(vBearN));
           vec3 sx = dFdx(-vViewPosition), sy = dFdy(-vViewPosition);
@@ -885,47 +888,54 @@
         { float bearRim = pow(1.0 - clamp(dot(normal, normalize(vViewPosition)), 0.0, 1.0), 3.5);
           totalEmissiveRadiance += vec3(0.98, 0.82, 0.55) * bearRim * 0.16; }`);        // soft warm plush rim
   };
-  /* build the body a little after the first frame, a few milliseconds per frame */
-  const bearGen = bearGeometryGen();
-  const installBody = (geo) => { if (mascot.ready) return; const m = new THREE.Mesh(geo, furMat); m.frustumCulled = false; bear.add(m); mascot.ready = true; needs = true; };
-  const bearPump = () => {
-    const t = performance.now(); let r;
-    do { r = bearGen.next(); } while (!r.done && performance.now() - t < 7);
-    if (!r.done) { requestAnimationFrame(bearPump); return; }
-    installBody(r.value);
-  };
-  mascot.finish = () => { if (mascot.ready) return; let r; while (!(r = bearGen.next()).done); installBody(r.value); };      // synchronous build (tests, or if you ever want it before the first frame)
-  setTimeout(() => requestAnimationFrame(bearPump), 350);
+  const clayMat = new THREE.MeshStandardMaterial({ color: 0xdfe1e3, roughness: 0.85, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });       // the wireframe view: grey clay
+  const wireMat = new THREE.LineBasicMaterial({ color: 0x353a42 });
 
-  /* face: eyes (with catchlights), nose, mouth. Each feature is placed ON the real surface of the head field (faceZ), so nothing floats.
-     They sit on the head pivot and use the same rotation as the shader. */
-  const headFx = new THREE.Group(); headFx.position.copy(BPIVOT); headFx.rotation.order = 'YXZ'; bear.add(headFx); mascot.head = headFx;
-  const faceZ = (x, y) => { let lo = 0.15, hi = 2.4; for (let i = 0; i < 26; i++) { const m = (lo + hi) / 2; if (bField(x, y, m) > 0) hi = m; else lo = m; } return (lo + hi) / 2; };
-  const fxm = (mat, sx, sy, sz, x, y, z) => { const m = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), mat); m.scale.set(sx, sy, sz); m.position.set(x - BPIVOT.x, y - BPIVOT.y, z - BPIVOT.z); headFx.add(m); return m; };
+  /* ===== 5. Assemble: one mesh per bone-and-material (a handful of draw calls), every piece merged from its quad spheres ===== */
+  const bearMeshes = [];                                                            // { mesh, mat (the real one), wire (lazy quad-edge lines) }
+  const bAddMesh = (name, bone, geo, mat) => {
+    const m = new THREE.Mesh(geo, mat); m.name = name; m.frustumCulled = false; rig[bone].add(m);
+    bearMeshes.push({ mesh: m, mat, wire: null }); return m;
+  };
+  const bGroups = new Map();
+  for (const df of PARTS) { if (!bGroups.has(df.mesh)) bGroups.set(df.mesh, { bone: df.bone, list: [] }); bGroups.get(df.mesh).list.push(bBuildPart(df)); }
+  for (const [name, gr] of bGroups) bAddMesh(name, gr.bone, bMergeParts(gr.list), furMat);
+
+  /* ===== 6. Face: placed ON the real surface of the head and muzzle (analytic, so nothing floats). All of it hangs from the Head node. ===== */
+  const bHeadZ = (x, y) => 0.10 + 0.90 * Math.sqrt(Math.max(0, 1 - (x / 0.95) ** 2 - ((y - 2.93) / 0.88) ** 2));       // head surface, world rest z
+  const bMuzzleZ = (x, y) => 0.76 + 0.34 * Math.sqrt(Math.max(0, 1 - (x / 0.44) ** 2 - ((y - 2.78) / 0.34) ** 2));      // muzzle surface
+  const hp = (x, y, z) => bLocal('Head', x, y, z);
   const noseMat = new THREE.MeshPhysicalMaterial({ color: 0x3a2216, roughness: 0.32, clearcoat: 0.7, clearcoatRoughness: 0.25 });
   const eyeMat = new THREE.MeshPhysicalMaterial({ color: 0x070605, roughness: 0.1, clearcoat: 1, clearcoatRoughness: 0.05 });
   const lightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
   const lineMat = new THREE.MeshStandardMaterial({ color: 0x3a2216, roughness: 0.6 });
   const tongueMat = new THREE.MeshStandardMaterial({ color: 0xc8805a, roughness: 0.65 });
-  const BEYE = { x: 0.215, y: 3.17 }, BNOSE = { y: 2.93 };
-  for (const s of [-1, 1]) {
-    const ez = faceZ(s * BEYE.x, BEYE.y);
-    fxm(eyeMat, 0.064, 0.074, 0.05, s * BEYE.x, BEYE.y, ez - 0.012);
-    fxm(lightMat, 0.017, 0.017, 0.012, s * (BEYE.x - 0.022), BEYE.y + 0.03, ez + 0.036);
+  const BEYE = { x: 0.25, y: 3.15 }, BNOSE_Y = 2.93;
+  const eyes = new THREE.Group(); eyes.name = 'eyes'; eyes.position.set(0, hp(0, BEYE.y, 0)[1], 0); rig.Head.add(eyes);          // pivot at eye height: the blink squashes around it
+  {
+    const eg = [], cg = [];
+    for (const s of [-1, 1]) {
+      const ez = bHeadZ(s * BEYE.x, BEYE.y), p = hp(s * BEYE.x, BEYE.y, ez - 0.02); p[1] = 0;
+      eg.push(bEllipsoid(10, [0.08, 0.09, 0.06], p));
+      cg.push(bEllipsoid(5, [0.019, 0.019, 0.013], [p[0] - s * 0.024, 0.032, p[2] + 0.046]));                                        // catchlight
+    }
+    const em = new THREE.Mesh(bMergeGeos(eg), eyeMat); em.name = 'eyeballs'; eyes.add(em);
+    const lm = new THREE.Mesh(bMergeGeos(cg), lightMat); lm.name = 'catchlights'; eyes.add(lm);
   }
-  fxm(noseMat, 0.15, 0.105, 0.1, 0, BNOSE.y, faceZ(0, BNOSE.y) - 0.03);
-  (function buildMouth() {                                                    // philtrum + a soft open smile with a tongue, drawn on the muzzle surface
-    const P = (x, y, lift) => new THREE.Vector3(x - BPIVOT.x, y - BPIVOT.y, faceZ(x, y) + (lift || 0.006) - BPIVOT.z);
-    const line = (pts, r) => { const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, r, 6), lineMat); headFx.add(m); };
-    line([P(0, 2.86), P(0, 2.78), P(0, 2.715)], 0.0105);
-    line([[-1, 0.235, 2.755], [-1, 0.19, 2.705], [-1, 0.12, 2.685], [-1, 0.055, 2.69], [0, 0, 2.715], [1, 0.055, 2.69], [1, 0.12, 2.685], [1, 0.19, 2.705], [1, 0.235, 2.755]].map(([sd, x, y]) => P(sd * x, y)), 0.0105);   // one tube for the whole smile
-    fxm(lineMat, 0.155, 0.062, 0.03, 0, 2.645, faceZ(0, 2.645) - 0.016);      // mouth opening
-    fxm(tongueMat, 0.108, 0.04, 0.03, 0, 2.612, faceZ(0, 2.612) - 0.008);     // tongue
-  })();
+  {
+    const noseGeo = bEllipsoid(10, [0.16, 0.11, 0.105], hp(0, BNOSE_Y, bMuzzleZ(0, BNOSE_Y) - 0.045), 0.22);                         // a rounded inverted triangle
+    const nm = new THREE.Mesh(noseGeo, noseMat); nm.name = 'nose'; rig.Head.add(nm);
+    const P = (x, y) => new THREE.Vector3(...hp(x, y, bMuzzleZ(x, y) + 0.006));
+    const tube = (pts, r) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, r, 6);
+    const smile = [[-1, 0.235, 2.755], [-1, 0.19, 2.705], [-1, 0.12, 2.685], [-1, 0.055, 2.69], [0, 0, 2.715], [1, 0.055, 2.69], [1, 0.12, 2.685], [1, 0.19, 2.705], [1, 0.235, 2.755]].map(([sd, x, y]) => P(sd * x, y));
+    const mouth = bMergeGeos([tube([P(0, 2.86), P(0, 2.78), P(0, 2.715)], 0.0105), tube(smile, 0.0105), bEllipsoid(8, [0.155, 0.062, 0.03], hp(0, 2.645, bMuzzleZ(0, 2.645) - 0.016))]);
+    const mm = new THREE.Mesh(mouth, lineMat); mm.name = 'mouth'; rig.Head.add(mm);                                                 // philtrum, smile, mouth opening
+    const tm = new THREE.Mesh(bEllipsoid(8, [0.108, 0.04, 0.03], hp(0, 2.612, bMuzzleZ(0, 2.612) - 0.008)), tongueMat); tm.name = 'tongue'; rig.Head.add(tm);
+  }
 
-  /* apron: draped on the TORSO field (not the arms), so it can never bulge onto a paw */
+  /* ===== 7. Apron: the branded bib, hung on the spine. It is laid on the torso at rest, then settled just outside every piece it must clear
+     (torso, pelvis, legs): cloth cannot be rigged round a bend, so it follows the spine and stays above the lap. ===== */
   const apronGreen = new THREE.MeshStandardMaterial({ color: 0x173f37, roughness: 0.85 });
-  const apronOrange = new THREE.MeshStandardMaterial({ color: 0xe8802a, roughness: 0.55 });
   const aCv = document.createElement('canvas'); aCv.width = aCv.height = 1024;
   const drawApron = () => {
     const g = aCv.getContext('2d'); g.fillStyle = '#1c4a40'; g.fillRect(0, 0, 1024, 1024);
@@ -944,52 +954,172 @@
   const aTex = new THREE.CanvasTexture(aCv); aTex.colorSpace = THREE.SRGBColorSpace; aTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
   if (document.fonts && document.fonts.load) document.fonts.load('900 150px "Noto Serif SC"', '幸福食光').then(() => { drawApron(); aTex.needsUpdate = true; needs = true; }).catch(() => {});
   const apronMat = new THREE.MeshStandardMaterial({ map: aTex, roughness: 0.86, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });   // cloth wins any depth fight with the fur
-  const torsoSurf = (y, phi) => {                                             // march from the body axis to the torso surface
-    const dx = Math.sin(phi), dz = Math.cos(phi); let t = 0.05, tp = t;
-    for (let s = 0; s < 90; s++) {
-      t += BH * 0.5;
-      if (bField(dx * t, y, dz * t, null, BTORSO) > 0) { let lo = tp, hi = t; for (let b = 0; b < 8; b++) { const m = (lo + hi) / 2; if (bField(dx * m, y, dz * m, null, BTORSO) > 0) hi = m; else lo = m; } t = (lo + hi) / 2; break; }
-      tp = t;
-    }
-    return new THREE.Vector3(dx * t, y, dz * t);
+  const bClear = PARTS.filter((p) => p.mesh === 'torso' || p.mesh === 'pelvis' && p.n === 12 || /^leg/.test(p.mesh)).map((df) => {            // the pieces the cloth must clear, as rest-pose implicit ellipsoids
+    const inv = bPartMatrix(df).premultiply(rig[df.bone].matrixWorld).invert(); return { df, inv };
+  });
+  const bPieceD = (c, x, y, z) => {                                                // approximate signed distance to one piece (ellipsoid, with its taper)
+    BV.set(x, y, z).applyMatrix4(c.inv); const r = c.df.r, sc = 1 + (c.df.taper || 0) * Math.max(-1, Math.min(1, BV.y / r[1]));
+    const qx = BV.x / (r[0] * sc), qy = BV.y / r[1], qz = BV.z / (r[2] * sc);
+    return (Math.sqrt(qx * qx + qy * qy + qz * qz) - 1) * Math.min(r[0], r[1], r[2]);
   };
+  const bClearD = (x, y, z) => { let d = 1e9; for (const c of bClear) d = Math.min(d, bPieceD(c, x, y, z)); return d; };
   (function buildApron() {
-    const NU = 28, NV = 24, HEM = 1.02, G = [], APR_OFF = BH * 0.34 + 0.016;                                          // the cloth must clear the plush fuzz of the body mesh (BH * 0.34)
-    const grad = (p, e) => new THREE.Vector3(bField(p.x + e, p.y, p.z) - bField(p.x - e, p.y, p.z), bField(p.x, p.y + e, p.z) - bField(p.x, p.y - e, p.z), bField(p.x, p.y, p.z + e) - bField(p.x, p.y, p.z - e)).normalize();
-    const settle = (p, n) => { for (let it = 0; it < n; it++) { const f = bField(p.x, p.y, p.z); p.addScaledVector(grad(p, 0.02), Math.max(-0.1, Math.min(0.1, (APR_OFF - f) * 0.85))); } return p; };   // rests just above the WHOLE body (arms and thighs included)
+    const NU = 28, NV = 24, HEM = 1.0, OFF = 0.024, G = [], torso = bClear[0];
+    const surf = (y, phi) => {                                                     // march from the body axis to the torso surface
+      const dx = Math.sin(phi), dz = Math.cos(phi); let lo = 0.05, hi = 2.4;
+      for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (bPieceD(torso, dx * m, y, 0.06 + dz * m) > 0) hi = m; else lo = m; }
+      return new THREE.Vector3(dx * lo, y, 0.06 + dz * lo);
+    };
+    const grad = (p, e) => new THREE.Vector3(bClearD(p.x + e, p.y, p.z) - bClearD(p.x - e, p.y, p.z), bClearD(p.x, p.y + e, p.z) - bClearD(p.x, p.y - e, p.z), bClearD(p.x, p.y, p.z + e) - bClearD(p.x, p.y, p.z - e)).normalize();
+    const settle = (p, n) => { for (let it = 0; it < n; it++) p.addScaledVector(grad(p, 0.02), Math.max(-0.1, Math.min(0.1, (OFF - bClearD(p.x, p.y, p.z)) * 0.85))); return p; };
     for (let j = 0; j <= NV; j++) {
-      const v = j / NV, y = 2.12 - v * (2.12 - HEM), half = 0.66 + 0.4 * Math.pow(v, 0.8), row = [];            // a bib that ends at the belly, above the thighs
-      for (let i = 0; i <= NU; i++) row.push(settle(torsoSurf(y, (i / NU * 2 - 1) * half), 10));
+      const v = j / NV, y = 2.12 - v * (2.12 - HEM), half = 0.66 + 0.4 * Math.pow(v, 0.8), row = [];
+      for (let i = 0; i <= NU; i++) row.push(settle(surf(y, (i / NU * 2 - 1) * half), 10));
       G.push(row);
     }
-    for (let pass = 0; pass < 3; pass++) {                                                                            // cloth does not wrinkle at a 1 cm scale: relax, then settle back onto the body
+    for (let pass = 0; pass < 3; pass++) {                                           // relax like cloth, then settle back out of the body
       const nx = G.map((row, j) => row.map((p, i) => {
         const a = G[Math.max(0, j - 1)][i], b = G[Math.min(NV, j + 1)][i], c = row[Math.max(0, i - 1)], d = row[Math.min(NU, i + 1)];
         return p.clone().multiplyScalar(0.5).addScaledVector(a, 0.125).addScaledVector(b, 0.125).addScaledVector(c, 0.125).addScaledVector(d, 0.125);
       }));
       for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) G[j][i] = settle(nx[j][i], 3);
     }
-    const Pn = [], UVn = [], IXn = [], eL = [], eR = [], eB = [];
+    const sp = bw.spine, Pn = [], UVn = [], IXn = [], LNn = [], eL = [], eR = [], eB = [];
     for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) {
-      const p = G[j][i]; Pn.push(p.x, p.y, p.z); UVn.push(i / NU, 1 - j / NV);
-      if (i === 0) eL.push(p); if (i === NU) eR.push(p); if (j === NV) eB.push(p);
+      const p = G[j][i], q = new THREE.Vector3(p.x - sp[0], p.y - sp[1], p.z - sp[2]); G[j][i] = q;                       // into the spine's frame
+      Pn.push(q.x, q.y, q.z); UVn.push(i / NU, 1 - j / NV);
+      if (i === 0) eL.push(q); if (i === NU) eR.push(q); if (j === NV) eB.push(q);
+      if (i < NU) LNn.push(j * (NU + 1) + i, j * (NU + 1) + i + 1); if (j < NV) LNn.push(j * (NU + 1) + i, (j + 1) * (NU + 1) + i);
     }
     for (let j = 0; j < NV; j++) for (let i = 0; i < NU; i++) { const a = j * (NU + 1) + i; IXn.push(a, a + NU + 1, a + 1, a + 1, a + NU + 1, a + NU + 2); }
     const ag = new THREE.BufferGeometry(); ag.setAttribute('position', new THREE.Float32BufferAttribute(Pn, 3)); ag.setAttribute('uv', new THREE.Float32BufferAttribute(UVn, 2)); ag.setIndex(IXn); ag.computeVertexNormals();
-    bear.add(new THREE.Mesh(ag, apronMat));
-    bear.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(eL.concat(eB.slice(1), eR.slice().reverse().slice(1))), 90, 0.016, 6), apronGreen));
-    for (const s of [-1, 1]) {                                                              // the two shoulder straps
-      const a = G[0][s < 0 ? Math.round(NU * 0.28) : Math.round(NU * 0.72)].clone(), b = new THREE.Vector3(s * 0.36, 2.46, 0.3), d = b.clone().sub(a);
-      const m = new THREE.Mesh(new THREE.CapsuleGeometry(0.04, Math.max(0.01, d.length() - 0.08), 6, 12), apronGreen);
-      m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); bear.add(m);
+    ag.userData.lines = new Uint32Array(LNn);
+    bAddMesh('apron', 'spine', ag, apronMat);
+    const trim = [new THREE.TubeGeometry(new THREE.CatmullRomCurve3(eL.concat(eB.slice(1), eR.slice().reverse().slice(1))), 90, 0.016, 6)];     // the piping round the edge
+    for (const s of [-1, 1]) {                                                       // the two neck straps, running up under the chin into the head
+      const a = G[0][s < 0 ? Math.round(NU * 0.28) : Math.round(NU * 0.72)].clone(), b = new THREE.Vector3(s * 0.34 - sp[0], 2.42 - sp[1], 0.34 - sp[2]), d = b.clone().sub(a);
+      const cap = new THREE.CapsuleGeometry(0.04, Math.max(0.01, d.length() - 0.08), 6, 12);
+      cap.applyMatrix4(new THREE.Matrix4().compose(a.clone().add(b).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()), BONE)); trim.push(cap);
     }
+    bAddMesh('apronTrim', 'spine', bMergeGeos(trim), apronGreen);
   })();
+  bearMeshes.find((b) => b.mesh.name === 'apronTrim').noWire = true;
+  /* ---------- Mascot: animation. Clips on the bone rig (THREE.AnimationMixer) + live layers on top (look-at, nod spring, blink) ----------
+     Clips (all authored procedurally from the rest pose, 24 keys per second): idle (breathing, loops), wave, cheer, nod, tilt. A one-shot
+     clip is blended over idle with a weight envelope, so every clip starts and ends on the idle pose. The Head node is NOT animated by
+     clips: it is driven live (pointer look-at + nod spring), so the bear keeps looking at the visitor while it waves. */
+  const mascot = { on: true, ready: true, autoplay: true, blink: true, baseYaw: -0.5, head: rig.Head, nod: 0, nodV: 0, yaw: 0, pitch: 0, tYaw: 0, tPitch: 0, finish() {} };      // ready: the plush is built at load (no slow marching step any more)
+  const bRestQ = {}; for (const n in rig) bRestQ[n] = rig[n].quaternion.clone();
+  const bRestP = {}; for (const n in rig) bRestP[n] = rig[n].position.clone();
+  const bEul = new THREE.Euler(), bQo = new THREE.Quaternion();
+  const bLerp = (a, b, t) => a + (b - a) * t, bPI2 = Math.PI * 2;
+  /* ch: { rot: {bone: t => [rx, ry, rz]} offsets on top of the rest pose (in the parent's axes), abs: {bone: t => [rx, ry, rz]} absolute euler (XYZ),
+           pos: {bone: t => [dx, dy, dz]} offsets, scl: {bone: t => [sx, sy, sz]} } */
+  function bClip(name, dur, ch, fps) {
+    const N = Math.round(dur * (fps || 24)), times = new Float32Array(N + 1), tracks = []; for (let i = 0; i <= N; i++) times[i] = i / N * dur;
+    const quat = (bone, fn, abs) => {
+      const v = new Float32Array((N + 1) * 4);
+      for (let i = 0; i <= N; i++) { const o = fn(times[i]); bEul.set(o[0], o[1], o[2]); bQo.setFromEuler(bEul); if (!abs) bQo.multiply(bRestQ[bone]); bQo.toArray(v, i * 4); }
+      tracks.push(new THREE.QuaternionKeyframeTrack(bone + '.quaternion', times, v));
+    };
+    const vec3 = (bone, prop, fn, rest) => {
+      const v = new Float32Array((N + 1) * 3);
+      for (let i = 0; i <= N; i++) { const o = fn(times[i]); v[i * 3] = (rest ? rest.x : 0) + o[0]; v[i * 3 + 1] = (rest ? rest.y : 0) + o[1]; v[i * 3 + 2] = (rest ? rest.z : 0) + o[2]; }
+      tracks.push(new THREE.VectorKeyframeTrack(bone + '.' + prop, times, v));
+    };
+    for (const b in ch.rot || {}) quat(b, ch.rot[b], false);
+    for (const b in ch.abs || {}) quat(b, ch.abs[b], true);
+    for (const b in ch.pos || {}) vec3(b, 'position', ch.pos[b], bRestP[b]);
+    for (const b in ch.scl || {}) vec3(b, 'scale', ch.scl[b], null);
+    return new THREE.AnimationClip(name, dur, tracks);
+  }
+  const BW = bPI2 / 6;                                                                        // idle: 6 s loop, two breaths
+  const bIdle = bClip('idle', 6, {
+    rot: {
+      spine: (t) => [0.012 * Math.sin(2 * BW * t + 0.4), 0, 0.008 * Math.sin(BW * t)],
+      neck: (t) => [0.02 * Math.sin(2 * BW * t + 1.0), 0.05 * Math.sin(BW * t), 0.03 * Math.sin(BW * t + 0.5)],
+      earL: (t) => [0, 0, 0.07 * Math.sin(2 * BW * t)], earR: (t) => [0, 0, -0.07 * Math.sin(2 * BW * t + 0.6)],
+      shoulderL: (t) => [0.01 * Math.sin(2 * BW * t), 0, 0.03 * Math.sin(2 * BW * t + 1.0)], shoulderR: (t) => [0.01 * Math.sin(2 * BW * t + 0.5), 0, -0.03 * Math.sin(2 * BW * t + 1.4)],
+    },
+    scl: { spine: (t) => { const s = Math.sin(2 * BW * t); return [1 + 0.008 * s, 1 + 0.014 * s, 1 + 0.008 * s]; } },                         // breathing: the chest swells, the apron breathes with it
+  });
+  const bWave = bClip('wave', 2.8, {                                                         // the bear's right arm (viewer's left) goes up and waves, like the plush in the references
+    abs: { shoulderR: (t) => {
+      const up = bSstep(0, 0.55, t) * (1 - bSstep(2.25, 2.8, t)), osc = Math.sin((t - 0.55) * 13.8) * bSstep(0.4, 0.75, t) * (1 - bSstep(2.0, 2.3, t));
+      return [bLerp(-0.22, -0.30, up) + 0.08 * osc, 0.12 * osc, bLerp(-0.34, -2.42, up) + 0.30 * osc]; } },
+    rot: {
+      spine: (t) => [0, 0, -0.05 * bSstep(0, 0.55, t) * (1 - bSstep(2.25, 2.8, t))],
+      earR: (t) => [0, 0, 0.18 * Math.sin((t - 0.55) * 13.8) * bSstep(0.4, 0.75, t) * (1 - bSstep(2.0, 2.3, t))],
+      earL: (t) => [0, 0, -0.14 * Math.sin((t - 0.55) * 13.8 + 1) * bSstep(0.4, 0.75, t) * (1 - bSstep(2.0, 2.3, t))],
+    },
+  });
+  const bCheer = bClip('cheer', 1.6, {                                                       // both arms up, two little bounces, ears flop
+    abs: {
+      shoulderL: (t) => { const e = bSstep(0, 0.35, t) * (1 - bSstep(1.2, 1.6, t)), f = Math.sin(t * 15) * e; return [-0.22 - 0.1 * e, 0, bLerp(0.34, 2.3, e) + 0.22 * f]; },
+      shoulderR: (t) => { const e = bSstep(0, 0.35, t) * (1 - bSstep(1.2, 1.6, t)), f = Math.sin(t * 15 + 0.8) * e; return [-0.22 - 0.1 * e, 0, bLerp(-0.34, -2.3, e) + 0.22 * f]; },
+    },
+    pos: { hips: (t) => [0, 0.12 * Math.abs(Math.sin(t * Math.PI * 2.5)) * bSstep(0, 0.2, t) * (1 - bSstep(1.3, 1.6, t)), 0] },
+    rot: {
+      earL: (t) => [0, 0, 0.3 * Math.sin(t * 15) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t))], earR: (t) => [0, 0, -0.3 * Math.sin(t * 15 + 0.7) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t))],
+      hipL: (t) => [0.14 * Math.sin(t * 15) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t)), 0, 0], hipR: (t) => [-0.14 * Math.sin(t * 15) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t)), 0, 0],
+    },
+  });
+  const bNod = bClip('nod', 0.9, { rot: { neck: (t) => [0.3 * Math.sin(bPI2 * 1.5 * t / 0.9) * (1 - t / 0.9), 0, 0], spine: (t) => [0.04 * Math.sin(bPI2 * 1.5 * t / 0.9) * (1 - t / 0.9), 0, 0] } });
+  const bTilt = bClip('tilt', 2.0, {                                                         // a curious head tilt, one ear up
+    rot: {
+      neck: (t) => { const b = Math.pow(Math.sin(Math.PI * t / 2.0), 2); return [-0.04 * b, 0.12 * b, 0.26 * b]; },
+      earL: (t) => [0, 0, 0.22 * Math.pow(Math.sin(Math.PI * t / 2.0), 2)], earR: (t) => [0, 0, 0.08 * Math.pow(Math.sin(Math.PI * t / 2.0), 2)],
+    },
+  });
+  const mixer = new THREE.AnimationMixer(bear), bAnim = { clips: {}, act: {}, cur: null, t: 0, count: 0, lastCheer: -1e9 };
+  for (const c of [bIdle, bWave, bCheer, bNod, bTilt]) {
+    bAnim.clips[c.name] = c; const a = mixer.clipAction(c); a.play(); bAnim.act[c.name] = a;
+    if (c.name !== 'idle') { a.paused = true; a.weight = 0; a.time = 0; }                   // one-shots: I set their time and weight myself, so they blend over idle and end on the idle pose
+  }
+  function bApply(dt) {                                                                       // advance the overlay clip (if any) and the mixer by dt
+    const idle = bAnim.act.idle;
+    if (bAnim.cur) {
+      const c = bAnim.clips[bAnim.cur], a = bAnim.act[bAnim.cur], T = c.duration;
+      bAnim.t += dt;
+      const env = bSstep(0, 0.22, bAnim.t) * (1 - bSstep(T - 0.28, T, bAnim.t));
+      a.time = Math.min(bAnim.t, T - 1e-3); a.weight = env; idle.weight = 1 - env;
+      if (bAnim.t >= T) { a.weight = 0; idle.weight = 1; bAnim.cur = null; }
+    }
+    mixer.update(dt);
+  }
+  /* ---- the public handle: window.mryeCup.bear ---- */
+  const bSkel = new THREE.SkeletonHelper(rig.root); bSkel.visible = false; bSkel.renderOrder = 10; scene.add(bSkel);
+  function bSetWire(on) {                                                                     // grey clay + the QUAD edges of every piece (the topology of the reference wireframes)
+    for (const b of bearMeshes) {
+      if (b.noWire) continue;
+      b.mesh.material = on ? clayMat : b.mat;
+      if (on && !b.wire) {
+        const lg = new THREE.BufferGeometry(); lg.setAttribute('position', b.mesh.geometry.attributes.position); lg.setIndex(new THREE.BufferAttribute(b.mesh.geometry.userData.lines, 1));
+        b.wire = new THREE.LineSegments(lg, wireMat); b.wire.name = b.mesh.name + '-quads'; b.wire.frustumCulled = false; b.mesh.add(b.wire);
+      }
+      if (b.wire) b.wire.visible = on;
+    }
+    needs = true;
+  }
+  const bearApi = {
+    rig, mixer, clips: Object.keys(bAnim.clips).filter((n) => n !== 'idle'),
+    play(name) { if (reduceMotion || !bAnim.clips[name] || name === 'idle' || bAnim.cur === name) return false; bAnim.cur = name; bAnim.t = 0; bAnim.count++; needs = true; return true; },
+    pose(name, t) {                                                                           // jump to time t of a clip (tests, screenshots): the pose is applied at once
+      const a = bAnim.act; for (const n in a) if (n !== 'idle') a[n].weight = 0; bAnim.act.idle.weight = 1;
+      if (!bAnim.clips[name]) { bAnim.cur = null; mixer.update(0); return; }
+      bAnim.cur = name; bAnim.t = Math.max(0, t) - 1e-6; bApply(1e-6); needs = true;
+    },
+    setWire: bSetWire, setBones(on) { bSkel.visible = !!on; needs = true; },
+    get playing() { return bAnim.cur; },
+  };
+  mascot.onReact = (k) => {                                                                   // every selection nods (spring, in slice 08); a big change (size) also cheers
+    const now = performance.now();
+    if (!bAnim.cur && k >= 1.3 && now - bAnim.lastCheer > 5000 && !reduceMotion) { bAnim.lastCheer = now; bearApi.play('cheer'); }
+  };
 
   const bearShadow = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 3.6), new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false }));
   bearShadow.rotation.x = -Math.PI / 2; scene.add(bearShadow);
-  function updateHead(pitch, yaw, roll) {
-    headFx.rotation.set(pitch, yaw, roll); headFx.updateMatrix(); furU.uHeadRot.value.setFromMatrix4(headFx.matrix);      // ONE rotation drives the shader and the face
-  }
+  function updateHead(pitch, yaw, roll) { rig.Head.rotation.set(pitch, yaw, roll); }          // the Head node is driven live, never by a clip
   function layoutBear(wide) {
     bear.visible = bearShadow.visible = mascot.on;
     mascot.baseYaw = wide ? -0.5 : -0.4;
@@ -998,18 +1128,34 @@
     bearShadow.position.set(bear.position.x + 0.1, 0.001, bear.position.z + 0.45 * bear.scale.x); bearShadow.scale.set(bear.scale.x * 1.05, bear.scale.x * 0.9, 1);
     updateHead(0.04, mascot.baseYaw, 0.07);
   }
+  let bBlink = { next: 2200, t: -1, fidget: 25000 };
   function updateBear(now, dt) {
     if (!mascot.on || reduceMotion) return;
     const t = now / 1000;
+    if (mascot.autoplay && !bAnim.cur && bAnim.count === 0 && now > 1600) bearApi.play('wave');                       // a greeting, once
+    else if (mascot.autoplay && !bAnim.cur && bAnim.count > 0 && now > bBlink.fidget) { bearApi.play(rand() < 0.5 ? 'tilt' : 'nod'); bBlink.fidget = now + 22000 + rand() * 18000; }
+    bApply(dt);
     mascot.yaw += (mascot.tYaw - mascot.yaw) * Math.min(1, dt * 4); mascot.pitch += (mascot.tPitch - mascot.pitch) * Math.min(1, dt * 4);
     mascot.nodV += (-60 * mascot.nod - 7 * mascot.nodV) * dt; mascot.nod += mascot.nodV * dt;       // a nod on every selection
-    furU.uBreath.value = 0.006 * Math.sin(t * 1.7);                                                   // breathing: only the belly swells, the feet stay put
     updateHead(0.04 + mascot.pitch + mascot.nod, mascot.baseYaw + mascot.yaw * 0.8, 0.07 + 0.012 * Math.sin(t * 1.1));
+    if (!mascot.blink) { bBlink.t = -1; eyes.scale.y = 1; }
+    else if (bBlink.t < 0 && now > bBlink.next) bBlink.t = 0;                                       // blink: the eyes squash for ~150 ms every 2.5-6 s
+    if (bBlink.t >= 0) { bBlink.t += dt; const p = bBlink.t / 0.15; eyes.scale.y = p >= 1 ? 1 : 1 - 0.92 * Math.sin(Math.PI * p); if (p >= 1) { bBlink.t = -1; bBlink.next = now + 2500 + rand() * 3500; } }
   }
   window.addEventListener('pointermove', (e) => {
     const r = host.getBoundingClientRect(); if (!r.width) return;
     mascot.tYaw = Math.max(-0.5, Math.min(0.5, ((e.clientX - r.left) / r.width * 2 - 1) * 0.5)); mascot.tPitch = Math.max(-0.2, Math.min(0.2, -((e.clientY - r.top) / r.height * 2 - 1) * 0.2));
   }, { passive: true });
+  /* click (or tap) the bear: it waves, then cheers, tilts, nods... (a drag still just turns the cup) */
+  const bRay = new THREE.Raycaster(), bPtr = new THREE.Vector2(), bTapOrder = ['wave', 'cheer', 'tilt', 'nod']; let bDown = null, bTaps = 0;
+  renderer.domElement.addEventListener('pointerdown', (e) => { bDown = [e.clientX, e.clientY]; });
+  renderer.domElement.addEventListener('pointerup', (e) => {
+    if (!bDown || !mascot.on) return;
+    const moved = Math.hypot(e.clientX - bDown[0], e.clientY - bDown[1]); bDown = null; if (moved > 6) return;
+    const r = renderer.domElement.getBoundingClientRect(); bPtr.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    bRay.setFromCamera(bPtr, camera);
+    if (bRay.intersectObjects(bearMeshes.map((b) => b.mesh), false).length && !reduceMotion) bearApi.play(bTapOrder[bTaps++ % bTapOrder.length]);
+  });
 
   /* ---------- Framing ---------- */
   const target = new THREE.Vector3(0, 2.35, 0);
@@ -1056,6 +1202,7 @@
     if (reduceMotion) return;
     pulseV = Math.max(-0.3, Math.min(0.3, pulseV + 0.16 * k));
     mascot.nodV = Math.max(-1.2, Math.min(1.2, mascot.nodV + 0.9 * k));
+    if (mascot.onReact) mascot.onReact(k);
     if (!dragging && Math.abs(vel) < 0.01) vel += (Math.random() < 0.5 ? -1 : 1) * 0.005 * k;
     needs = true;
   }
@@ -1090,6 +1237,7 @@
       topNow = top; needs = true; slosh(0.09); react(0.8);
     },
     setMascot(on) { mascot.on = !!on; resize(); needs = true; },
+    bear: bearApi,                                      // the rig: bear.play('wave'|'cheer'|'nod'|'tilt'), bear.setWire(bool), bear.setBones(bool), bear.rig (THREE.Bone nodes), bear.clips
     setSize(sz) { const t = sz === 'M' ? 0.88 : 1; if (t === scaleTarget) return; slosh(0.06); react(1.4); scaleTarget = t; needs = true; },
   };
 

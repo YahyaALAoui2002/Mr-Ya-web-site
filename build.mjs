@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = dirname(fileURLToPath(import.meta.url));
 const debug = process.argv.includes('--debug');
 const PLACEHOLDER = '/*__BUBBLETEA_3D__*/';
-const DEBUG_HOOK = "window.__dbg={liquid,cup,tapioca,popping,beans,jellies,ice,teaMat,liqU,bear,mascot,shadow,renderer,scene,camera,rAt,setRot:(v)=>{rotY=v;vel=0;needs=true;}}; host.classList.add('is-3d');";
+const DEBUG_HOOK = "window.__dbg={liquid,cup,tapioca,popping,beans,jellies,ice,teaMat,liqU,bear,mascot,rig,bw,bearApi,bearMeshes,apronClear:bClearD,shadow,renderer,scene,camera,rAt,setRot:(v)=>{rotY=v;vel=0;needs=true;}}; host.classList.add('is-3d');";
 
 // the 3D module is ONE script (an IIFE) kept in numbered slices: concatenating them in order gives the script back exactly
 const slices = readdirSync(join(root, 'src/3d')).filter((f) => /^\d\d-.*\.js$/.test(f)).sort();
