@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mr Ye 幸福食光 — Bubble tea et street food du Hubei, Paris 13e</title>
+<meta name="description" content="Composez votre bubble tea de 50 ou 70 cl, puis passez le chercher au 69 avenue des Gobelins. Crêpes jianbing, nouilles au sésame, malatang.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&text=%E5%B9%B8%E7%A6%8F%E9%A3%9F%E5%85%89%E7%85%8E%E9%A5%BC%E7%83%AD%E5%B9%B2%E9%9D%A2%E9%BA%BB%E8%BE%A3%E7%83%AB%E5%A5%B6%E8%8C%B6%E7%8E%AB%E7%91%B0%E6%8A%B9%E6%9E%9C%E7%8F%8D%E7%8F%A0%E4%BB%99%E8%8D%89%E7%AB%A0%E9%B1%BC%E5%B0%8F%E4%B8%B8%E5%AD%90%E9%B8%A1%E8%9B%8B%E4%BB%94%E5%90%83%E5%93%81%E7%94%9C%E5%86%B0%E5%87%89%E5%8D%A4%E5%91%B3%E5%92%96%E5%96%B1%E5%9C%86%E6%89%8B%E6%92%95%E6%9D%82%E6%A1%82%E6%B7%87%E6%B7%8B%E7%89%9B%E7%9A%AE%E7%A2%97%E7%B1%B3%E7%B2%89%E8%82%89%E8%82%A0%E8%8A%8B%E8%8A%B1%E8%8F%9C%E9%85%B1%E9%85%B8%E9%A5%AD&display=swap" rel="stylesheet">
+<style>
+/* Tokens. Every colour comes from the actual cup:
+   label green, milk-tea body, tapioca, white lid, heart stopper. */
+:root{
+  --paper:#eef1ea;      /* lid white, cooled toward the label green */
+  --ink:#17271c;        /* green-black, the label's shadow */
+  --ink-soft:#4d5d52;
+  --label:#2f5d3f;      /* sampled from the label */
+  --label-deep:#1e3d29;
+  --tea:#d8c1a0;        /* milk tea in the photo */
+  --pearl:#2a1d17;
+  --heart:#c8202f;      /* the stopper, used only on the drawn cup */
+  --rule:#cdd5c9;
+  --on-label:#f1f4ec;
+  --han:"Noto Serif SC","Songti SC",serif;
+  --sans:"Familjen Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --script:"Dancing Script","Brush Script MT",cursive;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#122016; --ink:#e9eee5; --ink-soft:#a7b4a9; --label:#3f7a53; --label-deep:#0d1a11;
+  --rule:#26392b; --on-label:#f1f4ec;
+}}
+:root[data-theme="dark"]{
+  --paper:#122016; --ink:#e9eee5; --ink-soft:#a7b4a9; --label:#3f7a53; --label-deep:#0d1a11;
+  --rule:#26392b; --on-label:#f1f4ec;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 76px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding:0 clamp(18px,4vw,44px)}
+:focus-visible{outline:2px solid var(--label);outline-offset:3px}
+
+/* ---------- The label: the brand's one real asset, rebuilt ---------- */
+.label{position:relative;display:inline-grid;justify-items:center;background:var(--label);color:var(--on-label);
+  clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 22px),calc(100% - 22px) 100%,22px 100%,0 calc(100% - 22px),0 14px);
+  padding:.55em 1.4em .5em;line-height:1;text-decoration:none}
+.label::after{content:"";position:absolute;inset:5px;border:1px dashed rgb(241 244 236 / .5);
+  clip-path:inherit;pointer-events:none}
+.label .flower{font-size:.55em;opacity:.85;margin-bottom:.15em}
+.label .zh{font:900 1em/1 var(--han);letter-spacing:.18em;margin-right:-.18em}
+.label .mr{font:700 1.05em/1 var(--script);margin-top:.08em}
+
+/* ---------- Header ---------- */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+header .wrap{height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--rule)}
+header .label{font-size:15px}
+header nav{display:flex;gap:28px}
+header nav a{text-decoration:none;color:var(--ink-soft);font-weight:500}
+header nav a:hover{color:var(--ink)}
+.call{font-weight:600;text-decoration:none;border-bottom:2px solid var(--label);padding-bottom:2px}
+@media (max-width:767px){header nav{display:none}}
+
+/* ---------- Hero = the cup builder ---------- */
+.builder{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,440px) minmax(0,1fr);gap:clamp(20px,3vw,48px);align-items:center;padding-block:clamp(28px,4vw,56px) clamp(48px,6vw,88px);min-height:calc(100dvh - 76px)}
+.intro{align-self:start;padding-top:clamp(8px,3vw,40px)}
+.intro h1{font:700 clamp(40px,4.4vw,64px)/1.0 var(--sans);letter-spacing:-.035em;max-width:11ch}
+.intro p{margin-top:20px;color:var(--ink-soft);max-width:30ch}
+.cup-stage{position:relative;display:grid;place-items:center}
+.cup-stage svg{width:100%;height:auto;max-height:72dvh;overflow:visible}
+.cup-han{position:absolute;inset:auto 0 4% 0;text-align:center;font:900 clamp(18px,1.6vw,22px)/1 var(--han);letter-spacing:.3em;color:var(--ink-soft);pointer-events:none}
+#liquid{transition:fill .5s ease}
+.pearl{transition:transform .55s cubic-bezier(.3,1.4,.5,1),opacity .3s}
+.pearl.off{transform:translateY(-260px);opacity:0}
+.jelly{transition:transform .5s cubic-bezier(.3,1.4,.5,1),opacity .3s}
+.jelly.off{transform:translateY(-240px);opacity:0}
+@media (prefers-reduced-motion:reduce){#liquid,.pearl,.jelly{transition:none}}
+
+.controls{display:flex;flex-direction:column;gap:16px;align-self:center}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+fieldset[hidden]{display:none}
+legend{font-weight:600;font-size:14px;margin-bottom:6px;padding:0}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt span{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:999px;border:1.5px solid var(--rule);font-size:15px;font-weight:500;cursor:pointer;transition:background .15s,border-color .15s,color .15s;white-space:nowrap}
+.opt span i{width:12px;height:12px;border-radius:50%;flex:none}
+.opt:hover span{border-color:var(--ink-soft)}
+.opt input:checked+span{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.opt input:focus-visible+span{outline:2px solid var(--label);outline-offset:2px}
+.order{border:1px solid var(--rule);border-radius:18px;padding:18px 20px 20px;display:flex;flex-direction:column;gap:16px;background:color-mix(in srgb,var(--paper) 90%,#fff)}
+.order output{display:grid;gap:3px;font-size:16px;color:var(--ink);min-height:6.5em}
+.order .o-eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:4px}
+.order .o-price{font:700 34px/1.1 var(--sans);letter-spacing:-.03em;color:color-mix(in srgb,var(--label) 40%,var(--ink));margin-top:8px}
+.order .btn{align-self:stretch;padding:15px 18px;white-space:normal;text-align:center}
+.order .o-price.na{font:500 16px/1.4 var(--sans);letter-spacing:0;color:var(--ink-soft)}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:10px;align-self:flex-start;background:var(--label);color:var(--on-label);text-decoration:none;font-weight:600;padding:15px 24px;border-radius:999px;white-space:nowrap;transition:background .15s,transform .15s}
+.btn:hover{background:var(--label-deep)}
+.btn:active{transform:scale(.98)}
+.note{font-size:13px;color:var(--ink-soft)}
+@media (max-width:1023px){
+  .builder{grid-template-columns:1fr 1fr;min-height:0}
+  .intro{grid-column:1/-1}
+  .intro h1{max-width:14ch}
+}
+@media (max-width:767px){
+  .builder{grid-template-columns:1fr}
+  .cup-stage{max-width:min(340px,88vw);justify-self:center}
+}
+
+/* ---------- Kitchen: the menu read like a stall board, characters first ---------- */
+.kitchen{background:var(--label-deep);color:var(--on-label);padding:clamp(64px,9vw,128px) 0}
+.kitchen-head{display:grid;grid-template-columns:1fr;gap:16px;max-width:60ch;margin-bottom:clamp(40px,6vw,72px)}
+.kitchen-head h2{font:700 clamp(32px,4vw,54px)/1.04 var(--sans);letter-spacing:-.03em}
+.kitchen-head p{color:rgb(241 244 236 / .72)}
+.board{list-style:none;margin:0;padding:0;border-top:1px solid rgb(241 244 236 / .18)}
+.dish{display:grid;grid-template-columns:minmax(160px,340px) 1fr auto;gap:clamp(16px,3vw,48px);align-items:baseline;padding:clamp(22px,3vw,34px) 0;border-bottom:1px solid rgb(241 244 236 / .18)}
+.dish .zh{white-space:nowrap;font:900 clamp(36px,4.6vw,64px)/1 var(--han);letter-spacing:.04em;color:var(--tea)}
+.dish h3{font:600 clamp(22px,2.2vw,28px)/1.15 var(--sans);letter-spacing:-.015em}
+.dish p{margin-top:6px;color:rgb(241 244 236 / .7);max-width:52ch}
+.dish .price{font-weight:600;white-space:nowrap;color:var(--on-label)}
+.dish.lead .zh{font-size:clamp(64px,9vw,128px)}
+@media (max-width:767px){
+  .dish{grid-template-columns:1fr;gap:8px}
+  .dish .price{justify-self:start}
+}
+
+/* ---------- Mamie: one human sentence, big ---------- */
+.mamie{padding:clamp(72px,10vw,140px) 0}
+.mamie .bq{font:600 clamp(28px,3.6vw,50px)/1.18 var(--sans);letter-spacing:-.025em;max-width:22ch}
+.mamie .by{margin-top:22px;color:var(--ink-soft)}
+
+/* ---------- Visit: the label, enlarged, as the shop sign ---------- */
+.visit{padding:0 0 clamp(72px,10vw,140px)}
+.sign{width:100%;display:grid;justify-items:center;text-align:center;font-size:clamp(34px,6vw,76px);padding:.7em 1em .6em;gap:.1em;
+  clip-path:polygon(28px 0,calc(100% - 28px) 0,100% 28px,100% calc(100% - 44px),calc(100% - 44px) 100%,44px 100%,0 calc(100% - 44px),0 28px)}
+.sign::after{inset:10px}
+.sign .info{font:500 clamp(15px,1.4vw,19px)/1.6 var(--sans);margin-top:1.2em;letter-spacing:0;display:grid;gap:4px}
+.sign .info a{justify-self:center;text-decoration:none;border-bottom:1px solid rgb(241 244 236 / .5)}
+.sign .acts{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:1.4rem}
+.sign .btn{background:var(--on-label);color:var(--label-deep);font-size:16px}
+.sign .btn:hover{background:#fff}
+.sign .btn.alt{background:transparent;color:var(--on-label);box-shadow:inset 0 0 0 1.5px var(--on-label)}
+.sign .btn.alt:hover{background:rgb(241 244 236 / .12)}
+footer{padding:0 0 40px;color:var(--ink-soft);font-size:14px}
+
+.cup-stage{aspect-ratio:320/520;width:100%}
+.cup-stage svg{position:absolute;inset:0}
+#cup3d{position:absolute;inset:-4% 0;}
+#cup3d canvas{width:100%!important;height:100%!important;display:block;outline:none}
+#cup3d.is-3d ~ svg{display:none}
+.cup-stage .hint{position:absolute;left:0;right:0;bottom:-28px;text-align:center;font-size:13px;color:var(--ink-soft);opacity:0;transition:opacity .4s}
+.cup-stage:has(#cup3d.is-3d) .hint{opacity:1}
+
+/* ---------- Full menu ---------- */
+.menu{padding:clamp(64px,9vw,120px) 0 0}
+.menu h2{font:700 clamp(32px,4vw,54px)/1.04 var(--sans);letter-spacing:-.03em;margin-bottom:clamp(28px,4vw,48px)}
+.menu-grid{display:grid;grid-template-columns:260px 1fr;gap:clamp(24px,5vw,72px)}
+.tabs{display:flex;flex-direction:column;gap:6px;align-self:start;position:sticky;top:96px}
+.tab{appearance:none;text-align:left;background:transparent;border:0;border-radius:999px;padding:14px 20px;font:600 17px/1 var(--sans);color:var(--ink-soft);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tab:hover{color:var(--ink);background:color-mix(in srgb,var(--rule) 55%,transparent)}
+.tab[aria-selected="true"]{background:var(--label);color:var(--on-label)}
+.tab .zh{font:900 13px/1 var(--han);opacity:.75}
+.panel[hidden]{display:none}
+.rows{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--rule)}
+.row b{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.numbered{counter-reset:none}
+.numbered .row{grid-template-columns:2.4em 1fr auto}
+.numbered .row::before{content:attr(value);color:var(--label);font-weight:700;font-variant-numeric:tabular-nums}
+.rows.sub{margin-top:28px}
+.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;margin-top:32px}
+.groups h3{font:600 17px/1.3 var(--sans);margin-bottom:6px}
+.groups p{color:var(--ink-soft)}
+.menu-note{margin-top:20px;color:var(--ink-soft);font-size:15px}
+@media (max-width:767px){
+  .menu-grid{grid-template-columns:1fr}
+  .tabs{flex-direction:row;overflow-x:auto;position:static;scrollbar-width:none;margin:0 calc(-1 * clamp(18px,4vw,44px));padding:0 clamp(18px,4vw,44px)}
+  .tab{flex:0 0 auto}
+  .row{gap:12px}
+  .numbered .row{grid-template-columns:1.8em 1fr auto}
+}
+
+
+/* ---------- Temperature badge: flame (hot) / snowflake (cold), top right of the cup ---------- */
+:root{--hot:#e8452b;--cold:#2f9bd6;--tbg:color-mix(in srgb,var(--paper) 88%,#fff);--tsh:6px 6px 14px rgb(23 39 28 / .15),-6px -6px 14px rgb(255 255 255 / .9)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hot:#ff6a3d;--cold:#52b4ec;--tbg:color-mix(in srgb,var(--paper) 90%,#fff 6%);--tsh:6px 6px 14px rgb(0 0 0 / .5),-5px -5px 12px rgb(255 255 255 / .05)}}
+:root[data-theme="dark"]{--hot:#ff6a3d;--cold:#52b4ec;--tbg:color-mix(in srgb,var(--paper) 90%,#fff 6%);--tsh:6px 6px 14px rgb(0 0 0 / .5),-5px -5px 12px rgb(255 255 255 / .05)}
+.temp-badge{position:absolute;top:1%;right:1%;z-index:3;width:68px;height:68px;border-radius:50%;background:var(--tbg);display:grid;place-items:center;pointer-events:none;
+  box-shadow:var(--tsh),0 0 0 2px var(--ring,var(--cold));transition:box-shadow .3s}
+.temp-badge.is-hot{--ring:var(--hot)}.temp-badge.is-cold{--ring:var(--cold)}
+.temp-badge .ico{position:absolute;inset:0;margin:auto;width:36px;height:36px;color:var(--cold);opacity:0;transform:scale(.3);transition:opacity .2s}
+.temp-badge.is-hot .ico-hot,.temp-badge.is-cold .ico-cold{opacity:1;transform:none}
+.temp-badge .ripple{position:absolute;inset:0;border-radius:50%;border:2px solid var(--ring);opacity:0}
+@media (max-width:767px){.temp-badge{width:56px;height:56px}.temp-badge .ico{width:30px;height:30px}}
+
+/* ---------- La carte: roulette ovale ---------- */
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.menu-lead{color:var(--ink-soft);margin:-24px 0 28px;font-size:18px}
+.cats-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;margin-bottom:12px}
+.cats{border:0;margin:0;padding:0}
+.rplay{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--rule);background:transparent;color:var(--ink-soft);border-radius:999px;padding:8px 14px;font:500 14px/1 var(--sans);cursor:pointer}
+.rplay:hover{border-color:var(--ink-soft);color:var(--ink)}
+.rplay:focus-visible{outline:2px solid var(--label);outline-offset:2px}
+.rplay-ico{width:10px;height:12px;border-left:3px solid currentColor;border-right:3px solid currentColor}
+.rplay[aria-pressed="true"] .rplay-ico{width:0;height:0;border:0;border-left:11px solid currentColor;border-top:7px solid transparent;border-bottom:7px solid transparent}
+.roulette{--D:300px;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none;margin:8px 0 0;overflow:hidden;cursor:grab}
+.roulette:active{cursor:grabbing}
+.rtrack{position:absolute;left:50%;bottom:-2%;transform:translateX(-50%);border-radius:50%;border:1px solid var(--rule);background:radial-gradient(closest-side,rgb(0 0 0 / .07),transparent 72%);pointer-events:none}
+.ring{position:relative;perspective:1300px;perspective-origin:50% 30%;outline:none}
+.ring:focus-visible{outline:2px solid var(--label);outline-offset:-4px;border-radius:28px}
+.card{position:absolute;left:50%;top:0;width:var(--D);height:var(--D);margin-left:calc(var(--D) / -2);will-change:transform,opacity;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.card .floor{position:absolute;left:8%;right:8%;bottom:-7%;height:14%;border-radius:50%;background:radial-gradient(closest-side,rgb(0 0 0 / .38),transparent);pointer-events:none}
+.plate{position:relative;width:100%;height:100%;border-radius:50%;display:grid;place-items:center;color:#f4f6ef;
+  background:radial-gradient(120% 120% at 30% 22%,color-mix(in srgb,var(--pa) 72%,#fff) 0%,var(--pa) 40%,var(--pb) 100%);
+  box-shadow:inset 0 0 0 calc(var(--D) * .035) rgb(255 255 255 / .07),inset 0 0 0 calc(var(--D) * .042) rgb(255 255 255 / .2),inset 0 calc(var(--D) * -.07) calc(var(--D) * .1) rgb(0 0 0 / .24),0 calc(var(--D) * .09) calc(var(--D) * .14) calc(var(--D) * -.07) rgb(0 0 0 / .5)}
+.plate::after{content:"";position:absolute;inset:0;border-radius:50%;background:#08120b;opacity:var(--dim,0);pointer-events:none}
+.card[aria-selected="true"] .plate{box-shadow:inset 0 0 0 calc(var(--D) * .035) rgb(255 255 255 / .07),inset 0 0 0 calc(var(--D) * .042) rgb(255 255 255 / .28),inset 0 calc(var(--D) * -.07) calc(var(--D) * .1) rgb(0 0 0 / .24),0 0 0 3px var(--paper),0 0 0 5px var(--pa),0 calc(var(--D) * .1) calc(var(--D) * .16) calc(var(--D) * -.06) rgb(0 0 0 / .55)}
+.plate .zh{font:900 calc(var(--D) * var(--k,.3))/1.06 var(--han);letter-spacing:.02em;text-align:center;text-shadow:0 2px 0 rgb(0 0 0 / .2)}
+.plate .num{position:absolute;top:12%;left:50%;transform:translateX(-50%);font:600 calc(var(--D) * .04 + 3px)/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:.55em .9em;border-radius:999px;background:rgb(0 0 0 / .24);white-space:nowrap}
+.rbtn{position:absolute;top:calc(var(--D) * .5);z-index:300;width:52px;height:52px;margin-top:-26px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--tbg);color:var(--ink);box-shadow:var(--tsh);cursor:pointer}
+.rbtn.prev{left:6px}.rbtn.next{right:6px}
+.rbtn:hover{color:var(--label)}.rbtn:active{transform:scale(.95)}
+.rbtn:focus-visible{outline:2px solid var(--label);outline-offset:3px}
+.pick{max-width:720px;margin:20px auto 0;text-align:center;min-height:11.5em}
+.pick.swap{animation:pickIn .35s ease both}
+@keyframes pickIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.pk-meta{display:flex;justify-content:center;gap:10px;align-items:center;margin-bottom:8px;font:600 13px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.pk-meta .pk-dot{width:10px;height:10px;border-radius:50%;background:var(--pa)}
+.pk-name{font:700 clamp(26px,3.2vw,40px)/1.08 var(--sans);letter-spacing:-.03em}
+.pk-desc{margin:10px auto 0;max-width:52ch;color:var(--ink-soft);font-size:17px}
+.pk-price{margin-top:14px;font:700 34px/1 var(--sans);letter-spacing:-.03em;color:color-mix(in srgb,var(--label) 40%,var(--ink))}
+.menu-note.center{text-align:center;margin-top:8px}
+.fullmenu{margin-top:clamp(32px,5vw,56px);border-top:1px solid var(--rule);padding-top:20px}
+.fullmenu summary{cursor:pointer;display:inline-flex;align-items:center;gap:10px;font-weight:600;padding:12px 18px;border:1.5px solid var(--rule);border-radius:999px;list-style:none}
+.fullmenu summary::-webkit-details-marker{display:none}
+.fullmenu summary::after{content:"+";font-size:20px;line-height:1}
+.fullmenu[open] summary::after{content:"\2212"}
+.fullmenu summary:hover{border-color:var(--ink-soft)}
+.fullmenu summary:focus-visible{outline:2px solid var(--label);outline-offset:2px}
+.fullmenu .menu-grid{margin-top:28px}
+@media (prefers-reduced-motion:reduce){.pick.swap{animation:none}}
+@media (max-width:767px){.rbtn{width:44px;height:44px;margin-top:-22px}.pk-price{font-size:30px}.menu-lead{margin-top:-16px}}
+
+/* ---------- Mascot: the 3D canvas extends to the left on wide screens, behind the intro text ---------- */
+.intro{position:relative;z-index:2}
+.cup-stage{z-index:1}
+@media (min-width:1024px){#cup3d{left:calc(-1 * min(82%, 340px))}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="label" href="#top" aria-label="Mr Ye, accueil"><span class="zh">幸福食光</span><span class="mr">Mr. Ye</span></a>
+    <nav aria-label="Navigation"><a href="#top">Bubble tea</a><a href="#cuisine">Cuisine</a><a href="#carte">Carte</a><a href="#venir">Venir</a></nav>
+    <a class="call" href="tel:+33980615680">09 80 61 56 80</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="wrap builder" aria-labelledby="h1">
+    <div class="intro">
+      <h1 id="h1">Composez votre bubble tea.</h1>
+      <p>50 ou 70 cl, au lait ou fruité, préparé minute avenue des Gobelins. Choisissez, appelez, il vous attend.</p>
+    </div>
+
+    <div class="cup-stage">
+      <div class="temp-badge is-cold" id="tempBadge" aria-hidden="true" title="Froid"><i class="ripple"></i><svg class="ico ico-hot" viewBox="0 0 64 64"><defs><linearGradient id="flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffa23a"/><stop offset="1" stop-color="#e8362a"/></linearGradient></defs><path fill="url(#flameG)" fill-rule="evenodd" d="M34 2C36 12 46 18 51 30C56 43 48 60 32 60C16 60 7 47 11 34C13 27 18 23 19 14C23 18 26 22 26 29C30 22 33 11 34 2ZM32 54C25 54 21 49 23 43C24 39 27 37 29 33C31 37 36 39 38 44C40 49 37 54 32 54Z"/></svg><svg class="ico ico-cold" viewBox="0 0 64 64"><path d="M32.0 32.0L32.0 5.0M32.0 14.0L24.7 7.9M32.0 14.0L39.3 7.9M32.0 21.5L27.0 17.3M32.0 21.5L37.0 17.3M32.0 32.0L55.4 18.5M47.6 23.0L49.2 13.6M47.6 23.0L56.5 26.2M41.1 26.8L42.2 20.3M41.1 26.8L47.2 29.0M32.0 32.0L55.4 45.5M47.6 41.0L56.5 37.8M47.6 41.0L49.2 50.4M41.1 37.2L47.2 35.0M41.1 37.2L42.2 43.7M32.0 32.0L32.0 59.0M32.0 50.0L39.3 56.1M32.0 50.0L24.7 56.1M32.0 42.5L37.0 46.7M32.0 42.5L27.0 46.7M32.0 32.0L8.6 45.5M16.4 41.0L14.8 50.4M16.4 41.0L7.5 37.8M22.9 37.2L21.8 43.7M22.9 37.2L16.8 35.0M32.0 32.0L8.6 18.5M16.4 23.0L7.5 26.2M16.4 23.0L14.8 13.6M22.9 26.8L16.8 29.0M22.9 26.8L21.8 20.3" fill="none" stroke="currentColor" stroke-width="4.4" stroke-linecap="round"/></svg></div>
+      <div id="cup3d" aria-hidden="true"></div>
+      <svg viewBox="0 0 320 520" role="img" aria-labelledby="cupTitle">
+        <title id="cupTitle">Aperçu de votre bubble tea</title>
+        <defs>
+          <clipPath id="cupClip"><path d="M44 150 L276 150 L248 500 Q160 512 72 500 Z"/></clipPath>
+        </defs>
+        <!-- straw -->
+        <rect x="118" y="0" width="26" height="190" rx="4" fill="#c9a77c"/>
+        <!-- cup body -->
+        <g clip-path="url(#cupClip)">
+          <rect x="0" y="140" width="320" height="380" fill="rgb(255 255 255 / .5)"/>
+          <rect id="liquidRect" x="0" y="168" width="320" height="360" fill="#d8c1a0" id-alias="liquid"/>
+          <g id="jellies">
+            <rect class="jelly off" x="96"  y="440" width="26" height="26" rx="4" fill="#2b2a22"/>
+            <rect class="jelly off" x="150" y="452" width="24" height="24" rx="4" fill="#2b2a22"/>
+            <rect class="jelly off" x="196" y="436" width="26" height="26" rx="4" fill="#2b2a22"/>
+            <rect class="jelly off" x="122" y="410" width="22" height="22" rx="4" fill="#33322a"/>
+          </g>
+          <g id="pearls"></g>
+        </g>
+        <path d="M44 150 L276 150 L248 500 Q160 512 72 500 Z" fill="none" stroke="rgb(23 39 28 / .18)" stroke-width="2"/>
+        <!-- label on cup -->
+        <g transform="translate(160 300)">
+          <path d="M-92 -44 L92 -44 L104 -32 L104 30 L88 46 L-88 46 L-104 30 L-104 -32 Z" fill="#2f5d3f"/>
+          <path d="M-86 -38 L86 -38 L97 -28 L97 26 L84 39 L-84 39 L-97 26 L-97 -28 Z" fill="none" stroke="rgb(241 244 236 / .55)" stroke-dasharray="3 3"/>
+          <text x="0" y="-6" text-anchor="middle" font-family="Noto Serif SC, serif" font-weight="900" font-size="30" letter-spacing="6" fill="#f1f4ec">幸福食光</text>
+          <text x="0" y="28" text-anchor="middle" font-family="Dancing Script, cursive" font-weight="700" font-size="30" fill="#f1f4ec">Mr. Ye</text>
+        </g>
+        <!-- lid -->
+        <rect x="30" y="128" width="260" height="30" rx="14" fill="#fbfcf9" stroke="rgb(23 39 28 / .12)"/>
+        <rect x="52" y="104" width="216" height="32" rx="14" fill="#ffffff" stroke="rgb(23 39 28 / .1)"/>
+        <!-- heart stopper -->
+        <g transform="translate(226 104)"><path d="M0 14 C-14 4 -14 -10 -5 -10 C-1 -10 0 -6 0 -4 C0 -6 1 -10 5 -10 C14 -10 14 4 0 14 Z" fill="#c8202f"/></g>
+      </svg>
+      <p class="hint">Faites tourner le gobelet</p>
+    </div>
+
+    <form class="controls" onsubmit="return false" aria-label="Composer votre boisson">
+      <fieldset>
+        <legend>La taille</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="size" value="M"><span>Medium 50 cl</span></label>
+          <label class="opt"><input type="radio" name="size" value="L" checked><span>Large 70 cl</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>La base</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="base" value="lait" checked><span>Au lait</span></label>
+          <label class="opt"><input type="radio" name="base" value="fruit"><span>Thé fruité, sans lait</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Le parfum</legend>
+        <div class="opts" id="flavors"></div>
+      </fieldset>
+      <fieldset id="tempSet">
+        <legend>Chaud ou froid</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="temp" value="froid" checked><span>Froid</span></label>
+          <label class="opt"><input type="radio" name="temp" value="chaud"><span>Chaud</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Le topping</legend>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="top" value="tapioca" checked><span>Perles de tapioca</span></label>
+          <label class="opt"><input type="radio" name="top" value="multifruit"><span>Perles multifruit</span></label>
+          <label class="opt"><input type="radio" name="top" value="haricot"><span>Haricot rouge</span></label>
+          <label class="opt"><input type="radio" name="top" value="gelee"><span>Gelée d'herbe</span></label>
+        </div>
+      </fieldset>
+      <div class="order">
+        <output id="summary" aria-live="polite"></output>
+        <a class="btn" href="tel:+33980615680">Appeler pour commander</a>
+      </div>
+    </form>
+  </section>
+
+  <section class="kitchen" id="cuisine" aria-labelledby="k">
+    <div class="wrap">
+      <div class="kitchen-head">
+        <h2 id="k">Avec le thé, la cuisine de Wuhan.</h2>
+        <p>Les plats de rue du Hubei, faits à la plaque et au bouillon, plus deux gourmandises venues d'ailleurs.</p>
+      </div>
+      <ul class="board">
+        <li class="dish lead"><span class="zh" lang="zh">煎饼</span><div><h3>Crêpe jianbing</h3><p>Étalée devant vous, version végétarienne. À garnir de saucisse, œuf mariné, bacon, poulet, canard laqué ou bœuf.</p></div><span class="price">dès 6&nbsp;€</span></li>
+        <li class="dish"><span class="zh" lang="zh">热干面</span><div><h3>Nouilles sauce sésame</h3><p>Le petit-déjeuner de Wuhan, nouilles épaisses à la pâte de sésame.</p></div><span class="price">8,90&nbsp;€</span></li>
+        <li class="dish"><span class="zh" lang="zh">麻辣烫</span><div><h3>Malatang</h3><p>La cocotte pimentée&nbsp;: un bouillon épicé, vous choisissez ce qui plonge dedans.</p></div><span class="price">12,50&nbsp;€</span></li>
+        <li class="dish"><span class="zh" lang="zh">章鱼小丸子</span><div><h3>Takoyaki</h3><p>Boulettes de poulpe, sauce et bonite.</p></div><span class="price">6,50&nbsp;€</span></li>
+        <li class="dish"><span class="zh" lang="zh">鸡蛋仔</span><div><h3>Bubble waffle</h3><p>Nature, ou avec glace, topping et sauce au choix.</p></div><span class="price">dès 4&nbsp;€</span></li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section class="menu" id="carte" aria-labelledby="carte-t">
+    <div class="wrap">
+      <h2 id="carte-t">La carte.</h2>
+      <p class="menu-lead">Faites tourner la roue : le plat au centre est celui que vous choisissez.</p>
+      <div class="cats-row">
+        <fieldset class="cats"><legend class="sr">Catégorie de plats</legend><div class="opts"><label class="opt"><input type="radio" name="cat" value="plats" checked><span>Plats</span></label><label class="opt"><input type="radio" name="cat" value="malatang"><span>Malatang</span></label><label class="opt"><input type="radio" name="cat" value="snacks"><span>Crêpes et snacks</span></label><label class="opt"><input type="radio" name="cat" value="desserts"><span>Desserts</span></label></div></fieldset>
+        <button type="button" class="rplay" id="rplay" aria-pressed="false"><span class="rplay-ico" aria-hidden="true"></span><span class="rplay-txt">Pause</span></button>
+      </div>
+      <div class="roulette" id="roulette">
+        <div class="rtrack" aria-hidden="true"></div>
+        <div class="ring" id="ring" role="listbox" aria-label="Plats de la carte" aria-orientation="horizontal" tabindex="0"></div>
+        <button class="rbtn prev" type="button" aria-label="Plat précédent"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="rbtn next" type="button" aria-label="Plat suivant"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div class="pick" id="pick" aria-live="polite" aria-atomic="true"></div>
+      <p class="menu-note center">Chaque plat se commande sans piment, légèrement, moyennement ou très pimenté.</p>
+      <details class="fullmenu">
+        <summary>Voir la carte complète, avec les boissons et les options</summary>
+        <div class="menu-grid">
+        <div class="tabs" role="tablist" aria-label="Catégories de la carte">
+          <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true">Bubble tea <span class="zh">奶茶</span></button>
+          <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1">Plats <span class="zh">小吃</span></button>
+          <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1">Malatang <span class="zh">麻辣烫</span></button>
+          <button class="tab" role="tab" id="t4" aria-controls="p4" aria-selected="false" tabindex="-1">Crêpes et snacks <span class="zh">煎饼</span></button>
+          <button class="tab" role="tab" id="t5" aria-controls="p5" aria-selected="false" tabindex="-1">Desserts <span class="zh">甜品</span></button>
+        </div>
+        <div class="panels">
+          <div class="panel" role="tabpanel" id="p1" aria-labelledby="t1">
+            <div class="rows">
+              <div class="row"><span>Bubble tea Medium 50 cl</span><b>5,50 €</b></div>
+              <div class="row"><span>Bubble tea Large 70 cl</span><b>6,50 €</b></div>
+            </div>
+            <div class="groups">
+              <div><h3>Au lait, chaud ou froid</h3><p>Nature, fraise, mangue, coco, pastèque, matcha, taro, vanille.</p></div>
+              <div><h3>Thé fruité glacé, sans lait</h3><p>Citron, mangue, fruit de la passion, rose, pêche, litchi, fraise, myrtille, cerise.</p></div>
+              <div><h3>Topping au choix</h3><p>Perles de tapioca, perles multifruit, haricot rouge, gelée d'herbe.</p></div>
+            </div>
+          </div>
+          <div class="panel" role="tabpanel" id="p2" aria-labelledby="t2" hidden>
+            <ol class="rows numbered">
+              <li class="row" value="1"><span>Nouilles au porc haché et petits pois, avec ou sans soupe</span><b>11,50 €</b></li>
+              <li class="row" value="2"><span>Nouilles au bœuf, sauce maison ou au chou mariné</span><b>11,50 €</b></li>
+              <li class="row" value="3"><span>Pâtes de riz au porc haché</span><b>8,90 €</b></li>
+              <li class="row" value="4"><span>Soupe de vermicelles à la sauce aigre et piquante</span><b>8,90 €</b></li>
+              <li class="row" value="5"><span>Nouilles de riz à la sauce maison, froides</span><b>8,90 €</b></li>
+              <li class="row" value="6"><span>Riz aux grains mélangés, viande aux 5 parfums (poulet ou porc)</span><b>11,50 €</b></li>
+              <li class="row" value="8"><span>Nouilles à la sauce sésame</span><b>8,90 €</b></li>
+              <li class="row" value="10"><span>Poulet au curry avec riz</span><b>11,50 €</b></li>
+              <li class="row" value="11"><span>Poulet effiloché au citron, servi avec riz</span><b>11,50 €</b></li>
+              <li class="row" value="12"><span>Nouilles froides</span><b>8,90 €</b></li>
+              <li class="row" value="13"><span>Rouleaux de riz vapeur, végétarien (+ porc 1,90 €)</span><b>7 €</b></li>
+              <li class="row" value="14"><span>Nouilles de riz au chou chinois vinaigré</span><b>8,90 €</b></li>
+            </ol>
+            <div class="rows sub">
+              <div class="row"><span>Viande parfumée&nbsp;: cuisse de poulet</span><b>5,90 €</b></div>
+              <div class="row"><span>Viande parfumée&nbsp;: porc</span><b>5,90 €</b></div>
+            </div>
+            <p class="menu-note">Chaque plat se commande sans piment, légèrement, moyennement ou très pimenté.</p>
+          </div>
+          <div class="panel" role="tabpanel" id="p3" aria-labelledby="t3" hidden>
+            <div class="rows">
+              <div class="row"><span>Malatang, cocotte pimentée, en bouillon ou sauté sec</span><b>12,50 €</b></div>
+              <div class="row"><span>Viande en option&nbsp;: bacon, poulpe, tofu de poisson, saucisse croustillante</span><b>2,50 €</b></div>
+              <div class="row"><span>Peau de tofu et autres ingrédients</span><b>1,50 €</b></div>
+              <div class="row"><span>Base changée pour nouilles instantanées ou vermicelles</span><b>1 €</b></div>
+              <div class="row"><span>Base changée pour larges vermicelles ou nouilles faites main</span><b>1,50 €</b></div>
+            </div>
+          </div>
+          <div class="panel" role="tabpanel" id="p4" aria-labelledby="t4" hidden>
+            <div class="rows">
+              <div class="row"><span>Crêpe salée chinoise jianbing, végétarienne</span><b>6 €</b></div>
+              <div class="row"><span>Avec saucisse, œuf mariné ou œuf en plus</span><b>+ 1 €</b></div>
+              <div class="row"><span>Avec latiao, bacon ou poulet</span><b>+ 2 €</b></div>
+              <div class="row"><span>Avec canard laqué ou bœuf</span><b>+ 3 €</b></div>
+              <div class="row"><span>Takoyaki, 6 boules de poulpe</span><b>6,50 €</b></div>
+            </div>
+          </div>
+          <div class="panel" role="tabpanel" id="p5" aria-labelledby="t5" hidden>
+            <div class="rows">
+              <div class="row"><span>Taro balls à la gelée d'herbe, au lait de coco, bubble tea ou sirop</span><b>6 €</b></div>
+              <div class="row"><span>Gelée liangfen à l'osmanthus</span><b>5 €</b></div>
+              <div class="row"><span>Bubble waffle nature</span><b>4 €</b></div>
+              <div class="row"><span>Bubble waffle glacé</span><b>7 €</b></div>
+              <div class="row"><span>Boule de glace en plus</span><b>1 €</b></div>
+            </div>
+            <div class="groups">
+              <div><h3>Glace</h3><p>Vanille, fraise, mangue, chocolat, matcha.</p></div>
+              <div><h3>Topping et sauce</h3><p>Banane, Oreo, M&amp;M's, guimauve. Caramel, chantilly, chocolat.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="mamie">
+    <div class="wrap">
+      <p class="bq">Les crêpes, c'est la mamie qui les fait. Deux minutes de plaque, et ça craque encore quand vous sortez.</p>
+      <p class="by">Au comptoir, tous les jours.</p>
+    </div>
+  </section>
+
+  <section class="visit" id="venir" aria-labelledby="v">
+    <div class="wrap">
+      <div class="label sign">
+        <span class="flower" aria-hidden="true">❀</span>
+        <span class="zh" id="v">幸福食光</span>
+        <span class="mr">Mr. Ye</span>
+        <div class="info">
+          <span>69 avenue des Gobelins, 75013 Paris</span>
+          <span>Métro Gobelins ou Place d'Italie</span>
+          <span><a href="tel:+33980615680">09 80 61 56 80</a> ou <a href="tel:+33760256373">07 60 25 63 73</a></span>
+        </div>
+        <div class="acts">
+          <a class="btn" href="https://www.google.com/maps/search/?api=1&query=69+Avenue+des+Gobelins+75013+Paris" target="_blank" rel="noopener">Itinéraire</a>
+          <a class="btn alt" href="tel:+33980615680">Appeler pour commander</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap">4,7 sur Google, plus de 600 avis.</div></footer>
+
+<script>
+(() => {
+  const FLAVORS={
+    lait:[['nature','Nature','#a47a4e'],['fraise','Fraise','#ee8fab'],['mangue','Mangue','#f4a824'],['coco','Coco','#dccfb8'],['pasteque','Pastèque','#ee5566'],['matcha','Matcha','#729638'],['taro','Taro','#9774c6'],['vanille','Vanille','#e7c67a']],
+    fruit:[['citron','Citron','#e9e03a'],['mangue','Mangue','#f77f12'],['passion','Fruit de la passion','#f2a014'],['rose','Rose','#e04a78'],['peche','Pêche','#f4825a'],['litchi','Litchi','#e3b9ae'],['fraise','Fraise','#d82a45'],['myrtille','Myrtille','#5f2f9a'],['cerise','Cerise','#9a0f28']]
+  };
+  const TOPS={tapioca:'perles de tapioca',multifruit:'perles multifruit',haricot:'haricot rouge',gelee:"gelée d'herbe"};
+  const PRICE={M:'5,50 €',L:'6,50 €'};
+  const form=document.querySelector('.controls');
+  const flav=document.getElementById('flavors');
+  const tempSet=document.getElementById('tempSet');
+  const out=document.getElementById('summary');
+  const liquid=document.getElementById('liquidRect');
+  const pearlsG=document.getElementById('pearls');
+  const NS='http://www.w3.org/2000/svg';
+  [[86,488],[110,494],[134,497],[158,498],[182,497],[206,494],[230,488],[98,470],[122,474],[146,476],[170,477],[194,475],[218,470],[110,452],[136,456],[162,458],[188,456],[212,452]].forEach(([x,y],i)=>{const c=document.createElementNS(NS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',11);c.setAttribute('class','pearl');c.style.transitionDelay=(i*18)+'ms';pearlsG.appendChild(c)});
+  let lastBase=null;
+  function buildFlavors(base){
+    const keep=form.flavor?form.flavor.value:null;
+    flav.innerHTML=FLAVORS[base].map(([v,n,c],i)=>'<label class="opt"><input type="radio" name="flavor" value="'+v+'"'+((keep===v)||(!FLAVORS[base].some(f=>f[0]===keep)&&i===0)?' checked':'')+'><span><i style="background:'+c+'"></i>'+n+'</span></label>').join('');
+  }
+
+  // flame / snowflake badge: the new icon pops UP every time the temperature changes
+  function setTempBadge(hot){
+    var b = document.getElementById('tempBadge'); if (!b) return;
+    var first = !b.dataset.init; b.dataset.init = '1';
+    if (!first && b.classList.contains('is-hot') === hot) return;
+    b.classList.toggle('is-hot', hot); b.classList.toggle('is-cold', !hot); b.title = hot ? 'Chaud' : 'Froid';
+    if (first || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    var ico = b.querySelector(hot ? '.ico-hot' : '.ico-cold'), rip = b.querySelector('.ripple');
+    if (!ico.animate) return;
+    if (ico._pop) ico._pop.cancel();
+    ico._pop = ico.animate([{transform:'scale(.45) translateY(12px) rotate(-12deg)'},{transform:'scale(1.5) translateY(-14px) rotate(7deg)',offset:.4},{transform:'scale(.92) translateY(2px) rotate(-2deg)',offset:.66},{transform:'none'}], {duration:640, easing:'cubic-bezier(.3,1.35,.5,1)'});
+    if (rip._pop) rip._pop.cancel();
+    rip._pop = rip.animate([{opacity:.7,transform:'scale(.9)'},{opacity:0,transform:'scale(1.7)'}], {duration:720, easing:'ease-out'});
+  }
+  function render(){
+    const base=form.base.value;
+    if(base!==lastBase){buildFlavors(base);lastBase=base;}
+    const size=form.size.value, top=form.top.value, f=FLAVORS[base].find(x=>x[0]===form.flavor.value);
+    const milk=base==='lait';
+    tempSet.hidden=!milk;
+    liquid.setAttribute('fill',f[2]);
+    const topColors={tapioca:'#2a1d17',multifruit:'#f2a21c',haricot:'#5a1f19',gelee:'#14120d'};
+    pearlsG.querySelectorAll('.pearl').forEach(p=>{p.setAttribute('fill',topColors[top]);p.classList.remove('off')});
+    if(window.mryeCup&&mryeCup.setFlavor){mryeCup.setFlavor(base,f[0]);mryeCup.setTopping(top);mryeCup.setSize(size);}
+    setTempBadge(milk&&form.temp.value==='chaud');
+    const name=milk?'Thé au lait '+f[1].toLowerCase()+', '+form.temp.value:'Thé '+f[1].toLowerCase()+' glacé, sans lait';
+    const topTxt=TOPS[top].charAt(0).toUpperCase()+TOPS[top].slice(1);
+    out.innerHTML='<span class="o-eyebrow">Votre bubble tea</span><span>'+(size==='L'?'Large 70 cl':'Medium 50 cl')+'</span><span>'+name+'</span><span>+ '+topTxt+'</span>'+(milk?'<span class="o-price">'+PRICE[size]+'</span>':'<span class="o-price na">Prix affiché en boutique</span>');
+  }
+  form.addEventListener('change',render); render(); window.__mryeRender=render;
+  const tabs=[...document.querySelectorAll('[role="tab"]')];
+  const sel=t=>{tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;document.getElementById(x.getAttribute('aria-controls')).hidden=!on});t.focus()};
+  tabs.forEach((t,i)=>{t.addEventListener('click',()=>sel(t));t.addEventListener('keydown',e=>{
+    if(['ArrowDown','ArrowRight'].includes(e.key)){e.preventDefault();sel(tabs[(i+1)%tabs.length])}
+    if(['ArrowUp','ArrowLeft'].includes(e.key)){e.preventDefault();sel(tabs[(i-1+tabs.length)%tabs.length])}})});
+})();
+</script>
+<script>
+(() => {
+  const DATA = {"dishes": [["N° 1", "碗杂面", "Nouilles au porc haché et petits pois", "Servies avec ou sans soupe.", "11,50 €", "plats"], ["N° 2", "牛肉面", "Nouilles au bœuf", "À la sauce maison ou au chou mariné.", "11,50 €", "plats"], ["N° 3", "杂酱米粉", "Pâtes de riz au porc haché", "Pâtes de riz et porc haché.", "8,90 €", "plats"], ["N° 4", "酸辣粉", "Soupe de vermicelles aigre et piquante", "Des vermicelles dans un bouillon aigre et piquant.", "8,90 €", "plats"], ["N° 5", "凉皮", "Nouilles de riz, sauce maison", "Servies froides, à la sauce maison.", "8,90 €", "plats"], ["N° 6", "卤味饭", "Riz parfumé, viande au choix", "Riz aux grains mélangés et viande aux 5 parfums, poulet ou porc.", "11,50 €", "plats"], ["N° 8", "热干面", "Nouilles à la sauce sésame", "Le petit-déjeuner de Wuhan : nouilles épaisses à la pâte de sésame.", "8,90 €", "plats"], ["N° 10", "咖喱鸡饭", "Poulet au curry avec riz", "Poulet au curry servi avec du riz.", "11,50 €", "plats"], ["N° 11", "手撕鸡", "Poulet effiloché au citron", "Servi avec du riz.", "11,50 €", "plats"], ["N° 12", "凉面", "Nouilles froides", "Nouilles servies froides.", "8,90 €", "plats"], ["N° 13", "肠粉", "Rouleaux de riz vapeur", "Version végétarienne. Avec du porc : + 1,90 €.", "7 €", "plats"], ["N° 14", "酸菜米粉", "Nouilles de riz au chou vinaigré", "Nouilles de riz et chou chinois vinaigré.", "8,90 €", "plats"], ["N° 9", "麻辣烫", "Malatang, cocotte pimentée", "Un bouillon épicé : vous choisissez ce qui plonge dedans. Viande en option : + 2,50 €.", "12,50 €", "malatang"], ["Snack", "煎饼", "Crêpe salée jianbing", "Version végétarienne. Saucisse, œuf, bacon, poulet, canard laqué ou bœuf en supplément.", "dès 6 €", "snacks"], ["Snack", "章鱼小丸子", "Takoyaki", "6 boules de poulpe, sauce et bonite.", "6,50 €", "snacks"], ["Dessert", "芋圆", "Taro balls", "Au lait de coco, au bubble tea ou au sirop, au choix.", "6 €", "desserts"], ["Dessert", "桂花凉粉", "Gelée liangfen à l’osmanthus", "Une gelée de liangfen parfumée à l’osmanthus.", "5 €", "desserts"], ["Dessert", "鸡蛋仔", "Bubble waffle nature", "La gaufre à bulles de Hong Kong.", "4 €", "desserts"], ["Dessert", "冰淇淋鸡蛋仔", "Bubble waffle glacé", "Glace au choix, topping et sauce.", "7 €", "desserts"]], "cats": {"plats": ["Plats", "#2f5d3f", "#183524"], "malatang": ["Malatang", "#c4452b", "#73200f"], "snacks": ["Crêpes et snacks", "#c08a2e", "#6f4a0e"], "desserts": ["Desserts", "#b9526f", "#6a2942"]}};
+  const DISHES = DATA.dishes, CATS = DATA.cats;
+  const root = document.getElementById('roulette'); if (!root) return;
+  const ring = document.getElementById('ring'), pick = document.getElementById('pick'), track = root.querySelector('.rtrack');
+  const catInputs = [...document.querySelectorAll('input[name="cat"]')], playB = document.getElementById('rplay');
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const N = DISHES.length, STEP = 0.62;
+  const mod = (a, n) => ((a % n) + n) % n;
+  // the Chinese name must fit INSIDE its plate: size by length, and split the long ones over two lines so they stay big
+  const zk = (s) => { const n = [...s].length; return n <= 1 ? 0.42 : n === 2 ? 0.34 : n === 3 ? 0.22 : n === 4 ? 0.27 : 0.2; };
+  const zlines = (s) => { const a = [...s], n = a.length; if (n < 4) return s; const k = Math.ceil(n / 2); return a.slice(0, k).join('') + '<br>' + a.slice(k).join(''); };
+
+  /* ---- the plates ---- */
+  let moved = false;
+  const cards = DISHES.map((d, i) => {
+    const c = CATS[d[5]], el = document.createElement('div');
+    el.className = 'card'; el.id = 'dish-' + i; el.setAttribute('role', 'option'); el.setAttribute('aria-selected', 'false');
+    el.setAttribute('aria-label', d[0] + ', ' + d[2] + ', ' + d[4]);
+    el.style.setProperty('--pa', c[1]); el.style.setProperty('--pb', c[2]);
+    el.innerHTML = '<span class="floor"></span><div class="plate"><span class="num">' + d[0] + '</span><span class="zh" lang="zh" aria-hidden="true" style="--k:' + zk(d[1]) + '">' + zlines(d[1]) + '</span></div>';
+    el.addEventListener('click', () => { if (moved) return; userTouched(); go(i); });
+    ring.appendChild(el);
+    return el;
+  });
+
+  /* ---- geometry of the oval: x = Rx sin(a), depth = Rz (1 - cos a). Farther plates sit higher, smaller, darker (we look slightly from above) ---- */
+  let D = 300, Rx = 420, Rz = 560, Ry = 84, PX = 210;
+  function measure() {
+    const W = root.clientWidth, small = W < 600;
+    D = Math.max(190, Math.min(310, W * (small ? 0.56 : 0.3)));
+    Rx = Math.min(500, W * (small ? 0.47 : 0.38)); Rz = D * 1.9; Ry = D * 0.28; PX = Rx * 0.5;
+    root.style.setProperty('--D', D + 'px');
+    ring.style.height = Math.round(Ry + D * 1.14) + 'px';
+    track.style.width = Math.round(Rx * 2 + D * 0.9) + 'px'; track.style.height = Math.round(D * 0.46) + 'px';
+  }
+  let pos = 0, target = 0, vel = 0, shown = -1;
+  function layout() {
+    for (let i = 0; i < N; i++) {
+      const p = mod(i - pos + N / 2, N) - N / 2, a = Math.abs(p), th = p * STEP, depth = 1 - Math.cos(th), el = cards[i];
+      const s = 1.1 - Math.min(a, 3) * 0.035;
+      el.style.transform = 'translate3d(' + (Math.sin(th) * Rx).toFixed(1) + 'px,' + (Ry * (1 - depth / 2)).toFixed(1) + 'px,' + (-depth * Rz).toFixed(1) + 'px) rotateY(' + (-Math.sin(th) * 34).toFixed(1) + 'deg) scale(' + s.toFixed(3) + ')';
+      el.style.opacity = a > 3.1 ? 0 : a > 2.4 ? ((3.1 - a) / 0.7).toFixed(2) : 1;
+      el.style.setProperty('--dim', Math.min(0.55, a * 0.2).toFixed(2));
+      el.style.zIndex = 100 - Math.round(a * 10);
+      el.style.pointerEvents = a > 3.1 ? 'none' : 'auto';
+    }
+    const cur = mod(Math.round(pos), N);
+    if (cur !== shown) show(cur);
+  }
+  function show(i) {
+    shown = i;
+    const d = DISHES[i], c = CATS[d[5]];
+    pick.classList.remove('swap'); void pick.offsetWidth; if (!reduce) pick.classList.add('swap');
+    pick.style.setProperty('--pa', c[1]);
+    pick.innerHTML = '<p class="pk-meta"><span class="pk-dot"></span><span>' + c[0] + '</span>' + (d[0].indexOf('N°') === 0 ? '<span>' + d[0] + '</span>' : '') + '</p><h3 class="pk-name">' + d[2] + '</h3><p class="pk-desc">' + d[3] + '</p><p class="pk-price">' + d[4] + '</p>';
+    cards.forEach((el, k) => el.setAttribute('aria-selected', k === i ? 'true' : 'false'));
+    ring.setAttribute('aria-activedescendant', 'dish-' + i);
+    catInputs.forEach(inp => { inp.checked = inp.value === d[5]; });
+  }
+
+  /* ---- motion: a damped spring, so the wheel settles like a roulette ---- */
+  let raf = 0, last = 0, dragging = false;
+  function frame(t) {
+    const dt = Math.min(0.05, (t - last) / 1000); last = t;
+    if (reduce) { pos = target; vel = 0; }
+    else { vel += ((target - pos) * 90 - vel * 14) * dt; pos += vel * dt; }
+    layout();
+    if (dragging || Math.abs(target - pos) > 0.0008 || Math.abs(vel) > 0.002) raf = requestAnimationFrame(frame);
+    else { pos = target; vel = 0; layout(); raf = 0; }
+  }
+  const kick = () => { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } };
+  function go(i) { const cur = Math.round(target); target = cur + (mod(i - cur + N / 2, N) - N / 2); kick(); }
+  const step = (n) => { target = Math.round(target) + n; kick(); };
+
+  /* ---- controls ---- */
+  let auto = !reduce, hover = false, inView = true;
+  function syncPlay() { playB.setAttribute('aria-pressed', auto ? 'false' : 'true'); playB.querySelector('.rplay-txt').textContent = auto ? 'Pause' : 'Lecture'; }
+  function userTouched() { if (auto) { auto = false; syncPlay(); } }
+  playB.addEventListener('click', () => { auto = !auto; syncPlay(); });
+  root.querySelector('.prev').addEventListener('click', () => { userTouched(); step(-1); });
+  root.querySelector('.next').addEventListener('click', () => { userTouched(); step(1); });
+  ring.addEventListener('keydown', (e) => {
+    const k = { ArrowRight: 1, ArrowLeft: -1, PageDown: 3, PageUp: -3 }[e.key];
+    if (k) { e.preventDefault(); userTouched(); step(k); }
+    else if (e.key === 'Home') { e.preventDefault(); userTouched(); go(0); }
+    else if (e.key === 'End') { e.preventDefault(); userTouched(); go(N - 1); }
+  });
+  catInputs.forEach(inp => inp.addEventListener('change', () => { userTouched(); go(DISHES.findIndex(d => d[5] === inp.value)); }));
+  let sx = 0, sp = 0, lx = 0, lt = 0, vx = 0;
+  root.addEventListener('pointerdown', (e) => { if (e.target.closest('.rbtn')) return; dragging = true; moved = false; sx = lx = e.clientX; sp = pos; lt = performance.now(); vx = 0; });
+  window.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - sx;
+    if (!moved && Math.abs(dx) < 6) return;
+    if (!moved) { moved = true; userTouched(); }
+    const now = performance.now(); vx = -((e.clientX - lx) / PX) / Math.max(1, now - lt) * 1000; lx = e.clientX; lt = now;
+    pos = sp - dx / PX; target = pos; vel = 0; kick();
+  });
+  const endDrag = () => { if (!dragging) return; dragging = false; if (moved) { target = Math.round(pos + Math.max(-3, Math.min(3, vx)) * 0.18); kick(); setTimeout(() => { moved = false; }, 0); } };
+  window.addEventListener('pointerup', endDrag); window.addEventListener('pointercancel', endDrag);
+  root.addEventListener('pointerenter', () => { hover = true; }); root.addEventListener('pointerleave', () => { hover = false; });
+  if ('IntersectionObserver' in window) new IntersectionObserver((es) => { inView = es[0] ? es[0].isIntersecting : true; }).observe(root);
+  setInterval(() => { if (auto && inView && !hover && !dragging && !ring.matches(':focus-within') && !document.hidden) step(1); }, 3800);
+
+  /* ---- start on the house favourite (n° 8) ---- */
+  measure();
+  pos = target = Math.max(0, DISHES.findIndex(d => d[0] === 'N° 8'));
+  layout(); syncPlay();
+  if ('ResizeObserver' in window) new ResizeObserver(() => { measure(); layout(); }).observe(root); else window.addEventListener('resize', () => { measure(); layout(); });
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+<script>
+/*__BUBBLETEA_3D__*/
+
+
+
+if(window.__mryeRender) window.__mryeRender();
+</script>
+</body>
+</html>
