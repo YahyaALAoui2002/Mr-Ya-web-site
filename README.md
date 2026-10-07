@@ -18,8 +18,9 @@ npm test            # or: npm run test:fast
 ```
 
 ## Put it online (GitHub Pages)
-1. Create a **public** repository on github.com, push this folder (`git remote add origin <url> && git push -u origin main`).
-2. **Settings → Pages → Deploy from a branch → `main` / root**, and move `dist/index.html` to the repo root as `index.html` (or serve `/dist`: add a GitHub Action, or commit `dist/` and set the folder).
-3. The site is live at `https://<user>.github.io/<repo>/`.
+`.github/workflows/pages.yml` builds the site (`node build.mjs`) and publishes `dist/` on every push to `main`.
+1. One-time: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. Merge to `main` (or run the workflow by hand from the **Actions** tab).
+3. The site is live at `https://<user>.github.io/<repo>/` (the lab bench is at `/lab.html`).
 
 Using it with **Claude Code**: open this folder, read `CLAUDE.md` (project memory), then `docs/BACKLOG.md`.
