@@ -1,8 +1,25 @@
 # Mr Ye 幸福食光 — web site
 
-One-page site for a bubble tea and Hubei street-food restaurant in Paris 13e: an interactive **3D bubble tea builder** (Three.js r159, no framework, no bundler), a teddy-bear mascot, and the menu as an oval roulette.
+## 🌐 Live site: **https://yahyaalaoui2002.github.io/Mr-Ya-web-site/**
+(developer bench for the cup and the bear: https://yahyaalaoui2002.github.io/Mr-Ya-web-site/lab.html)
 
-![preview](docs/preview-v21-desktop.png)
+One-page site for a bubble tea and Hubei street-food restaurant in Paris 13e: an interactive **3D bubble tea builder** (Three.js r159, no framework, no bundler), a **rigged, animated teddy-bear mascot** in the Mr Ye apron, and the menu as an oval roulette.
+
+![the bear: front, three-quarter views, and waving](docs/bear-rig-views.png)
+
+## The bear
+A plush built the way a plush is sewn: separate all-quad pieces (torso, pelvis, head, muzzle, ears, arms, legs with flat cream soles) with stitched seams, hung on a real **bone rig** (`THREE.Bone`): `root > hips > spine > neck > Head > earL/earR`, `spine > shoulderL/R`, `hips > hipL/R`. The **Head is its own node** (head, muzzle, ears, eyes, nose, mouth) and follows the pointer; the branded apron (幸福食光 / Mr.Ye, orange pocket slits) hangs on the spine.
+Animated with `AnimationMixer` clips: idle breathing, **wave** (it greets you once; click or tap the bear to make it wave), cheer, nod, tilt, plus blinking.
+
+![the bear as grey clay with its quad wireframe](docs/bear-rig-wire.png)
+
+```js
+mryeCup.bear.play('wave')      // 'wave' | 'cheer' | 'nod' | 'tilt'
+mryeCup.bear.setWire(true)     // grey clay + the quad edges of every piece
+mryeCup.bear.setBones(true)    // show the skeleton
+mryeCup.bear.rig               // the THREE.Bone nodes (hips, spine, neck, Head, earL, ...)
+```
+The lab bench (`/lab.html`) has buttons for all of it (Salut, Hourra, Oui, Curieux, Fil de fer, Squelette).
 
 ## Quick start
 ```
@@ -14,7 +31,7 @@ Needs internet in the browser (Three.js from jsDelivr, fonts from Google).
 ## Tests
 ```
 pip install -r requirements.txt && playwright install chromium
-npm test            # or: npm run test:fast
+npm test            # or: npm run test:fast  (containment, roulette, rig, bear, stress)
 ```
 
 ## Put it online (GitHub Pages)
