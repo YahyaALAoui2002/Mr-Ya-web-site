@@ -1,11 +1,12 @@
   /* ---------- Framing ---------- */
   const target = new THREE.Vector3(0, 2.35, 0);
+  let wideNow = true;                                    // the layout the bear is in (set by resize, read by react)
   function resize() {
     const w = host.clientWidth, h = host.clientHeight;
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    const wide = camera.aspect > 0.95;
+    const wide = camera.aspect > 0.95; wideNow = wide;
     layoutBear(wide);
     const fitH = 5.9, fitW = !mascot.on ? 3.1 : wide ? 5.5 : 4.0;
     target.x = !mascot.on ? 0 : wide ? -1.35 : -0.72;
@@ -42,7 +43,7 @@
   function react(k) {                                   // k = strength; every selection calls this once
     if (reduceMotion) return;
     pulseV = Math.max(-0.3, Math.min(0.3, pulseV + 0.16 * k));
-    mascot.nodV = Math.max(-1.2, Math.min(1.2, mascot.nodV + 0.9 * k));
+    mascot.nodV = Math.max(-3.2, Math.min(3.2, mascot.nodV + (wideNow ? 2.5 : 3.2) * k));      // a nod you can actually see at hero size (~0.2 rad)
     if (mascot.onReact) mascot.onReact(k);
     if (!dragging && Math.abs(vel) < 0.01) vel += (Math.random() < 0.5 ? -1 : 1) * 0.005 * k;
     needs = true;
@@ -84,7 +85,7 @@
 
   /* ---------- Robustness ---------- */
   el.addEventListener('webglcontextlost', (e) => { e.preventDefault(); host.classList.remove('is-3d'); }, false);
-  el.addEventListener('webglcontextrestored', () => { host.classList.add('is-3d'); paramsDirty = true; needs = true; }, false);
+  el.addEventListener('webglcontextrestored', () => { buildEnv(); host.classList.add('is-3d'); paramsDirty = true; needs = true; }, false);      // the studio reflections live in a GPU texture: rebuild them, or everything renders dark
   // Build every topping and compile its shader once, shortly after load, so the first click never hitches.
   const idle = window.requestIdleCallback ? (fn) => window.requestIdleCallback(fn, { timeout: 2500 }) : (fn) => setTimeout(fn, 400);
   const warm = [popping, beans, jellies, ice];

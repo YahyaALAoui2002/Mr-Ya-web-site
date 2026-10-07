@@ -1,6 +1,6 @@
 {
   "name": "mrye-web-site",
-  "version": "21.0.0",
+  "version": "22.0.0",
   "private": true,
   "description": "Mr Ye 幸福食光: one-page restaurant site with a real-time 3D bubble tea builder (Three.js r159, no framework, no bundler)",
   "type": "module",

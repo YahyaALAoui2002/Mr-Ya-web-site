@@ -1,7 +1,7 @@
 # Mr Ye 幸福食光 — web site
 
 ## 🌐 Live site: **https://yahyaalaoui2002.github.io/Mr-Ya-web-site/**
-(developer bench for the cup and the bear: https://yahyaalaoui2002.github.io/Mr-Ya-web-site/lab.html)
+Only the site is published: one self-contained `index.html`, built from `src/` by `.github/workflows/pages.yml` on every push to `main`.
 
 One-page site for a bubble tea and Hubei street-food restaurant in Paris 13e: an interactive **3D bubble tea builder** (Three.js r159, no framework, no bundler), a **rigged, animated teddy-bear mascot** in the Mr Ye apron, and the menu as an oval roulette.
 
@@ -19,7 +19,7 @@ mryeCup.bear.setWire(true)     // grey clay + the quad edges of every piece
 mryeCup.bear.setBones(true)    // show the skeleton
 mryeCup.bear.rig               // the THREE.Bone nodes (hips, spine, neck, Head, earL, ...)
 ```
-The lab bench (`/lab.html`) has buttons for all of it (Salut, Hourra, Oui, Curieux, Fil de fer, Squelette).
+The developer bench (`npm run build && npm run serve`, then open `/lab.html`; it is not published) has buttons for all of it (Salut, Hourra, Oui, Curieux, Fil de fer, Squelette).
 
 ## Quick start
 ```
@@ -35,9 +35,9 @@ npm test            # or: npm run test:fast  (containment, roulette, rig, bear, 
 ```
 
 ## Put it online (GitHub Pages)
-`.github/workflows/pages.yml` builds the site (`node build.mjs`) and publishes `dist/` on every push to `main`.
+`.github/workflows/pages.yml` builds the site (`node build.mjs`) and publishes ONLY `dist/index.html` (as the site's `index.html`) on every push to `main`: no lab bench, no docs, no tests.
 1. One-time: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 2. Merge to `main` (or run the workflow by hand from the **Actions** tab).
-3. The site is live at `https://<user>.github.io/<repo>/` (the lab bench is at `/lab.html`).
+3. The site is live at `https://<user>.github.io/<repo>/` (only `index.html` is published).
 
 Using it with **Claude Code**: open this folder, read `CLAUDE.md` (project memory), then `docs/BACKLOG.md`.
