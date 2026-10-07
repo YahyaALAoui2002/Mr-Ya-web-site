@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mr Ye — labo gobelet 3D (r159 · saveurs)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@900&text=%E5%B9%B8%E7%A6%8F%E9%A3%9F%E5%85%89&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#eef1ea;--ink:#17271c;--soft:#4d5d52;--rule:#cdd5c9;--label:#2f5d3f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#122016;--ink:#e9eee5;--soft:#a7b4a9;--rule:#26392b;--label:#3f7a53}}
+:root[data-theme="dark"]{--paper:#122016;--ink:#e9eee5;--soft:#a7b4a9;--rule:#26392b;--label:#3f7a53}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:500 15px/1.4 "Familjen Grotesk",system-ui,sans-serif;display:grid;grid-template-rows:1fr auto}
+#cup3d{position:relative;min-height:0}
+#cup3d canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
+.bar{display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center;padding:12px 14px 16px;border-top:1px solid var(--rule);max-height:46dvh;overflow:auto}
+.grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.grp b{font-weight:600;color:var(--soft);margin-right:4px;font-size:13px}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt span{display:inline-block;padding:7px 12px;border-radius:999px;border:1.5px solid var(--rule);cursor:pointer;white-space:nowrap}
+.opt input:checked+span{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.opt input:focus-visible+span{outline:2px solid var(--label);outline-offset:2px}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;vertical-align:-1px;box-shadow:inset 0 0 0 1px rgb(0 0 0 / .2)}
+.fallback-3d{position:absolute;inset:0;display:grid;place-items:center;padding:24px;color:var(--soft);text-align:center}
+.hint{position:absolute;left:0;right:0;bottom:10px;text-align:center;color:var(--soft);font-size:13px;pointer-events:none}
+
+
+/* ---------- Temperature badge: flame (hot) / snowflake (cold), top right of the cup ---------- */
+:root{--hot:#e8452b;--cold:#2f9bd6;--tbg:color-mix(in srgb,var(--paper) 88%,#fff);--tsh:6px 6px 14px rgb(23 39 28 / .15),-6px -6px 14px rgb(255 255 255 / .9)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hot:#ff6a3d;--cold:#52b4ec;--tbg:color-mix(in srgb,var(--paper) 90%,#fff 6%);--tsh:6px 6px 14px rgb(0 0 0 / .5),-5px -5px 12px rgb(255 255 255 / .05)}}
+:root[data-theme="dark"]{--hot:#ff6a3d;--cold:#52b4ec;--tbg:color-mix(in srgb,var(--paper) 90%,#fff 6%);--tsh:6px 6px 14px rgb(0 0 0 / .5),-5px -5px 12px rgb(255 255 255 / .05)}
+.temp-badge{position:absolute;top:1%;right:1%;z-index:3;width:68px;height:68px;border-radius:50%;background:var(--tbg);display:grid;place-items:center;pointer-events:none;
+  box-shadow:var(--tsh),0 0 0 2px var(--ring,var(--cold));transition:box-shadow .3s}
+.temp-badge.is-hot{--ring:var(--hot)}.temp-badge.is-cold{--ring:var(--cold)}
+.temp-badge .ico{position:absolute;inset:0;margin:auto;width:36px;height:36px;color:var(--cold);opacity:0;transform:scale(.3);transition:opacity .2s}
+.temp-badge.is-hot .ico-hot,.temp-badge.is-cold .ico-cold{opacity:1;transform:none}
+.temp-badge .ripple{position:absolute;inset:0;border-radius:50%;border:2px solid var(--ring);opacity:0}
+@media (max-width:767px){.temp-badge{width:56px;height:56px}.temp-badge .ico{width:30px;height:30px}}
+</style></head><body>
+<div id="cup3d" aria-label="Gobelet 3D, faites-le tourner"><div class="temp-badge is-cold" id="tempBadge" aria-hidden="true" title="Froid"><i class="ripple"></i><svg class="ico ico-hot" viewBox="0 0 64 64"><defs><linearGradient id="flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffa23a"/><stop offset="1" stop-color="#e8362a"/></linearGradient></defs><path fill="url(#flameG)" fill-rule="evenodd" d="M34 2C36 12 46 18 51 30C56 43 48 60 32 60C16 60 7 47 11 34C13 27 18 23 19 14C23 18 26 22 26 29C30 22 33 11 34 2ZM32 54C25 54 21 49 23 43C24 39 27 37 29 33C31 37 36 39 38 44C40 49 37 54 32 54Z"/></svg><svg class="ico ico-cold" viewBox="0 0 64 64"><path d="M32.0 32.0L32.0 5.0M32.0 14.0L24.7 7.9M32.0 14.0L39.3 7.9M32.0 21.5L27.0 17.3M32.0 21.5L37.0 17.3M32.0 32.0L55.4 18.5M47.6 23.0L49.2 13.6M47.6 23.0L56.5 26.2M41.1 26.8L42.2 20.3M41.1 26.8L47.2 29.0M32.0 32.0L55.4 45.5M47.6 41.0L56.5 37.8M47.6 41.0L49.2 50.4M41.1 37.2L47.2 35.0M41.1 37.2L42.2 43.7M32.0 32.0L32.0 59.0M32.0 50.0L39.3 56.1M32.0 50.0L24.7 56.1M32.0 42.5L37.0 46.7M32.0 42.5L27.0 46.7M32.0 32.0L8.6 45.5M16.4 41.0L14.8 50.4M16.4 41.0L7.5 37.8M22.9 37.2L21.8 43.7M22.9 37.2L16.8 35.0M32.0 32.0L8.6 18.5M16.4 23.0L7.5 26.2M16.4 23.0L14.8 13.6M22.9 26.8L16.8 29.0M22.9 26.8L21.8 20.3" fill="none" stroke="currentColor" stroke-width="4.4" stroke-linecap="round"/></svg></div><p class="hint">Faites tourner le gobelet</p></div>
+<form class="bar" onsubmit="return false">
+  <div class="grp" id="gMilk"><b>Au lait</b></div>
+  <div class="grp" id="gFruit"><b>Fruité glacé</b></div>
+  <div class="grp"><b>Température</b>
+    <label class="opt"><input type="radio" name="temp" value="froid" checked><span>Froid</span></label>
+    <label class="opt"><input type="radio" name="temp" value="chaud"><span>Chaud (au lait)</span></label>
+  </div>
+  <div class="grp"><b>Topping</b>
+    <label class="opt"><input type="radio" name="top" value="tapioca" checked><span>Tapioca</span></label>
+    <label class="opt"><input type="radio" name="top" value="multifruit"><span>Multifruit</span></label>
+    <label class="opt"><input type="radio" name="top" value="haricot"><span>Haricot rouge</span></label>
+    <label class="opt"><input type="radio" name="top" value="gelee"><span>Gelée d'herbe</span></label>
+  </div>
+  <div class="grp"><b>Taille</b>
+    <label class="opt"><input type="radio" name="size" value="M"><span>50 cl</span></label>
+    <label class="opt"><input type="radio" name="size" value="L" checked><span>70 cl</span></label>
+  </div>
+</form>
+<script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+<script>
+/*__BUBBLETEA_3D__*/
+
+
+
+(() => {
+  const api = window.mryeCup;
+  const f = document.querySelector('.bar');
+  if (!api || !api.flavors) return;
+  const LBL = { nature: 'Nature', fraise: 'Fraise', mangue: 'Mangue', coco: 'Coco', pasteque: 'Pastèque', matcha: 'Matcha', taro: 'Taro', vanille: 'Vanille',
+    citron: 'Citron', passion: 'Passion', rose: 'Rose', peche: 'Pêche', litchi: 'Litchi', myrtille: 'Myrtille', cerise: 'Cerise' };
+  const fill = (base, host) => host.insertAdjacentHTML('beforeend', Object.keys(api.flavors[base]).map(id =>
+    '<label class="opt"><input type="radio" name="flavor" value="' + base + ':' + id + '"' + (base === 'lait' && id === 'nature' ? ' checked' : '') + '><span><i class="dot" style="background:' + api.flavors[base][id].hex + '"></i>' + LBL[id] + '</span></label>').join(''));
+  fill('lait', document.getElementById('gMilk'));
+  fill('fruit', document.getElementById('gFruit'));
+
+  // flame / snowflake badge: the new icon pops UP every time the temperature changes
+  function setTempBadge(hot){
+    var b = document.getElementById('tempBadge'); if (!b) return;
+    var first = !b.dataset.init; b.dataset.init = '1';
+    if (!first && b.classList.contains('is-hot') === hot) return;
+    b.classList.toggle('is-hot', hot); b.classList.toggle('is-cold', !hot); b.title = hot ? 'Chaud' : 'Froid';
+    if (first || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    var ico = b.querySelector(hot ? '.ico-hot' : '.ico-cold'), rip = b.querySelector('.ripple');
+    if (!ico.animate) return;
+    if (ico._pop) ico._pop.cancel();
+    ico._pop = ico.animate([{transform:'scale(.45) translateY(12px) rotate(-12deg)'},{transform:'scale(1.5) translateY(-14px) rotate(7deg)',offset:.4},{transform:'scale(.92) translateY(2px) rotate(-2deg)',offset:.66},{transform:'none'}], {duration:640, easing:'cubic-bezier(.3,1.35,.5,1)'});
+    if (rip._pop) rip._pop.cancel();
+    rip._pop = rip.animate([{opacity:.7,transform:'scale(.9)'},{opacity:0,transform:'scale(1.7)'}], {duration:720, easing:'ease-out'});
+  }
+  const go = () => { const [base, id] = f.flavor.value.split(':'); api.setFlavor(base, id); api.setTopping(f.top.value); api.setSize(f.size.value); setTempBadge(base === 'lait' && f.temp.value === 'chaud'); };
+  f.addEventListener('change', go); go();
+})();
+</script>
+</body></html>

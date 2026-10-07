@@ -1,0 +1,29 @@
+# History of the conversation (what happened, in order)
+
+The very first part of the build session is in `transcript/part-1-early-build-session.txt` (raw). Everything after it is summarised here.
+
+## Part 1 — first build (v1 → v6)
+- Client: Mr Ye 幸福食光. Brand colours taken from the real cup label photo; logo rebuilt as a CSS polygon badge; fonts chosen; page: hero builder, bubble tea stall board, tabbed menu with the real prices (from 5 menu photos), visit section.
+- Real menu captured (bubble tea sizes/flavours/toppings, 12 numbered plats, malatang, jianbing crêpe, takoyaki, desserts). Open items: hours (unverified), dish n°7 missing, crossed-out prices, fruit tea price (shown as "prix en boutique"), waffle options.
+- 3D cup built in Three.js r159 (liquid shader, instanced toppings with a small physics settle, studio reflections); many glitches fixed (beads flying out, pops on topping change, fruit tea brown on dark pages, first-click hitch).
+
+## Part 2 — this session (v7 → v21)
+1. **Glitch video analysis**: the gelée pile became one flat grey block with a stair-stepped, flickering edge (a dense pile of near-black cubes seen through a transmissive liquid) and the milk veil made cubes look hollow. Rebuilt the gelée as a wall-hugging shell.
+2. **3D fireball for hot drinks** (billboard flame shader + embers + warm light). Removed later (see 6).
+3. **Code review → real bugs**: the topping edge-light had 5 numbers in a `Vector4` (the "power" was silently lost, so every topping had a wide washed-out glow); missing CJK glyphs (吃 品 甜); TDZ hazards; hot state gating.
+4. **Review pasted from ChatGPT**: evaluated against the code with tests. Rejected: transmissive cup (milk vanishes), `settle` 90 iterations (floating beads), wrapping the label, `maximum-scale=1`. Adopted: observer guards, touch-action, liquid level gap under the lid, shadow on dark pages, theme observer, frame-rate-independent inertia, adaptive pixel ratio (own idea).
+5. **Toppings outside the cup**: measured (81/74/89/87 beads poking out). Cause: wall formula larger than the real glass profile + deliberate "poke" + rounded base ignored. Fixed with the exact glass profile `rAt(y)`, glass margin, liquid film inset; vertex-level containment test (now 0). Washed-out look inside the glass fixed by drawing toppings after the glass layers.
+6. **Gelée d'herbe rebuilt from the real menu photo** (irregular charcoal chunks, not glossy dice); temperature UI: icon buttons first, then Yahya asked for normal pills + a flame/snowflake **badge top-right of the cup** that pops on change; fireball removed.
+7. **Milk like a real glass** (reference photo): no stains (swirl/vein/speckle code removed), toppings seen *through* the milk (Beer–Lambert on the real view ray), matte pearls, loose layer.
+8. **Toppings identical in milk and fruit tea** (one shader, `sigma` per flavour; drawn once → −59% triangles). Thinner multifruit/beans/gelée; **gelée = 135 chunks, bottom only**.
+9. **Premium pass from a second review**: studio light pool behind the cup, contact shadow that follows cup size, settle pulse on every selection, order card with big price, bigger cup on mobile, badge animations cancelled between changes.
+10. **Milk milkier / fruit tea clearer** (cream cap + tinted wisps + satin sheen; micro-bubbles + sun streak + ice).
+11. **Menu as an oval roulette** (19 dishes, Chinese names on category-coloured plates) + collapsible full menu.
+12. Asked whether all Google Maps photos can be downloaded: not possible from the sandbox and not allowed (customers' copyright). Plates wait for client photos.
+13. Another AI's "milk material module" tested: its SSS shader needs a thickness texture (renders a grey ball without it); its material recipe equals what we already have; its depth-absorption claim is false in Three.js.
+14. **Mascot bear** from the shop-front photo: v1 = ~25 merged primitives ("parts connected"); v2 = one SDF mesh. The pasted v2 code had 12 bugs (produced 0 triangles); fixed (see `mascot-sdf-review-notes.md`). First anatomy was wrong (hands and feet indistinguishable) → arms down the sides with paws, legs forward with big cream-soled feet, short bib apron.
+15. GitHub: no credentials in the sandbox, so a ready-to-upload repo was prepared; Yahya wants it public to show it.
+16. **This hand-over** to Claude Code.
+17. **Bear v22 (Claude Code)**: the project went to GitHub (PR with a GitHub Pages workflow). The bear was compared with the shop photo and rebuilt where it differed: face (small nose, close eyes, short cream muzzle, smile with tongue, all placed on the real surface), photo-measured colours, baked ambient occlusion, a cleaner apron with painted pockets, finer plush texture. Same architecture, same public API, same triangle count. Before/after renders: `docs/bear-v22-views.png`, `docs/bear-v22-closeup.png`.
+
+Four screen recordings Yahya made of glitches (about 80 MB) are not included; their findings are in item 1.
