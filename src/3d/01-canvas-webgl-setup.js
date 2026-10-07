@@ -27,7 +27,7 @@
   let needs = true, paramsDirty = true;   // shared by handlers declared above their use
 
   /* ---------- Studio environment for reflections (softboxes) ---------- */
-  (function buildEnv() {
+  function buildEnv() {
     // Port of three.js RoomEnvironment (from Google model-viewer): a lit studio room used as the reflection source
     const env = new THREE.Scene();
     const geo = new THREE.BoxGeometry(); geo.deleteAttribute('uv');
@@ -50,9 +50,12 @@
     add(lightMat(20), [3.235, 11.486, -12.541], 0, [2.5, 2.0, 0.1]);
     add(lightMat(100), [0, 20, 0], 0, [1.0, 0.1, 1.0]);
     const pm = new THREE.PMREMGenerator(renderer);
+    const prevEnv = scene.environment;
     scene.environment = pm.fromScene(env, 0.04).texture;
     pm.dispose();
-  })();
+    if (prevEnv) prevEnv.dispose();
+  }
+  buildEnv();
   // transmission refracts whatever is behind it, so the scene needs the page colour as a real background
   let isDark = 0;
   const syncBg = () => {

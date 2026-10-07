@@ -26,6 +26,9 @@ with sync_playwright() as p:
     page.mouse.move(20, 200); page.wait_for_timeout(7000); left = rot()[1]
     page.mouse.move(340, 200); page.wait_for_timeout(7000); right = rot()[1]
     ok &= check("head follows the pointer", abs(right - left) > 0.08, f"yaw {left:.3f} -> {right:.3f}")
+    page.mouse.move(180, 4); page.wait_for_timeout(7000); up = rot()[0]
+    page.mouse.move(180, 396); page.wait_for_timeout(7000); down = rot()[0]
+    ok &= check("pointer above the bear: it looks UP (a positive Head pitch tips the nose down)", up < down - 0.05, f"pitch {up:.3f} (pointer top) vs {down:.3f} (pointer bottom)")
     base = rot()[0]; click(page, "flavor", "lait:taro"); peak = 0; t1 = time.time()
     while time.time() - t1 < 10:
         peak = max(peak, abs(rot()[0] - base)); page.wait_for_timeout(250)

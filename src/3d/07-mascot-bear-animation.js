@@ -30,32 +30,32 @@
   const BW = bPI2 / 6;                                                                        // idle: 6 s loop, two breaths
   const bIdle = bClip('idle', 6, {
     rot: {
-      spine: (t) => [0.012 * Math.sin(2 * BW * t + 0.4), 0, 0.008 * Math.sin(BW * t)],
-      neck: (t) => [0.02 * Math.sin(2 * BW * t + 1.0), 0.05 * Math.sin(BW * t), 0.03 * Math.sin(BW * t + 0.5)],
-      earL: (t) => [0, 0, 0.07 * Math.sin(2 * BW * t)], earR: (t) => [0, 0, -0.07 * Math.sin(2 * BW * t + 0.6)],
-      shoulderL: (t) => [0.01 * Math.sin(2 * BW * t), 0, 0.03 * Math.sin(2 * BW * t + 1.0)], shoulderR: (t) => [0.01 * Math.sin(2 * BW * t + 0.5), 0, -0.03 * Math.sin(2 * BW * t + 1.4)],
+      spine: (t) => [0.02 * Math.sin(2 * BW * t + 0.4), 0, 0.016 * Math.sin(BW * t)],
+      neck: (t) => [0.03 * Math.sin(2 * BW * t + 1.0), 0.07 * Math.sin(BW * t), 0.045 * Math.sin(BW * t + 0.5)],
+      earL: (t) => [0, 0, 0.04 * Math.sin(2 * BW * t)], earR: (t) => [0, 0, -0.04 * Math.sin(2 * BW * t + 0.6)],
+      shoulderL: (t) => [0.012 * Math.sin(2 * BW * t), 0, 0.035 * Math.sin(2 * BW * t + 1.0)], shoulderR: (t) => [0.012 * Math.sin(2 * BW * t + 0.5), 0, -0.035 * Math.sin(2 * BW * t + 1.4)],
     },
-    scl: { spine: (t) => { const s = Math.sin(2 * BW * t); return [1 + 0.008 * s, 1 + 0.014 * s, 1 + 0.008 * s]; } },                         // breathing: the chest swells, the apron breathes with it
   });
+  THREE.AnimationUtils.makeClipAdditive(bIdle, 0, bIdle);                                     // offsets from its first frame: added on top of whatever else plays, so the body keeps breathing during a wave
   const bWave = bClip('wave', 2.8, {                                                         // the bear's right arm (viewer's left) goes up and waves, like the plush in the references
     abs: { shoulderR: (t) => {
       const up = bSstep(0, 0.55, t) * (1 - bSstep(2.25, 2.8, t)), osc = Math.sin((t - 0.55) * 13.8) * bSstep(0.4, 0.75, t) * (1 - bSstep(2.0, 2.3, t));
-      return [bLerp(-0.22, -0.30, up) + 0.08 * osc, 0.12 * osc, bLerp(-0.34, -2.42, up) + 0.30 * osc]; } },
+      return [bLerp(-0.3, 0.18, up) + 0.06 * osc, 0.1 * osc, bLerp(-0.17, -2.1, up) + 0.22 * osc]; } },
     rot: {
       spine: (t) => [0, 0, -0.05 * bSstep(0, 0.55, t) * (1 - bSstep(2.25, 2.8, t))],
-      earR: (t) => [0, 0, 0.18 * Math.sin((t - 0.55) * 13.8) * bSstep(0.4, 0.75, t) * (1 - bSstep(2.0, 2.3, t))],
-      earL: (t) => [0, 0, -0.14 * Math.sin((t - 0.55) * 13.8 + 1) * bSstep(0.4, 0.75, t) * (1 - bSstep(2.0, 2.3, t))],
+      earR: (t) => [0, 0, 0.1 * Math.sin((t - 0.55) * 13.8) * bSstep(0.4, 0.75, t) * (1 - bSstep(2.0, 2.3, t))],
+      earL: (t) => [0, 0, -0.08 * Math.sin((t - 0.55) * 13.8 + 1) * bSstep(0.4, 0.75, t) * (1 - bSstep(2.0, 2.3, t))],
     },
   });
-  const bCheer = bClip('cheer', 1.6, {                                                       // both arms up, two little bounces, ears flop
+  const bCheer = bClip('cheer', 1.6, {                                                       // both arms up, two bounces, ears flop
     abs: {
-      shoulderL: (t) => { const e = bSstep(0, 0.35, t) * (1 - bSstep(1.2, 1.6, t)), f = Math.sin(t * 15) * e; return [-0.22 - 0.1 * e, 0, bLerp(0.34, 2.3, e) + 0.22 * f]; },
-      shoulderR: (t) => { const e = bSstep(0, 0.35, t) * (1 - bSstep(1.2, 1.6, t)), f = Math.sin(t * 15 + 0.8) * e; return [-0.22 - 0.1 * e, 0, bLerp(-0.34, -2.3, e) + 0.22 * f]; },
+      shoulderL: (t) => { const e = bSstep(0, 0.35, t) * (1 - bSstep(1.2, 1.6, t)), f = Math.sin(t * 15) * e; return [bLerp(-0.3, 0.18, e), 0, bLerp(0.17, 2.1, e) + 0.18 * f]; },
+      shoulderR: (t) => { const e = bSstep(0, 0.35, t) * (1 - bSstep(1.2, 1.6, t)), f = Math.sin(t * 15 + 0.8) * e; return [bLerp(-0.3, 0.18, e), 0, bLerp(-0.17, -2.1, e) + 0.18 * f]; },
     },
-    pos: { hips: (t) => [0, 0.12 * Math.abs(Math.sin(t * Math.PI * 2.5)) * bSstep(0, 0.2, t) * (1 - bSstep(1.3, 1.6, t)), 0] },
+    pos: { hips: (t) => [0, 0.24 * Math.abs(Math.sin(t * Math.PI * 2.5)) * bSstep(0, 0.2, t) * (1 - bSstep(1.3, 1.6, t)), 0] },
     rot: {
-      earL: (t) => [0, 0, 0.3 * Math.sin(t * 15) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t))], earR: (t) => [0, 0, -0.3 * Math.sin(t * 15 + 0.7) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t))],
-      hipL: (t) => [0.14 * Math.sin(t * 15) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t)), 0, 0], hipR: (t) => [-0.14 * Math.sin(t * 15) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t)), 0, 0],
+      earL: (t) => [0, 0, 0.14 * Math.sin(t * 15) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t))], earR: (t) => [0, 0, -0.14 * Math.sin(t * 15 + 0.7) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t))],
+      hipL: (t) => [0.04 * Math.sin(t * 15) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t)), 0, 0], hipR: (t) => [-0.04 * Math.sin(t * 15) * bSstep(0, 0.3, t) * (1 - bSstep(1.2, 1.6, t)), 0, 0],
     },
   });
   const bNod = bClip('nod', 0.9, { rot: { neck: (t) => [0.3 * Math.sin(bPI2 * 1.5 * t / 0.9) * (1 - t / 0.9), 0, 0], spine: (t) => [0.04 * Math.sin(bPI2 * 1.5 * t / 0.9) * (1 - t / 0.9), 0, 0] } });
@@ -68,21 +68,22 @@
   const mixer = new THREE.AnimationMixer(bear), bAnim = { clips: {}, act: {}, cur: null, t: 0, count: 0, lastCheer: -1e9 };
   for (const c of [bIdle, bWave, bCheer, bNod, bTilt]) {
     bAnim.clips[c.name] = c; const a = mixer.clipAction(c); a.play(); bAnim.act[c.name] = a;
-    if (c.name !== 'idle') { a.paused = true; a.weight = 0; a.time = 0; }                   // one-shots: I set their time and weight myself, so they blend over idle and end on the idle pose
+    if (c.name !== 'idle') { a.paused = true; a.weight = 0; a.time = 0; }                   // one-shots: I set their time and weight myself, so they blend into the pose and end on the idle pose
+    else a.blendMode = THREE.AdditiveAnimationBlendMode;
   }
   function bApply(dt) {                                                                       // advance the overlay clip (if any) and the mixer by dt
-    const idle = bAnim.act.idle;
+    for (const n in bAnim.act) if (n !== 'idle' && n !== bAnim.cur) bAnim.act[n].weight = 0;      // an interrupted clip must never leave weight behind (it would freeze half a pose into the bear)
     if (bAnim.cur) {
       const c = bAnim.clips[bAnim.cur], a = bAnim.act[bAnim.cur], T = c.duration;
       bAnim.t += dt;
       const env = bSstep(0, 0.22, bAnim.t) * (1 - bSstep(T - 0.28, T, bAnim.t));
-      a.time = Math.min(bAnim.t, T - 1e-3); a.weight = env; idle.weight = 1 - env;
-      if (bAnim.t >= T) { a.weight = 0; idle.weight = 1; bAnim.cur = null; }
+      a.time = Math.min(bAnim.t, T - 1e-3); a.weight = env;
+      if (bAnim.t >= T) { a.weight = 0; bAnim.cur = null; }
     }
     mixer.update(dt);
   }
   /* ---- the public handle: window.mryeCup.bear ---- */
-  const bSkel = new THREE.SkeletonHelper(rig.root); bSkel.visible = false; bSkel.renderOrder = 10; scene.add(bSkel);
+  const bSkel = new THREE.SkeletonHelper(rig.root); bSkel.visible = false; bSkel.renderOrder = 10; scene.add(bSkel); let bSkelWanted = false;
   function bSetWire(on) {                                                                     // grey clay + the QUAD edges of every piece (the topology of the reference wireframes)
     for (const b of bearMeshes) {
       if (b.noWire) continue;
@@ -95,40 +96,52 @@
     }
     needs = true;
   }
+  const bResetRig = () => { for (const n in rig) { rig[n].quaternion.copy(bRestQ[n]); rig[n].position.copy(bRestP[n]); rig[n].scale.set(1, 1, 1); } };
   const bearApi = {
     rig, mixer, clips: Object.keys(bAnim.clips).filter((n) => n !== 'idle'),
-    play(name) { if (reduceMotion || !bAnim.clips[name] || name === 'idle' || bAnim.cur === name) return false; bAnim.cur = name; bAnim.t = 0; bAnim.count++; needs = true; return true; },
-    pose(name, t) {                                                                           // jump to time t of a clip (tests, screenshots): the pose is applied at once
-      const a = bAnim.act; for (const n in a) if (n !== 'idle') a[n].weight = 0; bAnim.act.idle.weight = 1;
-      if (!bAnim.clips[name]) { bAnim.cur = null; mixer.update(0); return; }
+    play(name) {
+      if (reduceMotion || !mascot.on || !bAnim.clips[name] || name === 'idle' || bAnim.cur === name) return false;
+      for (const n in bAnim.act) if (n !== 'idle') bAnim.act[n].weight = 0;
+      bAnim.cur = name; bAnim.t = 0; bAnim.count++; needs = true;
+      bBlink.fidget = performance.now() + 22000 + rand() * 18000;                              // the next idle fidget is counted from NOW, whoever started this clip
+      return true;
+    },
+    pose(name, t) {                                                                           // jump to time t of a clip (tests, screenshots): the pose is applied at once, from the idle pose at time 0
+      for (const n in bAnim.act) if (n !== 'idle') bAnim.act[n].weight = 0;
+      bAnim.act.idle.time = 0;
+      if (!bAnim.clips[name] || name === 'idle') { bAnim.cur = null; bResetRig(); mixer.update(0); needs = true; return; }
       bAnim.cur = name; bAnim.t = Math.max(0, t) - 1e-6; bApply(1e-6); needs = true;
     },
-    setWire: bSetWire, setBones(on) { bSkel.visible = !!on; needs = true; },
+    setWire: bSetWire, setBones(on) { bSkelWanted = !!on; bSkel.visible = bSkelWanted && mascot.on; needs = true; },
     get playing() { return bAnim.cur; },
   };
-  mascot.onReact = (k) => {                                                                   // every selection nods (spring, in slice 08); a big change (size) also cheers
+  mascot.onReact = (k) => {                                                                   // every selection nods (spring, in slice 08); a big change (size) also cheers, at most once in a while
     const now = performance.now();
-    if (!bAnim.cur && k >= 1.3 && now - bAnim.lastCheer > 5000 && !reduceMotion) { bAnim.lastCheer = now; bearApi.play('cheer'); }
+    if (!mascot.on || bAnim.cur || reduceMotion) return;
+    bBlink.fidget = Math.max(bBlink.fidget, now + 12000);
+    if (k >= 1.3 && now - bAnim.lastCheer > 20000) { bAnim.lastCheer = now; bearApi.play('cheer'); }
   };
 
   const bearShadow = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 3.6), new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false }));
   bearShadow.rotation.x = -Math.PI / 2; scene.add(bearShadow);
   function updateHead(pitch, yaw, roll) { rig.Head.rotation.set(pitch, yaw, roll); }          // the Head node is driven live, never by a clip
   function layoutBear(wide) {
-    bear.visible = bearShadow.visible = mascot.on;
+    bear.visible = bearShadow.visible = mascot.on; bSkel.visible = bSkelWanted && mascot.on;
     mascot.baseYaw = wide ? -0.5 : -0.4;
     if (wide) { bear.position.set(-2.7, 0, 0.1); bear.scale.setScalar(0.66); bear.rotation.y = 0.62; }
-    else { bear.position.set(-1.8, 0, 0.95); bear.scale.setScalar(0.46); bear.rotation.y = 0.5; }
+    else { bear.position.set(-1.68, 0, 0.95); bear.scale.setScalar(0.46); bear.rotation.y = 0.5; }
     bearShadow.position.set(bear.position.x + 0.1, 0.001, bear.position.z + 0.45 * bear.scale.x); bearShadow.scale.set(bear.scale.x * 1.05, bear.scale.x * 0.9, 1);
     updateHead(0.04, mascot.baseYaw, 0.07);
   }
-  let bBlink = { next: 2200, t: -1, fidget: 25000 };
+  let bBlink = { next: 2200, t: -1, fidget: 1e12 };                                           // fidget: set by play(), so it always counts from the last clip
   function updateBear(now, dt) {
     if (!mascot.on || reduceMotion) return;
     const t = now / 1000;
-    if (mascot.autoplay && !bAnim.cur && bAnim.count === 0 && now > 1600) bearApi.play('wave');                       // a greeting, once
-    else if (mascot.autoplay && !bAnim.cur && bAnim.count > 0 && now > bBlink.fidget) { bearApi.play(rand() < 0.5 ? 'tilt' : 'nod'); bBlink.fidget = now + 22000 + rand() * 18000; }
+    if (mascot.autoplay && !bAnim.cur && bAnim.count === 0 && now > 2200) bearApi.play('wave');                       // a greeting, once
+    else if (mascot.autoplay && !bAnim.cur && bAnim.count > 0 && now > bBlink.fidget) bearApi.play(rand() < 0.5 ? 'tilt' : 'nod');
     bApply(dt);
+    const br = Math.sin(2 * BW * t), bx = 1 + 0.016 * br, by = 1 + 0.026 * br;                                       // breathing: the chest swells (the apron with it); neck and shoulders are counter-scaled so the head and arms move but do not squash
+    rig.spine.scale.set(bx, by, bx); for (const n of ['neck', 'shoulderL', 'shoulderR']) rig[n].scale.set(1 / bx, 1 / by, 1 / bx);
     mascot.yaw += (mascot.tYaw - mascot.yaw) * Math.min(1, dt * 4); mascot.pitch += (mascot.tPitch - mascot.pitch) * Math.min(1, dt * 4);
     mascot.nodV += (-60 * mascot.nod - 7 * mascot.nodV) * dt; mascot.nod += mascot.nodV * dt;       // a nod on every selection
     updateHead(0.04 + mascot.pitch + mascot.nod, mascot.baseYaw + mascot.yaw * 0.8, 0.07 + 0.012 * Math.sin(t * 1.1));
@@ -138,13 +151,14 @@
   }
   window.addEventListener('pointermove', (e) => {
     const r = host.getBoundingClientRect(); if (!r.width) return;
-    mascot.tYaw = Math.max(-0.5, Math.min(0.5, ((e.clientX - r.left) / r.width * 2 - 1) * 0.5)); mascot.tPitch = Math.max(-0.2, Math.min(0.2, -((e.clientY - r.top) / r.height * 2 - 1) * 0.2));
+    mascot.tYaw = Math.max(-0.5, Math.min(0.5, ((e.clientX - r.left) / r.width * 2 - 1) * 0.5)); mascot.tPitch = Math.max(-0.2, Math.min(0.2, ((e.clientY - r.top) / r.height * 2 - 1) * 0.2));      // pointer above the bear -> negative pitch -> the nose goes up
   }, { passive: true });
   /* click (or tap) the bear: it waves, then cheers, tilts, nods... (a drag still just turns the cup) */
   const bRay = new THREE.Raycaster(), bPtr = new THREE.Vector2(), bTapOrder = ['wave', 'cheer', 'tilt', 'nod']; let bDown = null, bTaps = 0;
-  renderer.domElement.addEventListener('pointerdown', (e) => { bDown = [e.clientX, e.clientY]; });
+  renderer.domElement.addEventListener('pointerdown', (e) => { bDown = (e.button === 0 && e.isPrimary) ? [e.clientX, e.clientY] : null; });
+  renderer.domElement.addEventListener('pointercancel', () => { bDown = null; });
   renderer.domElement.addEventListener('pointerup', (e) => {
-    if (!bDown || !mascot.on) return;
+    if (!bDown || !mascot.on || !e.isPrimary) return;
     const moved = Math.hypot(e.clientX - bDown[0], e.clientY - bDown[1]); bDown = null; if (moved > 6) return;
     const r = renderer.domElement.getBoundingClientRect(); bPtr.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     bRay.setFromCamera(bPtr, camera);

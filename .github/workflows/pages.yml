@@ -24,12 +24,15 @@ jobs:
           node-version: 22
       - name: Build the site (no dependencies, Node only)
         run: node build.mjs
-      - name: Check the build output
-        run: test -s dist/index.html && test -s dist/lab.html
+      - name: Keep only the site (one self-contained index.html, no lab bench and no loose scripts)
+        run: |
+          mkdir _site
+          cp dist/index.html _site/index.html
+          test -s _site/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: _site
 
   deploy:
     needs: build
