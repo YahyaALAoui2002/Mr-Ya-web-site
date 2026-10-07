@@ -24,5 +24,6 @@ The very first part of the build session is in `transcript/part-1-early-build-se
 14. **Mascot bear** from the shop-front photo: v1 = ~25 merged primitives ("parts connected"); v2 = one SDF mesh. The pasted v2 code had 12 bugs (produced 0 triangles); fixed (see `mascot-sdf-review-notes.md`). First anatomy was wrong (hands and feet indistinguishable) → arms down the sides with paws, legs forward with big cream-soled feet, short bib apron.
 15. GitHub: no credentials in the sandbox, so a ready-to-upload repo was prepared; Yahya wants it public to show it.
 16. **This hand-over** to Claude Code.
+17. **Bear v22 (Claude Code)**: the project went to GitHub (PR with a GitHub Pages workflow). The bear was compared with the shop photo and rebuilt where it differed: face (small nose, close eyes, short cream muzzle, smile with tongue, all placed on the real surface), photo-measured colours, baked ambient occlusion, a cleaner apron with painted pockets, finer plush texture. Same architecture, same public API, same triangle count. Before/after renders: `docs/bear-v22-views.png`, `docs/bear-v22-closeup.png`.
 
 Four screen recordings Yahya made of glitches (about 80 MB) are not included; their findings are in item 1.

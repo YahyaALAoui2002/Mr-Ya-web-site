@@ -46,7 +46,7 @@ The page script in `site.template.html` (`render()`, `setTempBadge()`, the roule
 7. Colour: `Color.setHSL` needs `THREE.SRGBColorSpace`; **vertex colours are linear** (build them with `new THREE.Color('#hex')`). Tone mapping ACES, exposure ~0.72.
 8. Do not cut `settle()` iterations to save CPU (13 floating beads at 90 iterations). The cheap fix was starting beads low.
 9. The label is ONE front sticker (`LBL_T` 1.62 rad), not wrapped round the cup.
-10. Mascot SDF mesh: interpolate on lattice edges from the LOWER id to the higher; no per-vertex noise (folds the many tiny triangles); one CPU rotation matrix drives both the shader (head) and the face meshes; the apron is draped on the torso field and must end above the thighs.
+10. Mascot SDF mesh: interpolate on lattice edges from the LOWER id to the higher; no per-vertex noise (folds the many tiny triangles); one CPU rotation matrix drives both the shader (head) and the face meshes; the apron is draped on the torso field, then settled along the full-body gradient to `BH * 0.34 + 0.016` above the mesh (the plush fuzz is `BH * 0.34` tall, so a fixed small gap lets fur poke through) and must end above the thighs; face features are placed with `faceZ(x, y)` (bisection on the field) so they sit ON the surface, never float; pocket slits are painted in the apron texture.
 11. Published-page constraints (Claude.ai artifact): scripts only from `cdn.jsdelivr.net/npm`, `cdnjs.cloudflare.com`; no remote images; no other network. Outside Claude.ai these can be relaxed, but keep the page self-contained.
 12. Keep: adaptive pixel ratio, IntersectionObserver pause, `prefers-reduced-motion`, WebGL context-loss fallback, no `maximum-scale=1` (accessibility).
 
@@ -56,7 +56,7 @@ The page script in `site.template.html` (`render()`, `setTempBadge()`, the roule
 - **Toppings** (same look in milk and fruit): tapioca = 120 loose dark-brown beads (**"perfect", untouched**); multifruit 140; red beans 240; **grass jelly = 135 irregular charcoal chunks, ONLY in a heap on the bottom**, flat faces against the glass.
 - **Temperature**: normal "Froid/Chaud" pills + the flame/snowflake badge at the top right of the cup (pops on change; fruit tea = always snowflake). The 3D fireball was removed at Yahya's request.
 - **Order card** (price large), **oval roulette menu**, light pool behind the cup + contact shadow that follows the cup size.
-- **Mascot bear**: modelled from `docs/reference/shop-front-with-the-bear.png`. One smooth mesh (signed-distance field), arms hanging at the sides with small round paws, legs forward with big cream-soled feet, short bib apron with the print and two orange pocket slits. Tune proportions in the `BP` table in `src/3d/06-mascot-bear.js`.
+- **Mascot bear** (v22 refresh, compared with the photo; colours, face proportions and shading were measured on it, see DECISIONS.md): caramel fur `#b08856`, cream muzzle, small brown nose, close-set bead eyes, smile with a tongue, darker inner ears, baked ambient occlusion in the creases, fine plush texture (bump 0.0045: stronger bump looks like cracked leather). Modelled from `docs/reference/shop-front-with-the-bear.png`. One smooth mesh (signed-distance field), arms hanging at the sides with small round paws, legs forward with big cream-soled feet, short bib apron with the print and two orange pocket slits. Tune proportions in the `BP` table in `src/3d/06-mascot-bear.js`.
 
 ## How we work (important)
 - Yahya writes in **French and English mixed**; answer in the language of his message. Short, concrete answers. He wants **visual proof**: after any visual change, screenshot it (Playwright) next to the reference photo and look at it before claiming it is done.
@@ -64,6 +64,9 @@ The page script in `site.template.html` (`render()`, `setTempBadge()`, the roule
 - He often pastes suggestions from other AIs: **evaluate them critically with a test**, adopt what holds up, say plainly what is wrong (several contained fatal bugs).
 - Tests run in headless Chromium with **software WebGL**: good for logic/geometry/screenshots, **not** for real phone/GPU performance. Never claim "60 fps". Frames take seconds there: poll for state, do not sleep.
 - Never touch third-party photos for the site without rights (Google Maps photos are customers' copyright). Real dish photos must come from the client.
+
+## Status
+v22 (bear refresh) is on the PR branch; the live GitHub Pages site is built from `main` by `.github/workflows/pages.yml` (repo: YahyaALAoui2002/Mr-Ya-web-site). Before/after renders: `docs/bear-v22-views.png`, `docs/bear-v22-closeup.png`. Tests in this container need `pip install playwright==1.56.0` to match the preinstalled Chromium.
 
 ## Status at hand-over (v21)
 Published as Claude.ai artifacts (can only be updated from a Claude.ai chat, not from here): site `https://claude.ai/artifact/UW4U6Z9EdRHreHQP6cG3Xm`, lab `https://claude.ai/artifact/RZLAFPLEPgfnv7pyW6Cp6v`. All four tests pass (containment 0 violations, roulette 11/11, bear 7/7, stress 9/9).

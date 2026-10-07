@@ -696,7 +696,7 @@
   const bClamp01 = (x) => x < 0 ? 0 : x > 1 ? 1 : x;
   const bSstep = (a, b, x) => { const t = bClamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
   const bHex = (hex) => { const c = new THREE.Color(hex); return [c.r, c.g, c.b]; };          // sRGB hex -> linear colour (vertex colours are linear)
-  const BTAN = bHex('#d1a055'), BCREAM = bHex('#efdcb6');
+  const BTAN = bHex('#b08856'), BCREAM = bHex('#efdcb6'), BEAR_IN = bHex('#6e4326');       // caramel fur, cream muzzle/soles, darker inner ear (all measured on the shop photo)
   /* proportions: ONE table to tune against the photo. c/r = ellipsoid, a/b/rad = capsule, k = how softly it blends into the rest */
   const BP = [];
   const bPart = (sym, o) => {
@@ -708,16 +708,16 @@
   bPart(0, { c: [0, 1.60, 0.02], r: [1.00, 0.90, 0.88], k: 0.55, col: BTAN });           // chest
   bPart(0, { a: [0, 1.95, 0.06], b: [0, 2.42, 0.10], rad: 0.55, k: 0.60, col: BTAN });   // neck
   bPart(0, { c: [0, 2.91, 0.10], r: [0.90, 0.84, 0.86], k: 0.32, col: BTAN });           // head
-  bPart(0, { c: [0, 2.67, 0.80], r: [0.52, 0.38, 0.40], k: 0.22, col: BCREAM });         // muzzle
-  bPart(1, { c: [0.70, 3.49, -0.02], r: [0.30, 0.30, 0.17], k: 0.14, col: BTAN });       // ears
-  bPart(1, { c: [0.68, 3.46, 0.10], r: [0.17, 0.17, 0.09], k: 0.12, col: BCREAM });      // inner ears
+  bPart(0, { c: [0, 2.78, 0.74], r: [0.42, 0.33, 0.32], k: 0.20, col: BCREAM });         // muzzle (short and wide like the real bear, not a snout)
+  bPart(1, { c: [0.70, 3.49, -0.02], r: [0.31, 0.31, 0.21], k: 0.14, col: BTAN });       // ears
+  bPart(1, { c: [0.68, 3.46, 0.12], r: [0.19, 0.19, 0.10], k: 0.10, col: BEAR_IN });     // inner ears
   /* ARMS hang down the OUTER sides of the body and end in small round paws. LEGS stretch forward, apart, and end in big feet with a cream sole facing the viewer. */
   bPart(1, { a: [1.02, 1.95, 0.06], b: [1.50, 0.98, 0.38], rad: 0.31, k: 0.16, col: BTAN });     // arm: shoulder to wrist
   bPart(1, { c: [1.54, 0.84, 0.46], r: [0.31, 0.33, 0.31], k: 0.12, col: BTAN });                // paw (small, round)
   bPart(1, { a: [0.64, 0.64, 0.08], b: [0.86, 0.60, 1.18], rad: 0.50, k: 0.22, col: BTAN });     // thigh, forward
   bPart(1, { a: [0.86, 0.60, 1.18], b: [0.92, 0.54, 1.82], rad: 0.43, k: 0.20, col: BTAN });     // lower leg
   bPart(1, { c: [0.94, 0.56, 2.0], r: [0.46, 0.43, 0.46], k: 0.16, col: BTAN });                 // foot (big, rounded)
-  bPart(1, { c: [0.94, 0.62, 2.40], r: [0.30, 0.34, 0.09], k: 0.06, col: BCREAM });              // cream sole pad, facing the viewer
+  bPart(1, { c: [0.94, 0.62, 2.34], r: [0.31, 0.35, 0.15], k: 0.07, col: BCREAM });              // cream sole pad, facing the viewer
   bPart(0, { c: [0, 0.72, -0.96], r: [0.30, 0.28, 0.26], k: 0.30, col: BTAN });          // tail
   bPart(0, { c: [0, 1.02, 0.60], r: [0.72, 0.80, 0.40], k: 0.22, col: BCREAM });         // cream belly patch
   const BTORSO = 4;                                    // the first four parts (hips, belly, chest, neck) are what the apron is draped on
@@ -743,7 +743,8 @@
       pt = BP[i];
       const pd = bPrim(pt, x, y, z), k = pt.k, h = bClamp01(0.5 + 0.5 * (pd - d) / k);      // NB: (pd - d): h -> 1 where the accumulated shape is the nearer one
       d = pd * (1 - h) + d * h - k * h * (1 - h);
-      r = pt.col[0] * (1 - h) + r * h; g = pt.col[1] * (1 - h) + g * h; b = pt.col[2] * (1 - h) + b * h;
+      const hc = bSstep(0.12, 0.88, h);                                                      // colour boundaries crisper than the shape blend
+      r = pt.col[0] * (1 - hc) + r * hc; g = pt.col[1] * (1 - hc) + g * hc; b = pt.col[2] * (1 - hc) + b * hc;
     }
     if (n === undefined) d = Math.max(d, -y);          // flat base: everything below the ground is cut away
     if (colOut) { colOut[0] = r; colOut[1] = g; colOut[2] = b; }
@@ -760,6 +761,7 @@
   }
   /* the head (and only the head) turns: 1 on the head + ears, 0 on the body and the shoulders, soft across the neck */
   const bHeadMask = (x, y) => bSstep(2.05, 2.3, y) * (1 - bSstep(0.75, 1.0, Math.abs(x)) * (1 - bSstep(2.7, 3.05, y)));
+  const BAO_H = [0.05, 0.12, 0.24, 0.42], BAO_W = [0.3, 0.3, 0.25, 0.15], BAO_GAIN = 1.5;       // baked occlusion: 4 field samples along the normal
   const BMIN = [-2.15, -0.02, -1.35], BMAX = [2.15, 3.9, 2.75];
   const BH = (typeof innerWidth !== 'undefined' && innerWidth < 760) ? 0.1 : 0.072;       // lattice step: coarser on phones (the fine fur is done in the shader)
   const BNX = Math.ceil((BMAX[0] - BMIN[0]) / BH) + 1, BNY = Math.ceil((BMAX[1] - BMIN[1]) / BH) + 1, BNZ = Math.ceil((BMAX[2] - BMIN[2]) / BH) + 1;
@@ -787,7 +789,11 @@
       const f = bNoise(px * FFREQ, py * FFREQ, pz * FFREQ) * FUZZ * (py > 0.06 ? 1 : 0);   // plush fuzz, not on the flat base
       const qx = px + nx * f, qy = Math.max(0, py + ny * f), qz = pz + nz * f;
       bField(qx, qy, qz, _bcol);
-      id = pos.length / 3; pos.push(qx, qy, qz); nor.push(nx, ny, nz); col.push(_bcol[0], _bcol[1], _bcol[2]);
+      const gm = gl / (2 * EP);                          // |grad f|: the smooth unions make the field a little slower than a true distance, so measure against it
+      let occ = 0; for (let m = 0; m < 4; m++) { const h = BAO_H[m]; occ += BAO_W[m] * bClamp01(1 - bField(qx + nx * h, qy + ny * h, qz + nz * h) / (gm * h)); }
+      occ = bClamp01(occ * BAO_GAIN);
+      id = pos.length / 3; pos.push(qx, qy, qz); nor.push(nx, ny, nz);
+      col.push(_bcol[0] * (1 - 0.50 * occ), _bcol[1] * (1 - 0.62 * occ), _bcol[2] * (1 - 0.75 * occ));      // creases go warm brown, not grey
       hd.push(bHeadMask(qx, qy));
       bl.push(bSstep(0.45, 0.85, qy) * (1 - bSstep(1.55, 2.05, qy)) * (1 - bSstep(0.55, 1.25, Math.hypot(qx, qz - 0.1))));
       vmap.set(key, id); return id;
@@ -846,7 +852,7 @@
       }
     }
   }, { wrap: true });
-  const furU = { uPivot: { value: BPIVOT }, uHeadRot: { value: new THREE.Matrix3() }, uBreath: { value: 0 }, uFur: { value: furTex }, uBump: { value: 0.014 } };
+  const furU = { uPivot: { value: BPIVOT }, uHeadRot: { value: new THREE.Matrix3() }, uBreath: { value: 0 }, uFur: { value: furTex }, uBump: { value: 0.0045 } };
   const furMat = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.94, sheen: 0.6, sheenRoughness: 0.6, sheenColor: new THREE.Color(0xf6d9a0), envMapIntensity: 0.75 });
   furMat.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, furU);
@@ -866,10 +872,10 @@
         uniform sampler2D uFur; uniform float uBump; varying vec3 vBearP; varying vec3 vBearN;
         float furH(vec3 p, vec3 n) {                                              // triplanar plush strokes: no UV seams on a generated mesh
           vec3 w = pow(abs(n), vec3(4.0)); w /= (w.x + w.y + w.z);
-          return texture2D(uFur, p.zy * 0.4).r * w.x + texture2D(uFur, p.xz * 0.4).r * w.y + texture2D(uFur, p.xy * 0.4).r * w.z;
+          return texture2D(uFur, p.zy * 0.9).r * w.x + texture2D(uFur, p.xz * 0.9).r * w.y + texture2D(uFur, p.xy * 0.9).r * w.z;
         }`)
       .replace('#include <color_fragment>', `#include <color_fragment>
-        diffuseColor.rgb *= mix(0.93, 1.07, furH(vBearP, normalize(vBearN)));`)
+        diffuseColor.rgb *= mix(0.9, 1.09, furH(vBearP, normalize(vBearN)));`)
       .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
         { float fh = furH(vBearP, normalize(vBearN));
           vec3 sx = dFdx(-vViewPosition), sy = dFdy(-vViewPosition);
@@ -891,17 +897,31 @@
   mascot.finish = () => { if (mascot.ready) return; let r; while (!(r = bearGen.next()).done); installBody(r.value); };      // synchronous build (tests, or if you ever want it before the first frame)
   setTimeout(() => requestAnimationFrame(bearPump), 350);
 
-  /* face: eyes (with catchlights), nose, mouth. They sit on the head pivot and use the same rotation as the shader */
+  /* face: eyes (with catchlights), nose, mouth. Each feature is placed ON the real surface of the head field (faceZ), so nothing floats.
+     They sit on the head pivot and use the same rotation as the shader. */
   const headFx = new THREE.Group(); headFx.position.copy(BPIVOT); headFx.rotation.order = 'YXZ'; bear.add(headFx); mascot.head = headFx;
-  const fxm = (mat, sx, sy, sz, x, y, z) => { const m = new THREE.Mesh(new THREE.SphereGeometry(1, 18, 12), mat); m.scale.set(sx, sy, sz); m.position.set(x - BPIVOT.x, y - BPIVOT.y, z - BPIVOT.z); headFx.add(m); return m; };
-  const noseMat = new THREE.MeshPhysicalMaterial({ color: 0x4a2a1a, roughness: 0.3, clearcoat: 0.8, clearcoatRoughness: 0.2 });
-  const eyeMat = new THREE.MeshPhysicalMaterial({ color: 0x060606, roughness: 0.12, clearcoat: 1 });
+  const faceZ = (x, y) => { let lo = 0.15, hi = 2.4; for (let i = 0; i < 26; i++) { const m = (lo + hi) / 2; if (bField(x, y, m) > 0) hi = m; else lo = m; } return (lo + hi) / 2; };
+  const fxm = (mat, sx, sy, sz, x, y, z) => { const m = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), mat); m.scale.set(sx, sy, sz); m.position.set(x - BPIVOT.x, y - BPIVOT.y, z - BPIVOT.z); headFx.add(m); return m; };
+  const noseMat = new THREE.MeshPhysicalMaterial({ color: 0x3a2216, roughness: 0.32, clearcoat: 0.7, clearcoatRoughness: 0.25 });
+  const eyeMat = new THREE.MeshPhysicalMaterial({ color: 0x070605, roughness: 0.1, clearcoat: 1, clearcoatRoughness: 0.05 });
   const lightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  const mouthMat = new THREE.MeshStandardMaterial({ color: 0xc98a58, roughness: 0.7 });
-  for (const s of [-1, 1]) { fxm(eyeMat, 0.075, 0.08, 0.065, s * 0.385, 3.145, 0.845); fxm(lightMat, 0.02, 0.02, 0.014, s * 0.36, 3.178, 0.9); }
-  fxm(noseMat, 0.21, 0.14, 0.13, 0, 2.83, 1.2);
-  fxm(noseMat, 0.28, 0.095, 0.06, 0, 2.62, 1.19);
-  fxm(mouthMat, 0.22, 0.07, 0.055, 0, 2.605, 1.235);
+  const lineMat = new THREE.MeshStandardMaterial({ color: 0x3a2216, roughness: 0.6 });
+  const tongueMat = new THREE.MeshStandardMaterial({ color: 0xc8805a, roughness: 0.65 });
+  const BEYE = { x: 0.215, y: 3.17 }, BNOSE = { y: 2.93 };
+  for (const s of [-1, 1]) {
+    const ez = faceZ(s * BEYE.x, BEYE.y);
+    fxm(eyeMat, 0.064, 0.074, 0.05, s * BEYE.x, BEYE.y, ez - 0.012);
+    fxm(lightMat, 0.017, 0.017, 0.012, s * (BEYE.x - 0.022), BEYE.y + 0.03, ez + 0.036);
+  }
+  fxm(noseMat, 0.15, 0.105, 0.1, 0, BNOSE.y, faceZ(0, BNOSE.y) - 0.03);
+  (function buildMouth() {                                                    // philtrum + a soft open smile with a tongue, drawn on the muzzle surface
+    const P = (x, y, lift) => new THREE.Vector3(x - BPIVOT.x, y - BPIVOT.y, faceZ(x, y) + (lift || 0.006) - BPIVOT.z);
+    const line = (pts, r) => { const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, r, 6), lineMat); headFx.add(m); };
+    line([P(0, 2.86), P(0, 2.78), P(0, 2.715)], 0.0105);
+    line([[-1, 0.235, 2.755], [-1, 0.19, 2.705], [-1, 0.12, 2.685], [-1, 0.055, 2.69], [0, 0, 2.715], [1, 0.055, 2.69], [1, 0.12, 2.685], [1, 0.19, 2.705], [1, 0.235, 2.755]].map(([sd, x, y]) => P(sd * x, y)), 0.0105);   // one tube for the whole smile
+    fxm(lineMat, 0.155, 0.062, 0.03, 0, 2.645, faceZ(0, 2.645) - 0.016);      // mouth opening
+    fxm(tongueMat, 0.108, 0.04, 0.03, 0, 2.612, faceZ(0, 2.612) - 0.008);     // tongue
+  })();
 
   /* apron: draped on the TORSO field (not the arms), so it can never bulge onto a paw */
   const apronGreen = new THREE.MeshStandardMaterial({ color: 0x173f37, roughness: 0.85 });
@@ -914,6 +934,11 @@
     g.fillStyle = '#f4f1e8'; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
     g.font = '900 150px "Noto Serif SC","Songti SC","SimSun",serif'; g.fillText('幸福食光', 512, 300);
     g.font = '700 120px "Noto Serif SC","Songti SC",Georgia,serif'; g.fillText('Mr.Ye', 512, 438);
+    g.lineCap = 'round';
+    for (const sd of [-1, 1]) {                                                 // the two orange pocket slits: painted on the cloth, they slant up toward the centre
+      g.strokeStyle = 'rgba(8,24,22,.5)'; g.lineWidth = 84; g.beginPath(); g.moveTo(512 + sd * 366, 618); g.lineTo(512 + sd * 200, 524); g.stroke();
+      g.strokeStyle = '#ee8a2c'; g.lineWidth = 58; g.beginPath(); g.moveTo(512 + sd * 364, 608); g.lineTo(512 + sd * 202, 516); g.stroke();
+    }
   };
   drawApron();
   const aTex = new THREE.CanvasTexture(aCv); aTex.colorSpace = THREE.SRGBColorSpace; aTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -929,30 +954,32 @@
     return new THREE.Vector3(dx * t, y, dz * t);
   };
   (function buildApron() {
-    const NU = 28, NV = 24, Pn = [], UVn = [], IXn = [], eL = [], eR = [], eB = [];
-    const lift = (p) => {                                                                                             // the cloth floats just off the fur, outside the WHOLE body (arms blend into the shoulders)
-      const ax = new THREE.Vector3(0, p.y, 0.05); p.sub(ax).multiplyScalar(1.035).add(ax);
-      for (let n = 0; n < 40 && bField(p.x, p.y, p.z) < 0.012; n++) { const dx = p.x, dz = p.z - 0.05, l = Math.hypot(dx, dz) || 1; p.x += dx / l * 0.015; p.z += dz / l * 0.015; }
-      return p;
-    };
+    const NU = 28, NV = 24, HEM = 1.02, G = [], APR_OFF = BH * 0.34 + 0.016;                                          // the cloth must clear the plush fuzz of the body mesh (BH * 0.34)
+    const grad = (p, e) => new THREE.Vector3(bField(p.x + e, p.y, p.z) - bField(p.x - e, p.y, p.z), bField(p.x, p.y + e, p.z) - bField(p.x, p.y - e, p.z), bField(p.x, p.y, p.z + e) - bField(p.x, p.y, p.z - e)).normalize();
+    const settle = (p, n) => { for (let it = 0; it < n; it++) { const f = bField(p.x, p.y, p.z); p.addScaledVector(grad(p, 0.02), Math.max(-0.1, Math.min(0.1, (APR_OFF - f) * 0.85))); } return p; };   // rests just above the WHOLE body (arms and thighs included)
     for (let j = 0; j <= NV; j++) {
-      const v = j / NV, y = 2.12 - v * 1.12, half = 0.66 + 0.4 * Math.pow(v, 0.8);                 // a bib that ends at the belly, above the thighs
-      for (let i = 0; i <= NU; i++) {
-        const p = lift(torsoSurf(y, (i / NU * 2 - 1) * half)); Pn.push(p.x, p.y, p.z); UVn.push(i / NU, 1 - v);
-        if (i === 0) eL.push(p); if (i === NU) eR.push(p); if (j === NV) eB.push(p);
-      }
+      const v = j / NV, y = 2.12 - v * (2.12 - HEM), half = 0.66 + 0.4 * Math.pow(v, 0.8), row = [];            // a bib that ends at the belly, above the thighs
+      for (let i = 0; i <= NU; i++) row.push(settle(torsoSurf(y, (i / NU * 2 - 1) * half), 10));
+      G.push(row);
+    }
+    for (let pass = 0; pass < 3; pass++) {                                                                            // cloth does not wrinkle at a 1 cm scale: relax, then settle back onto the body
+      const nx = G.map((row, j) => row.map((p, i) => {
+        const a = G[Math.max(0, j - 1)][i], b = G[Math.min(NV, j + 1)][i], c = row[Math.max(0, i - 1)], d = row[Math.min(NU, i + 1)];
+        return p.clone().multiplyScalar(0.5).addScaledVector(a, 0.125).addScaledVector(b, 0.125).addScaledVector(c, 0.125).addScaledVector(d, 0.125);
+      }));
+      for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) G[j][i] = settle(nx[j][i], 3);
+    }
+    const Pn = [], UVn = [], IXn = [], eL = [], eR = [], eB = [];
+    for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) {
+      const p = G[j][i]; Pn.push(p.x, p.y, p.z); UVn.push(i / NU, 1 - j / NV);
+      if (i === 0) eL.push(p); if (i === NU) eR.push(p); if (j === NV) eB.push(p);
     }
     for (let j = 0; j < NV; j++) for (let i = 0; i < NU; i++) { const a = j * (NU + 1) + i; IXn.push(a, a + NU + 1, a + 1, a + 1, a + NU + 1, a + NU + 2); }
     const ag = new THREE.BufferGeometry(); ag.setAttribute('position', new THREE.Float32BufferAttribute(Pn, 3)); ag.setAttribute('uv', new THREE.Float32BufferAttribute(UVn, 2)); ag.setIndex(IXn); ag.computeVertexNormals();
     bear.add(new THREE.Mesh(ag, apronMat));
-    const outP = (p) => new THREE.Vector3(p.x * 1.01, p.y, p.z * 1.01);
-    bear.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(eL.concat(eB.slice(1), eR.slice().reverse().slice(1)).map(outP)), 90, 0.016, 6), apronGreen));
-    for (const [y, phi, rot] of [[1.3, 0.82, 0.0], [1.12, -0.82, -0.42]]) {              // the two orange pocket slits
-      const p = lift(torsoSurf(y, phi)); p.x *= 1.012; p.z *= 1.012;
-      const t = new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 0.3, 6, 12), apronOrange); t.position.copy(p); t.rotation.set(0, phi, Math.PI / 2 + rot); t.scale.z = 0.3; bear.add(t);
-    }
+    bear.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(eL.concat(eB.slice(1), eR.slice().reverse().slice(1))), 90, 0.016, 6), apronGreen));
     for (const s of [-1, 1]) {                                                              // the two shoulder straps
-      const a = lift(torsoSurf(2.12, s * 0.5)), b = new THREE.Vector3(s * 0.36, 2.46, 0.3), d = b.clone().sub(a);
+      const a = G[0][s < 0 ? Math.round(NU * 0.28) : Math.round(NU * 0.72)].clone(), b = new THREE.Vector3(s * 0.36, 2.46, 0.3), d = b.clone().sub(a);
       const m = new THREE.Mesh(new THREE.CapsuleGeometry(0.04, Math.max(0.01, d.length() - 0.08), 6, 12), apronGreen);
       m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()); bear.add(m);
     }
