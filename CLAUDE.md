@@ -9,6 +9,7 @@ Client work by **Yahya** (freelance web developer). The site is in **French**. B
 
 ## What the page does
 - **Hero**: "Composez votre bubble tea" — a real-time 3D cup (Three.js r159) that follows the customer's choices: size (M 50 cl 5,50 € / L 70 cl 6,50 €), base (milk tea or fruit tea, fruit tea is always iced), 17 flavours, hot/cold (milk only), one topping (tapioca, multifruit/popping, red bean, grass jelly), live order card with price. A flame/snowflake **badge** sits at the top right of the cup and pops on every change. A 3D **teddy-bear mascot** sits beside the cup (follows the pointer, nods on a selection).
+- **Guided scroll (phone only, <768 px)**: the cup sits above the controls, so once the visitor has chosen in EVERY group (size, base, flavour, topping, and hot/cold if milk tea; tapping an already-ticked default counts) the page scrolls up to the finished cup plus a short recap (drink + price, `#recap`, mirror of the order card). It fires once per full round of choices: a later tweak does not jump. On a short screen the cup shrinks (`100dvh - 270px`) so cup + recap + dock fit. Logic in the first page script (`touched`, `showResult`); `tests/test_guided_scroll.py` covers it.
 - **La carte**: the menu as an **oval roulette** (19 dishes, big plate in front, 2+ on each side, drag/click/arrows/keyboard, auto-rotates until touched, pause button). The full detailed menu is inside a collapsible `<details>`.
 - Light + dark themes (system), mobile layout, keyboard focus, `prefers-reduced-motion` respected, 2D SVG fallback if WebGL is unavailable.
 
@@ -18,7 +19,7 @@ npm run build         # dist/index.html (portable), dist/lab.html, dist/bubblete
 npm run build:debug   # the portable pages + window.__dbg hook for the tests (dist/*.debug.*)
 npm run serve         # http://localhost:8080  (serves dist/site/, the production build)
 npm run serve:portable  # same port, serves dist/ (portable single file + lab bench)
-npm test              # builds both, runs tests/run_all.py (site, containment, roulette, rig, bear, stress)  (needs: pip install -r requirements.txt && playwright install chromium)
+npm test              # builds both, runs tests/run_all.py (site, guided scroll, containment, roulette, rig, bear, stress)  (needs: pip install -r requirements.txt && playwright install chromium)
 npm run test:fast     # skips the slow stress test
 npm run check:dist    # fails if the committed dist/index.html, lab.html, bubbletea-3d.js differ from what src/ builds (CI runs the same check)
 ```

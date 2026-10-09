@@ -37,4 +37,5 @@ Done after a read-only audit of the live site and the repo:
 - Head: canonical, Open Graph and Twitter tags, SVG favicon, apple-touch-icon, theme-color (light/dark), robots.txt, sitemap.xml, share image made from the real 3D hero. The title no longer contains an em-dash.
 - Two builds: PORTABLE dist/index.html (artifact, CDN) and PRODUCTION dist/site (self-hosted Three.js and fonts, zero third-party requests, metric-matched fallback font).
 - CI: tests run on every push and pull request, the committed dist/ files must be in sync with src/, deploy only after the tests pass and only from main.
+- Phone guided scroll: after a choice in every group the page scrolls up to the finished cup and a compact recap (drink + price); the cup shrinks on short screens so both fit above the dock.
 - Repo: the client's photos and the raw chat transcript left the public repository (kept privately; see docs/reference/README.md). Git history before this change still contains them.

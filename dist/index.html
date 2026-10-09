@@ -141,7 +141,8 @@ legend{font-weight:600;font-size:14px;line-height:1.25;margin-bottom:5px;padding
 }
 @media (max-width:767px){
   .builder{grid-template-columns:1fr}
-  .cup-stage{max-width:min(340px,88vw);justify-self:center}
+  /* on a short phone screen the cup shrinks, so that cup + recap can be on screen together (aspect 320:520 -> width = height * .615) */
+  .cup-stage{max-width:min(340px,88vw,calc((100dvh - 270px) * .615));justify-self:center}
 }
 
 /* ---------- Kitchen: the menu read like a stall board, characters first ---------- */
@@ -288,6 +289,15 @@ footer{padding:0 0 40px;color:var(--ink-soft);font-size:14px}
 .skip:focus{transform:none}
 main:focus{outline:none}
 .dock{display:none}
+/* phone: the drink as a short recap under the cup, so the guided scroll lands on "the cup + what it costs" (aria-hidden: the live summary below is the accessible one) */
+.recap{display:none}
+@media (max-width:767px){
+  .recap{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 14px;width:min(340px,88vw);justify-self:center;margin-top:26px;padding:12px 16px;border:1px solid var(--rule);border-radius:16px;background:color-mix(in srgb,var(--paper) 90%,#fff);scroll-margin-top:84px}
+  .recap .r-d{grid-column:1;font-size:15px;font-weight:500;line-height:1.35}
+  .recap .r-t{grid-column:1;font-size:14px;color:var(--ink-soft);line-height:1.35}
+  .recap .r-p{grid-column:2;grid-row:1 / span 2;font:700 26px/1 var(--sans);letter-spacing:-.03em;color:color-mix(in srgb,var(--label) 40%,var(--ink));text-align:right}
+  .recap .r-p.na{font:500 13px/1.3 var(--sans);letter-spacing:0;color:var(--ink-soft);max-width:7em}
+}
 @media (max-width:767px){
   body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   html{scroll-padding-bottom:84px}
@@ -363,6 +373,8 @@ main:focus{outline:none}
       </svg>
       <p class="hint">Faites tourner le gobelet</p>
     </div>
+
+    <div class="recap" id="recap" aria-hidden="true"></div>
 
     <form class="controls" onsubmit="return false" aria-label="Composer votre boisson">
       <fieldset>
@@ -571,6 +583,31 @@ main:focus{outline:none}
   const NS='http://www.w3.org/2000/svg';
   [[86,488],[110,494],[134,497],[158,498],[182,497],[206,494],[230,488],[98,470],[122,474],[146,476],[170,477],[194,475],[218,470],[110,452],[136,456],[162,458],[188,456],[212,452]].forEach(([x,y],i)=>{const c=document.createElementNS(NS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',11);c.setAttribute('class','pearl');c.style.transitionDelay=(i*18)+'ms';pearlsG.appendChild(c)});
   let lastBase=null;
+  // Guided scroll (phone only): the cup is above the controls, so once the visitor has made a choice in EVERY group
+  // (size, base, flavour, topping, and hot/cold when it is a milk tea) the page scrolls back up to show the finished drink.
+  // A radio that is already ticked still counts when it is tapped (click, not change). After the jump the list is emptied:
+  // changing one option later does not make the page jump again, only a fresh round of choices does.
+  const touched=new Set();
+  const phone=window.matchMedia&&matchMedia('(max-width:767px)');
+  const stage=document.querySelector('.cup-stage'), recapEl=document.getElementById('recap');
+  function showResult(){
+    const need=['size','base','flavor','top'].concat(form.base.value==='lait'?['temp']:[]);
+    if(!(phone&&phone.matches)||!need.every(n=>touched.has(n)))return;
+    touched.clear();
+    setTimeout(()=>{
+      const head=document.querySelector('header').offsetHeight+8, r=stage.getBoundingClientRect(), rr=recapEl.getBoundingClientRect();
+      const room=innerHeight-78;                                              // the dock is about 72 px tall
+      if(r.top>=head&&rr.bottom<=room)return;                                  // cup and recap are already on screen
+      // cup first; on a short screen slide on down until the recap fits, but never hide more than ~110 px of the stage (it has empty headroom above the straw)
+      const top=Math.max(scrollY+r.top-head, Math.min(scrollY+rr.bottom-room, scrollY+r.top-head+110));
+      const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({top:Math.max(0,top),behavior:reduce?'auto':'smooth'});
+    },300);                                                                   // let the cup start reacting to the last tap first
+  }
+  document.querySelector('.controls').addEventListener('click',e=>{
+    const t=e.target;if(!(t instanceof HTMLInputElement)||t.type!=='radio')return;
+    touched.add(t.name);setTimeout(showResult,0);                              // after the change handler (which may reset the flavour)
+  });
   function buildFlavors(base){
     const keep=form.flavor?form.flavor.value:null;
     flav.innerHTML=FLAVORS[base].map(([v,n,c],i)=>'<label class="opt"><input type="radio" name="flavor" value="'+v+'"'+((keep===v)||(!FLAVORS[base].some(f=>f[0]===keep)&&i===0)?' checked':'')+'><span><i style="background:'+c+'"></i>'+n+'</span></label>').join('');
@@ -592,7 +629,7 @@ main:focus{outline:none}
   }
   function render(){
     const base=form.base.value;
-    if(base!==lastBase){buildFlavors(base);lastBase=base;}
+    if(base!==lastBase){const prevFlavor=form.flavor?form.flavor.value:null;buildFlavors(base);lastBase=base;if(form.flavor.value!==prevFlavor)touched.delete('flavor');}
     const size=form.size.value, top=form.top.value, f=FLAVORS[base].find(x=>x[0]===form.flavor.value);
     const milk=base==='lait';
     tempSet.hidden=!milk;
@@ -603,6 +640,8 @@ main:focus{outline:none}
     setTempBadge(milk&&form.temp.value==='chaud');
     const name=milk?'Thé au lait '+f[1].toLowerCase()+', '+form.temp.value:'Thé '+f[1].toLowerCase()+' glacé, sans lait';
     const topTxt=TOPS[top].charAt(0).toUpperCase()+TOPS[top].slice(1);
+    const recap=document.getElementById('recap');
+    if(recap)recap.innerHTML='<span class="r-d">'+(size==='L'?'Large 70 cl':'Medium 50 cl')+' · '+name+'</span><span class="r-t">+ '+topTxt+'</span>'+(milk?'<span class="r-p">'+PRICE[size]+'</span>':'<span class="r-p na">Prix affiché en boutique</span>');
     out.innerHTML='<span class="o-eyebrow">Votre bubble tea</span><span>'+(size==='L'?'Large 70 cl':'Medium 50 cl')+'</span><span>'+name+'</span><span>+ '+topTxt+'</span>'+(milk?'<span class="o-price">'+PRICE[size]+'</span>':'<span class="o-price na">Prix affiché en boutique</span>');
   }
   form.addEventListener('change',render); render(); window.__mryeRender=render;
