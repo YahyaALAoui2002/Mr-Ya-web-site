@@ -6,6 +6,7 @@
 //                                                     serves. Not committed (see .gitignore): CI rebuilds it.
 //   node build.mjs --debug  -> dist/*.debug.*          the portable pages with window.__dbg exposed (used by the tests)
 //   SITE_URL=https://example.com/ node build.mjs       the public address used by the canonical / Open Graph tags and by sitemap.xml
+//   DISH_DIR=/some/folder node build.mjs               use another folder of dish photos (default src/dishes; the tests use it)
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, copyFileSync, existsSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +14,7 @@ const root = dirname(fileURLToPath(import.meta.url));
 const debug = process.argv.includes('--debug');
 const SITE_URL = (process.env.SITE_URL || 'https://yahyaalaoui2002.github.io/Mr-Ya-web-site/').replace(/\/?$/, '/');
 const PLACEHOLDER = '/*__BUBBLETEA_3D__*/';
+const DISH_DIR = process.env.DISH_DIR || join(root, 'src/dishes');
 const DEBUG_HOOK = "window.__dbg={liquid,cup,tapioca,popping,beans,jellies,ice,teaMat,liqU,bear,mascot,rig,bw,bearApi,bearMeshes,apronClear:bClearD,shadow,renderer,scene,camera,rAt,setRot:(v)=>{rotY=v;vel=0;needs=true;}}; host.classList.add('is-3d');";
 
 // the 3D module is ONE script (an IIFE) kept in numbered slices: concatenating them in order gives the script back exactly
@@ -33,10 +35,20 @@ const page = (html, parts) => html
   .replace('<!--__FONTS__-->', () => parts.fonts)
   .replace('<!--__THREE__-->', () => parts.three)
   .replace('<!--__SITE_HEAD__-->', () => parts.siteHead)
+  .replace('/*__DISH_PHOTOS__*/{}', () => JSON.stringify(parts.photos))
   .replaceAll('%%SITE_URL%%', SITE_URL);
 
 // 1. portable pages (what the tests and the Claude.ai artifact use)
-const portable = { fonts: read('src/partials/fonts-portable.html').trimEnd(), three: read('src/partials/three-portable.html').trimEnd(), siteHead: '' };
+// dish photos: src/dishes/<key>.webp (720 px, for the production site) and src/dishes/small/<key>.webp (360 px, inlined as data URIs in the portable single file).
+// The keys are the 7th field of each dish in the roulette data (n1, n8, jianbing, waffle-glace ...). A dish without a file keeps its Chinese-character plate.
+const webps = (dir) => (existsSync(dir) ? readdirSync(dir).filter((f) => /^[a-z0-9-]+\.webp$/.test(f)).sort() : []);
+const bigPhotos = webps(DISH_DIR), smallPhotos = webps(join(DISH_DIR, 'small'));
+const inline = Object.fromEntries(bigPhotos.map((f) => {
+  const src = smallPhotos.includes(f) ? join(DISH_DIR, 'small', f) : join(DISH_DIR, f);
+  return [f.replace('.webp', ''), `data:image/webp;base64,${readFileSync(src).toString('base64')}`];
+}));
+const files = Object.fromEntries(bigPhotos.map((f) => [f.replace('.webp', ''), `assets/dishes/${f}`]));
+const portable = { fonts: read('src/partials/fonts-portable.html').trimEnd(), three: read('src/partials/three-portable.html').trimEnd(), siteHead: '', photos: inline };
 for (const [tpl, out] of [['site.template.html', 'index'], ['lab.template.html', 'lab']]) {
   const html = read('src', tpl);
   if (!html.includes(PLACEHOLDER)) throw new Error(`${tpl}: placeholder missing`);
@@ -62,7 +74,10 @@ if (!debug) {
     fonts: `${preload}\n<style>\n${css}\n</style>`,
     three: '<script src="assets/three.min.js"></script>',
     siteHead: '<link rel="apple-touch-icon" href="apple-touch-icon.png">',
+    photos: files,
   };
+  if (bigPhotos.length) mkdirSync(join(site, 'assets/dishes'), { recursive: true });
+  for (const f of bigPhotos) copyFileSync(join(DISH_DIR, f), join(site, 'assets/dishes', f));
   writeFileSync(join(site, 'index.html'), page(read('src/site.template.html'), local));
   copyFileSync(join(root, 'vendor/three.min.js'), join(site, 'assets/three.min.js'));
   for (const f of ['og.png', 'apple-touch-icon.png']) {
@@ -73,4 +88,4 @@ if (!debug) {
   writeFileSync(join(site, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE_URL}sitemap.xml\n`);
   writeFileSync(join(site, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${SITE_URL}</loc></url></urlset>\n`);
 }
-console.log(`built ${debug ? 'DEBUG ' : ''}dist/ from ${slices.length} slices (${(mod.length / 1024).toFixed(0)} KB of 3D code)${debug ? '' : ' + dist/site/'}`);
+console.log(`built ${debug ? 'DEBUG ' : ''}dist/ from ${slices.length} slices (${(mod.length / 1024).toFixed(0)} KB of 3D code, ${bigPhotos.length} dish photos)${debug ? '' : ' + dist/site/'}`);
