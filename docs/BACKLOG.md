@@ -2,7 +2,7 @@
 
 ## Ask the client (blocks content)
 - Opening hours (11h–21h is from a single Maps note), the missing dish n°7 (Poulet fermier à la vapeur), crossed-out prices on the menu photos, fruit-tea price (currently "Prix affiché en boutique"), bubble-waffle topping/sauce options (partly hidden in the photo).
-- **Real, sharp dish photos** (one per dish) to replace the Chinese-character plates in the roulette. Each plate has room for an image. Do NOT use Google Maps customer photos.
+- **Real, sharp dish photos** (one per dish) for the roulette plates. The plumbing is done (`src/dishes/README.md`, `scripts/prepare-dish-photos.py`); what is missing is the photos themselves. Yahya says the client allowed using photos from the restaurant's Google reviews (9 Oct 2026; keep that message). The reviewers keep their own copyright: drop a photo if its author objects. Plates without a photo keep the Chinese-character look.
 - Check the bear against the real mascot with the client (apron print, orange slits, colours).
 
 ## Product / engineering

@@ -1,26 +1,27 @@
 <!doctype html>
-<html lang="fr">
+<html lang="%%HTMLLANG%%" data-lang="%%LANG%%" data-lang-mode="%%LANGMODE%%">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mr Ye 幸福食光 | Bubble tea et street food du Hubei, Paris 13e</title>
-<meta name="description" content="Composez votre bubble tea de 50 ou 70 cl, puis passez le chercher au 69 avenue des Gobelins. Crêpes jianbing, nouilles au sésame, malatang.">
+<title data-i18n="meta.title">Mr Ye 幸福食光 | Bubble tea et street food du Hubei, Paris 13e</title>
+<meta name="description" data-i18n-attr="content:meta.desc" content="Composez votre bubble tea de 50 ou 70 cl, puis passez le chercher au 69 avenue des Gobelins. Crêpes jianbing, nouilles au sésame, malatang.">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#eef1ea" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#122016" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2064%2064%27%3E%3Cpath%20d=%27M9%202h46l9%209v32l-13%2019H13L0%2043V11z%27%20fill=%27%232f5d3f%27/%3E%3Cpath%20d=%27M12%208h40l5%205v28l-10%2015H17L7%2041V13z%27%20fill=%27none%27%20stroke=%27%23f1f4ec%27%20stroke-opacity=%27.55%27%20stroke-width=%272%27%20stroke-dasharray=%274%203%27/%3E%3Cpath%20d=%27M32%2047C13%2035%2017%2020%2026%2020c3%200%205%202%206%205%201-3%203-5%206-5%209%200%2013%2015-6%2027z%27%20fill=%27%23f1f4ec%27/%3E%3C/svg%3E">
 <!--__SITE_HEAD__-->
-<link rel="canonical" href="%%SITE_URL%%">
+<link rel="canonical" href="%%CANON%%">
+<!--__HREFLANG__-->
 <meta property="og:type" content="website">
-<meta property="og:locale" content="fr_FR">
+<meta property="og:locale" content="%%OGLOCALE%%">
 <meta property="og:site_name" content="Mr Ye 幸福食光">
-<meta property="og:title" content="Mr Ye 幸福食光 | Bubble tea et street food du Hubei, Paris 13e">
-<meta property="og:description" content="Composez votre bubble tea de 50 ou 70 cl, puis passez le chercher au 69 avenue des Gobelins.">
-<meta property="og:url" content="%%SITE_URL%%">
+<meta property="og:title" data-i18n-attr="content:meta.title" content="Mr Ye 幸福食光 | Bubble tea et street food du Hubei, Paris 13e">
+<meta property="og:description" data-i18n-attr="content:meta.ogdesc" content="Composez votre bubble tea de 50 ou 70 cl, puis passez le chercher au 69 avenue des Gobelins.">
+<meta property="og:url" content="%%CANON%%">
 <meta property="og:image" content="%%SITE_URL%%og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Le gobelet Mr Ye et son ours en peluche, au 69 avenue des Gobelins, Paris 13e">
+<meta property="og:image:alt" data-i18n-attr="content:meta.ogalt" content="Le gobelet Mr Ye et son ours en peluche, au 69 avenue des Gobelins, Paris 13e">
 <meta name="twitter:card" content="summary_large_image">
 <!--__FONTS__-->
 <style>
@@ -80,6 +81,19 @@ header nav a::before,.call::before{content:"";position:absolute;inset:-12px -8px
 header nav a:hover{color:var(--ink)}
 .call{position:relative;font-weight:600;text-decoration:none;border-bottom:2px solid var(--label);padding-bottom:2px}
 @media (max-width:767px){header nav,header .call{display:none}}   /* on a phone the dock at the bottom carries the nav and the call button */
+
+/* language switcher: three links (real URLs in the production build, switched in place in the portable file) */
+.lang{display:flex;gap:2px;padding:3px;border:1px solid var(--rule);border-radius:999px}
+.lang a{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:28px;padding:0 9px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--ink-soft);text-decoration:none}
+.lang a:hover{color:var(--ink)}
+.lang a[aria-current="true"]{background:var(--ink);color:var(--paper)}
+@media (pointer:coarse){.lang a{min-width:44px;height:44px}.lang{padding:2px}}
+
+/* Chinese: a CJK font after the Latin one, no tight tracking (it is made for Latin letters), a little more air between lines, and no second Chinese label on the menu tabs */
+html[lang^="zh"]{--sans:"Familjen Grotesk","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Noto Sans SC",system-ui,-apple-system,"Segoe UI",sans-serif}
+html[lang^="zh"] body{line-height:1.7}
+html[lang^="zh"] :is(h1,h2,h3,.pk-name,.pk-price,.o-price,.r-p,.legend,legend){letter-spacing:0}
+html[lang^="zh"] .tab .zh{display:none}
 
 /* ---------- Hero = the cup builder ---------- */
 .builder{display:grid;grid-template-columns:minmax(0,.8fr) minmax(300px,min(440px,36vw)) minmax(300px,1fr);gap:clamp(20px,3vw,48px);align-items:center;padding-block:clamp(20px,2.4vw,32px) clamp(40px,5vw,72px);min-height:calc(100dvh - 76px)}
@@ -251,6 +265,11 @@ footer{padding:0 0 40px;color:var(--ink-soft);font-size:14px}
 .plate::after{content:"";position:absolute;inset:0;border-radius:50%;background:#08120b;opacity:var(--dim,0);pointer-events:none}
 .card[aria-selected="true"] .plate{box-shadow:inset 0 0 0 calc(var(--D) * .035) rgb(255 255 255 / .07),inset 0 0 0 calc(var(--D) * .042) rgb(255 255 255 / .28),inset 0 calc(var(--D) * -.07) calc(var(--D) * .1) rgb(0 0 0 / .24),0 0 0 3px var(--paper),0 0 0 5px var(--pa),0 calc(var(--D) * .1) calc(var(--D) * .16) calc(var(--D) * -.06) rgb(0 0 0 / .55)}
 .plate .zh{font:900 calc(var(--D) * var(--k,.3))/1.06 var(--han);letter-spacing:.02em;text-align:center;text-shadow:0 2px 0 rgb(0 0 0 / .2)}
+/* a plate with a photo: the picture fills the plate, a soft shade top and bottom keeps the dish number and the Chinese name readable */
+.plate .ph{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.plate.has-photo::before{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(to bottom,rgb(0 0 0 / .38),transparent 30%,transparent 56%,rgb(0 0 0 / .6));pointer-events:none}
+.plate.has-photo .num,.plate.has-photo .zh{position:absolute;z-index:1}
+.plate.has-photo .zh{left:0;right:0;bottom:9%;font-size:calc(var(--D) * .095);line-height:1.1;letter-spacing:.14em;margin-right:-.14em;text-shadow:0 1px 6px rgb(0 0 0 / .65)}
 .plate .num{position:absolute;top:12%;left:50%;transform:translateX(-50%);font:600 calc(var(--D) * .04 + 3px)/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;padding:.55em .9em;border-radius:999px;background:rgb(0 0 0 / .24);white-space:nowrap}
 .rbtn{position:absolute;top:calc(var(--D) * .5);z-index:300;width:52px;height:52px;margin-top:-26px;border-radius:50%;border:0;display:grid;place-items:center;background:var(--tbg);color:var(--ink);box-shadow:var(--tsh);cursor:pointer}
 .rbtn.prev{left:6px}.rbtn.next{right:6px}
@@ -315,12 +334,13 @@ main:focus{outline:none}
 </style>
 </head>
 <body>
-<a class="skip" href="#top">Aller au contenu</a>
+<a class="skip" href="#top" data-i18n="skip">Aller au contenu</a>
 
 <header>
   <div class="wrap">
-    <a class="label" href="#top" aria-label="Mr Ye, accueil"><span class="zh">幸福食光</span><span class="mr">Mr. Ye</span></a>
-    <nav aria-label="Navigation"><a href="#top">Bubble tea</a><a href="#cuisine">Cuisine</a><a href="#carte">Carte</a><a href="#venir">Venir</a></nav>
+    <a class="label" href="#top" aria-label="Mr Ye, accueil" data-i18n-attr="aria-label:home.aria"><span class="zh">幸福食光</span><span class="mr">Mr. Ye</span></a>
+    <nav aria-label="Navigation" data-i18n-attr="aria-label:nav.aria"><a href="#top" data-i18n="nav.tea">Bubble tea</a><a href="#cuisine" data-i18n="nav.food">Cuisine</a><a href="#carte" data-i18n="nav.menu">Carte</a><a href="#venir" data-i18n="nav.visit">Venir</a></nav>
+    <div class="lang" role="group" aria-label="Langue" data-i18n-attr="aria-label:lang.aria"><a href="%%LH_fr%%" hreflang="fr" lang="fr" data-lang-set="fr" aria-label="Français">FR</a><a href="%%LH_en%%" hreflang="en" lang="en" data-lang-set="en" aria-label="English">EN</a><a href="%%LH_zh%%" hreflang="zh-Hans" lang="zh-Hans" data-lang-set="zh" aria-label="中文（简体）">中文</a></div>
     <a class="call" href="tel:+33980615680">09 80 61 56 80</a>
   </div>
 </header>
@@ -328,15 +348,15 @@ main:focus{outline:none}
 <main id="top" tabindex="-1">
   <section class="wrap builder" aria-labelledby="h1">
     <div class="intro">
-      <h1 id="h1">Composez votre bubble tea.</h1>
-      <p>50 ou 70 cl, au lait ou fruité, préparé minute avenue des Gobelins. Choisissez, appelez, il vous attend.</p>
+      <h1 id="h1" data-i18n="hero.h1">Composez votre bubble tea.</h1>
+      <p data-i18n="hero.p">50 ou 70 cl, au lait ou fruité, préparé minute avenue des Gobelins. Choisissez, appelez, il vous attend.</p>
     </div>
 
     <div class="cup-stage">
-      <div class="temp-badge is-cold" id="tempBadge" aria-hidden="true" title="Froid"><i class="ripple"></i><svg class="ico ico-hot" viewBox="0 0 64 64"><defs><linearGradient id="flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffa23a"/><stop offset="1" stop-color="#e8362a"/></linearGradient></defs><path fill="url(#flameG)" fill-rule="evenodd" d="M34 2C36 12 46 18 51 30C56 43 48 60 32 60C16 60 7 47 11 34C13 27 18 23 19 14C23 18 26 22 26 29C30 22 33 11 34 2ZM32 54C25 54 21 49 23 43C24 39 27 37 29 33C31 37 36 39 38 44C40 49 37 54 32 54Z"/></svg><svg class="ico ico-cold" viewBox="0 0 64 64"><path d="M32.0 32.0L32.0 5.0M32.0 14.0L24.7 7.9M32.0 14.0L39.3 7.9M32.0 21.5L27.0 17.3M32.0 21.5L37.0 17.3M32.0 32.0L55.4 18.5M47.6 23.0L49.2 13.6M47.6 23.0L56.5 26.2M41.1 26.8L42.2 20.3M41.1 26.8L47.2 29.0M32.0 32.0L55.4 45.5M47.6 41.0L56.5 37.8M47.6 41.0L49.2 50.4M41.1 37.2L47.2 35.0M41.1 37.2L42.2 43.7M32.0 32.0L32.0 59.0M32.0 50.0L39.3 56.1M32.0 50.0L24.7 56.1M32.0 42.5L37.0 46.7M32.0 42.5L27.0 46.7M32.0 32.0L8.6 45.5M16.4 41.0L14.8 50.4M16.4 41.0L7.5 37.8M22.9 37.2L21.8 43.7M22.9 37.2L16.8 35.0M32.0 32.0L8.6 18.5M16.4 23.0L7.5 26.2M16.4 23.0L14.8 13.6M22.9 26.8L16.8 29.0M22.9 26.8L21.8 20.3" fill="none" stroke="currentColor" stroke-width="4.4" stroke-linecap="round"/></svg></div>
+      <div class="temp-badge is-cold" id="tempBadge" aria-hidden="true" title="Froid" data-i18n-attr="title:temp.cold"><i class="ripple"></i><svg class="ico ico-hot" viewBox="0 0 64 64"><defs><linearGradient id="flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffa23a"/><stop offset="1" stop-color="#e8362a"/></linearGradient></defs><path fill="url(#flameG)" fill-rule="evenodd" d="M34 2C36 12 46 18 51 30C56 43 48 60 32 60C16 60 7 47 11 34C13 27 18 23 19 14C23 18 26 22 26 29C30 22 33 11 34 2ZM32 54C25 54 21 49 23 43C24 39 27 37 29 33C31 37 36 39 38 44C40 49 37 54 32 54Z"/></svg><svg class="ico ico-cold" viewBox="0 0 64 64"><path d="M32.0 32.0L32.0 5.0M32.0 14.0L24.7 7.9M32.0 14.0L39.3 7.9M32.0 21.5L27.0 17.3M32.0 21.5L37.0 17.3M32.0 32.0L55.4 18.5M47.6 23.0L49.2 13.6M47.6 23.0L56.5 26.2M41.1 26.8L42.2 20.3M41.1 26.8L47.2 29.0M32.0 32.0L55.4 45.5M47.6 41.0L56.5 37.8M47.6 41.0L49.2 50.4M41.1 37.2L47.2 35.0M41.1 37.2L42.2 43.7M32.0 32.0L32.0 59.0M32.0 50.0L39.3 56.1M32.0 50.0L24.7 56.1M32.0 42.5L37.0 46.7M32.0 42.5L27.0 46.7M32.0 32.0L8.6 45.5M16.4 41.0L14.8 50.4M16.4 41.0L7.5 37.8M22.9 37.2L21.8 43.7M22.9 37.2L16.8 35.0M32.0 32.0L8.6 18.5M16.4 23.0L7.5 26.2M16.4 23.0L14.8 13.6M22.9 26.8L16.8 29.0M22.9 26.8L21.8 20.3" fill="none" stroke="currentColor" stroke-width="4.4" stroke-linecap="round"/></svg></div>
       <div id="cup3d" aria-hidden="true"></div>
       <svg viewBox="0 0 320 520" role="img" aria-labelledby="cupTitle">
-        <title id="cupTitle">Aperçu de votre bubble tea</title>
+        <title id="cupTitle" data-i18n="cup.title">Aperçu de votre bubble tea</title>
         <defs>
           <clipPath id="cupClip"><path d="M44 150 L276 150 L248 500 Q160 512 72 500 Z"/></clipPath>
         </defs>
@@ -368,49 +388,49 @@ main:focus{outline:none}
         <!-- heart stopper -->
         <g transform="translate(226 104)"><path d="M0 14 C-14 4 -14 -10 -5 -10 C-1 -10 0 -6 0 -4 C0 -6 1 -10 5 -10 C14 -10 14 4 0 14 Z" fill="#c8202f"/></g>
       </svg>
-      <p class="hint">Faites tourner le gobelet</p>
+      <p class="hint" data-i18n="cup.hint">Faites tourner le gobelet</p>
     </div>
 
     <div class="recap" id="recap" aria-hidden="true"></div>
 
-    <form class="controls" onsubmit="return false" aria-label="Composer votre boisson">
+    <form class="controls" onsubmit="return false" aria-label="Composer votre boisson" data-i18n-attr="aria-label:form.aria">
       <fieldset>
-        <legend>La taille</legend>
+        <legend data-i18n="form.size">La taille</legend>
         <div class="opts">
-          <label class="opt"><input type="radio" name="size" value="M"><span>Medium 50 cl</span></label>
-          <label class="opt"><input type="radio" name="size" value="L" checked><span>Large 70 cl</span></label>
+          <label class="opt"><input type="radio" name="size" value="M"><span data-i18n="size.M">Medium 50 cl</span></label>
+          <label class="opt"><input type="radio" name="size" value="L" checked><span data-i18n="size.L">Large 70 cl</span></label>
         </div>
       </fieldset>
       <fieldset>
-        <legend>La base</legend>
+        <legend data-i18n="form.base">La base</legend>
         <div class="opts">
-          <label class="opt"><input type="radio" name="base" value="lait" checked><span>Au lait</span></label>
-          <label class="opt"><input type="radio" name="base" value="fruit"><span>Thé fruité, sans lait</span></label>
+          <label class="opt"><input type="radio" name="base" value="lait" checked><span data-i18n="base.milk">Au lait</span></label>
+          <label class="opt"><input type="radio" name="base" value="fruit"><span data-i18n="base.fruit">Thé fruité, sans lait</span></label>
         </div>
       </fieldset>
       <fieldset>
-        <legend>Le parfum</legend>
+        <legend data-i18n="form.flavor">Le parfum</legend>
         <div class="opts" id="flavors"></div>
       </fieldset>
       <fieldset id="tempSet">
-        <legend>Chaud ou froid</legend>
+        <legend data-i18n="form.temp">Chaud ou froid</legend>
         <div class="opts">
-          <label class="opt"><input type="radio" name="temp" value="froid" checked><span>Froid</span></label>
-          <label class="opt"><input type="radio" name="temp" value="chaud"><span>Chaud</span></label>
+          <label class="opt"><input type="radio" name="temp" value="froid" checked><span data-i18n="temp.cold">Froid</span></label>
+          <label class="opt"><input type="radio" name="temp" value="chaud"><span data-i18n="temp.hot">Chaud</span></label>
         </div>
       </fieldset>
       <fieldset>
-        <legend>Le topping</legend>
+        <legend data-i18n="form.top">Le topping</legend>
         <div class="opts">
-          <label class="opt"><input type="radio" name="top" value="tapioca" checked><span>Perles de tapioca</span></label>
-          <label class="opt"><input type="radio" name="top" value="multifruit"><span>Perles multifruit</span></label>
-          <label class="opt"><input type="radio" name="top" value="haricot"><span>Haricot rouge</span></label>
-          <label class="opt"><input type="radio" name="top" value="gelee"><span>Gelée d'herbe</span></label>
+          <label class="opt"><input type="radio" name="top" value="tapioca" checked><span data-i18n="top.tapioca">Perles de tapioca</span></label>
+          <label class="opt"><input type="radio" name="top" value="multifruit"><span data-i18n="top.multifruit">Perles multifruit</span></label>
+          <label class="opt"><input type="radio" name="top" value="haricot"><span data-i18n="top.haricot">Haricot rouge</span></label>
+          <label class="opt"><input type="radio" name="top" value="gelee"><span data-i18n="top.gelee">Gelée d'herbe</span></label>
         </div>
       </fieldset>
       <div class="order">
         <output id="summary" aria-live="polite"></output>
-        <a class="btn" href="tel:+33980615680">Appeler pour commander</a>
+        <a class="btn" href="tel:+33980615680" data-i18n="cta.call">Appeler pour commander</a>
       </div>
     </form>
   </section>
@@ -418,15 +438,15 @@ main:focus{outline:none}
   <section class="kitchen" id="cuisine" aria-labelledby="k">
     <div class="wrap">
       <div class="kitchen-head">
-        <h2 id="k">Avec le thé, la cuisine de Wuhan.</h2>
-        <p>Les plats de rue du Hubei, faits à la plaque et au bouillon, plus deux gourmandises venues d'ailleurs.</p>
+        <h2 id="k" data-i18n="kitchen.h2">Avec le thé, la cuisine de Wuhan.</h2>
+        <p data-i18n="kitchen.p">Les plats de rue du Hubei, faits à la plaque et au bouillon, plus deux gourmandises venues d'ailleurs.</p>
       </div>
       <ul class="board">
-        <li class="dish lead"><span class="zh" lang="zh">煎饼</span><div><h3>Crêpe jianbing</h3><p>Étalée devant vous, version végétarienne. À garnir de saucisse, œuf mariné, bacon, poulet, canard laqué ou bœuf.</p></div><span class="price">dès 6&nbsp;€</span></li>
-        <li class="dish"><span class="zh" lang="zh">热干面</span><div><h3>Nouilles sauce sésame</h3><p>Le petit-déjeuner de Wuhan, nouilles épaisses à la pâte de sésame.</p></div><span class="price">8,90&nbsp;€</span></li>
-        <li class="dish"><span class="zh" lang="zh">麻辣烫</span><div><h3>Malatang</h3><p>La cocotte pimentée&nbsp;: un bouillon épicé, vous choisissez ce qui plonge dedans.</p></div><span class="price">12,50&nbsp;€</span></li>
-        <li class="dish"><span class="zh" lang="zh">章鱼小丸子</span><div><h3>Takoyaki</h3><p>Boulettes de poulpe, sauce et bonite.</p></div><span class="price">6,50&nbsp;€</span></li>
-        <li class="dish"><span class="zh" lang="zh">鸡蛋仔</span><div><h3>Bubble waffle</h3><p>Nature, ou avec glace, topping et sauce au choix.</p></div><span class="price">dès 4&nbsp;€</span></li>
+        <li class="dish lead"><span class="zh" lang="zh">煎饼</span><div><h3 data-i18n="board.jianbing.name">Crêpe jianbing</h3><p data-i18n="board.jianbing.desc">Étalée devant vous, version végétarienne. À garnir de saucisse, œuf mariné, bacon, poulet, canard laqué ou bœuf.</p></div><span class="price" data-price="6" data-price-from>dès 6&nbsp;€</span></li>
+        <li class="dish"><span class="zh" lang="zh">热干面</span><div><h3 data-i18n="board.sesame.name">Nouilles sauce sésame</h3><p data-i18n="board.sesame.desc">Le petit-déjeuner de Wuhan, nouilles épaisses à la pâte de sésame.</p></div><span class="price" data-price="8.9">8,90&nbsp;€</span></li>
+        <li class="dish"><span class="zh" lang="zh">麻辣烫</span><div><h3 data-i18n="board.malatang.name">Malatang</h3><p data-i18n="board.malatang.desc">La cocotte pimentée&nbsp;: un bouillon épicé, vous choisissez ce qui plonge dedans.</p></div><span class="price" data-price="12.5">12,50&nbsp;€</span></li>
+        <li class="dish"><span class="zh" lang="zh">章鱼小丸子</span><div><h3 data-i18n="board.takoyaki.name">Takoyaki</h3><p data-i18n="board.takoyaki.desc">Boulettes de poulpe, sauce et bonite.</p></div><span class="price" data-price="6.5">6,50&nbsp;€</span></li>
+        <li class="dish"><span class="zh" lang="zh">鸡蛋仔</span><div><h3 data-i18n="board.waffle.name">Bubble waffle</h3><p data-i18n="board.waffle.desc">Nature, ou avec glace, topping et sauce au choix.</p></div><span class="price" data-price="4" data-price-from>dès 4&nbsp;€</span></li>
       </ul>
     </div>
   </section>
@@ -434,92 +454,92 @@ main:focus{outline:none}
 
   <section class="menu" id="carte" aria-labelledby="carte-t">
     <div class="wrap">
-      <h2 id="carte-t">La carte.</h2>
-      <p class="menu-lead">Faites tourner la roue : le plat au centre est celui que vous choisissez.</p>
+      <h2 id="carte-t" data-i18n="carte.h2">La carte.</h2>
+      <p class="menu-lead" data-i18n="carte.lead">Faites tourner la roue : le plat au centre est celui que vous choisissez.</p>
       <div class="cats-row">
-        <fieldset class="cats"><legend class="sr">Catégorie de plats</legend><div class="opts"><label class="opt"><input type="radio" name="cat" value="plats" checked><span>Plats</span></label><label class="opt"><input type="radio" name="cat" value="malatang"><span>Malatang</span></label><label class="opt"><input type="radio" name="cat" value="snacks"><span>Crêpes et snacks</span></label><label class="opt"><input type="radio" name="cat" value="desserts"><span>Desserts</span></label></div></fieldset>
-        <button type="button" class="rplay" id="rplay" aria-pressed="false"><span class="rplay-ico" aria-hidden="true"></span><span class="rplay-txt">Pause</span></button>
+        <fieldset class="cats"><legend class="sr" data-i18n="cats.legend">Catégorie de plats</legend><div class="opts"><label class="opt"><input type="radio" name="cat" value="plats" checked><span data-i18n="cat.plats">Plats</span></label><label class="opt"><input type="radio" name="cat" value="malatang"><span data-i18n="cat.malatang">Malatang</span></label><label class="opt"><input type="radio" name="cat" value="snacks"><span data-i18n="cat.snacks">Crêpes et snacks</span></label><label class="opt"><input type="radio" name="cat" value="desserts"><span data-i18n="cat.desserts">Desserts</span></label></div></fieldset>
+        <button type="button" class="rplay" id="rplay" aria-pressed="false"><span class="rplay-ico" aria-hidden="true"></span><span class="rplay-txt" data-i18n="rplay.pause">Pause</span></button>
       </div>
       <div class="roulette" id="roulette">
         <div class="rtrack" aria-hidden="true"></div>
-        <div class="ring" id="ring" role="listbox" aria-label="Plats de la carte" aria-orientation="horizontal" tabindex="0"></div>
-        <button class="rbtn prev" type="button" aria-label="Plat précédent"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        <button class="rbtn next" type="button" aria-label="Plat suivant"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="ring" id="ring" role="listbox" aria-label="Plats de la carte" data-i18n-attr="aria-label:ring.aria" aria-orientation="horizontal" tabindex="0"></div>
+        <button class="rbtn prev" type="button" aria-label="Plat précédent" data-i18n-attr="aria-label:ring.prev"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="rbtn next" type="button" aria-label="Plat suivant" data-i18n-attr="aria-label:ring.next"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
       <div class="pick" id="pick" aria-live="polite" aria-atomic="true"></div>
-      <p class="menu-note center">Chaque plat se commande sans piment, légèrement, moyennement ou très pimenté.</p>
+      <p class="menu-note center" data-i18n="note.spice">Chaque plat se commande sans piment, légèrement, moyennement ou très pimenté.</p>
       <details class="fullmenu">
-        <summary>Voir la carte complète, avec les boissons et les options</summary>
+        <summary data-i18n="full.summary">Voir la carte complète, avec les boissons et les options</summary>
         <div class="menu-grid">
-        <div class="tabs" role="tablist" aria-label="Catégories de la carte">
-          <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true">Bubble tea <span class="zh">奶茶</span></button>
-          <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1">Plats <span class="zh">小吃</span></button>
-          <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1">Malatang <span class="zh">麻辣烫</span></button>
-          <button class="tab" role="tab" id="t4" aria-controls="p4" aria-selected="false" tabindex="-1">Crêpes et snacks <span class="zh">煎饼</span></button>
-          <button class="tab" role="tab" id="t5" aria-controls="p5" aria-selected="false" tabindex="-1">Desserts <span class="zh">甜品</span></button>
+        <div class="tabs" role="tablist" aria-label="Catégories de la carte" data-i18n-attr="aria-label:tabs.aria">
+          <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true"><span data-i18n="tab.tea">Bubble tea</span> <span class="zh">奶茶</span></button>
+          <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1"><span data-i18n="tab.dishes">Plats</span> <span class="zh">小吃</span></button>
+          <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1"><span data-i18n="tab.malatang">Malatang</span> <span class="zh">麻辣烫</span></button>
+          <button class="tab" role="tab" id="t4" aria-controls="p4" aria-selected="false" tabindex="-1"><span data-i18n="tab.snacks">Crêpes et snacks</span> <span class="zh">煎饼</span></button>
+          <button class="tab" role="tab" id="t5" aria-controls="p5" aria-selected="false" tabindex="-1"><span data-i18n="tab.desserts">Desserts</span> <span class="zh">甜品</span></button>
         </div>
         <div class="panels">
           <div class="panel" role="tabpanel" id="p1" aria-labelledby="t1">
             <div class="rows">
-              <div class="row"><span>Bubble tea Medium 50 cl</span><b>5,50 €</b></div>
-              <div class="row"><span>Bubble tea Large 70 cl</span><b>6,50 €</b></div>
+              <div class="row"><span data-i18n="m.tea.m">Bubble tea Medium 50 cl</span><b data-price="5.50">5,50 €</b></div>
+              <div class="row"><span data-i18n="m.tea.l">Bubble tea Large 70 cl</span><b data-price="6.50">6,50 €</b></div>
             </div>
             <div class="groups">
-              <div><h3>Au lait, chaud ou froid</h3><p>Nature, fraise, mangue, coco, pastèque, matcha, taro, vanille.</p></div>
-              <div><h3>Thé fruité glacé, sans lait</h3><p>Citron, mangue, fruit de la passion, rose, pêche, litchi, fraise, myrtille, cerise.</p></div>
-              <div><h3>Topping au choix</h3><p>Perles de tapioca, perles multifruit, haricot rouge, gelée d'herbe.</p></div>
+              <div><h3 data-i18n="m.g.milk.h">Au lait, chaud ou froid</h3><p data-i18n="m.g.milk.p">Nature, fraise, mangue, coco, pastèque, matcha, taro, vanille.</p></div>
+              <div><h3 data-i18n="m.g.fruit.h">Thé fruité glacé, sans lait</h3><p data-i18n="m.g.fruit.p">Citron, mangue, fruit de la passion, rose, pêche, litchi, fraise, myrtille, cerise.</p></div>
+              <div><h3 data-i18n="m.g.top.h">Topping au choix</h3><p data-i18n="m.g.top.p">Perles de tapioca, perles multifruit, haricot rouge, gelée d'herbe.</p></div>
             </div>
           </div>
           <div class="panel" role="tabpanel" id="p2" aria-labelledby="t2" hidden>
             <ol class="rows numbered">
-              <li class="row" value="1"><span>Nouilles au porc haché et petits pois, avec ou sans soupe</span><b>11,50 €</b></li>
-              <li class="row" value="2"><span>Nouilles au bœuf, sauce maison ou au chou mariné</span><b>11,50 €</b></li>
-              <li class="row" value="3"><span>Pâtes de riz au porc haché</span><b>8,90 €</b></li>
-              <li class="row" value="4"><span>Soupe de vermicelles à la sauce aigre et piquante</span><b>8,90 €</b></li>
-              <li class="row" value="5"><span>Nouilles de riz à la sauce maison, froides</span><b>8,90 €</b></li>
-              <li class="row" value="6"><span>Riz aux grains mélangés, viande aux 5 parfums (poulet ou porc)</span><b>11,50 €</b></li>
-              <li class="row" value="8"><span>Nouilles à la sauce sésame</span><b>8,90 €</b></li>
-              <li class="row" value="10"><span>Poulet au curry avec riz</span><b>11,50 €</b></li>
-              <li class="row" value="11"><span>Poulet effiloché au citron, servi avec riz</span><b>11,50 €</b></li>
-              <li class="row" value="12"><span>Nouilles froides</span><b>8,90 €</b></li>
-              <li class="row" value="13"><span>Rouleaux de riz vapeur, végétarien (+ porc 1,90 €)</span><b>7 €</b></li>
-              <li class="row" value="14"><span>Nouilles de riz au chou chinois vinaigré</span><b>8,90 €</b></li>
+              <li class="row" value="1"><span data-i18n="m.d.1">Nouilles au porc haché et petits pois, avec ou sans soupe</span><b data-price="11.50">11,50 €</b></li>
+              <li class="row" value="2"><span data-i18n="m.d.2">Nouilles au bœuf, sauce maison ou au chou mariné</span><b data-price="11.50">11,50 €</b></li>
+              <li class="row" value="3"><span data-i18n="m.d.3">Pâtes de riz au porc haché</span><b data-price="8.90">8,90 €</b></li>
+              <li class="row" value="4"><span data-i18n="m.d.4">Soupe de vermicelles à la sauce aigre et piquante</span><b data-price="8.90">8,90 €</b></li>
+              <li class="row" value="5"><span data-i18n="m.d.5">Nouilles de riz à la sauce maison, froides</span><b data-price="8.90">8,90 €</b></li>
+              <li class="row" value="6"><span data-i18n="m.d.6">Riz aux grains mélangés, viande aux 5 parfums (poulet ou porc)</span><b data-price="11.50">11,50 €</b></li>
+              <li class="row" value="8"><span data-i18n="m.d.8">Nouilles à la sauce sésame</span><b data-price="8.90">8,90 €</b></li>
+              <li class="row" value="10"><span data-i18n="m.d.10">Poulet au curry avec riz</span><b data-price="11.50">11,50 €</b></li>
+              <li class="row" value="11"><span data-i18n="m.d.11">Poulet effiloché au citron, servi avec riz</span><b data-price="11.50">11,50 €</b></li>
+              <li class="row" value="12"><span data-i18n="m.d.12">Nouilles froides</span><b data-price="8.90">8,90 €</b></li>
+              <li class="row" value="13"><span data-i18n="m.d.13">Rouleaux de riz vapeur, végétarien (+ porc 1,90 €)</span><b data-price="7">7 €</b></li>
+              <li class="row" value="14"><span data-i18n="m.d.14">Nouilles de riz au chou chinois vinaigré</span><b data-price="8.90">8,90 €</b></li>
             </ol>
             <div class="rows sub">
-              <div class="row"><span>Viande parfumée&nbsp;: cuisse de poulet</span><b>5,90 €</b></div>
-              <div class="row"><span>Viande parfumée&nbsp;: porc</span><b>5,90 €</b></div>
+              <div class="row"><span data-i18n="m.meat.chicken">Viande parfumée&nbsp;: cuisse de poulet</span><b data-price="5.90">5,90 €</b></div>
+              <div class="row"><span data-i18n="m.meat.pork">Viande parfumée&nbsp;: porc</span><b data-price="5.90">5,90 €</b></div>
             </div>
-            <p class="menu-note">Chaque plat se commande sans piment, légèrement, moyennement ou très pimenté.</p>
+            <p class="menu-note" data-i18n="note.spice">Chaque plat se commande sans piment, légèrement, moyennement ou très pimenté.</p>
           </div>
           <div class="panel" role="tabpanel" id="p3" aria-labelledby="t3" hidden>
             <div class="rows">
-              <div class="row"><span>Malatang, cocotte pimentée, en bouillon ou sauté sec</span><b>12,50 €</b></div>
-              <div class="row"><span>Viande en option&nbsp;: bacon, poulpe, tofu de poisson, saucisse croustillante</span><b>2,50 €</b></div>
-              <div class="row"><span>Peau de tofu et autres ingrédients</span><b>1,50 €</b></div>
-              <div class="row"><span>Base changée pour nouilles instantanées ou vermicelles</span><b>1 €</b></div>
-              <div class="row"><span>Base changée pour larges vermicelles ou nouilles faites main</span><b>1,50 €</b></div>
+              <div class="row"><span data-i18n="m.mal.1">Malatang, cocotte pimentée, en bouillon ou sauté sec</span><b data-price="12.50">12,50 €</b></div>
+              <div class="row"><span data-i18n="m.mal.2">Viande en option&nbsp;: bacon, poulpe, tofu de poisson, saucisse croustillante</span><b data-price="2.50">2,50 €</b></div>
+              <div class="row"><span data-i18n="m.mal.3">Peau de tofu et autres ingrédients</span><b data-price="1.50">1,50 €</b></div>
+              <div class="row"><span data-i18n="m.mal.4">Base changée pour nouilles instantanées ou vermicelles</span><b data-price="1">1 €</b></div>
+              <div class="row"><span data-i18n="m.mal.5">Base changée pour larges vermicelles ou nouilles faites main</span><b data-price="1.50">1,50 €</b></div>
             </div>
           </div>
           <div class="panel" role="tabpanel" id="p4" aria-labelledby="t4" hidden>
             <div class="rows">
-              <div class="row"><span>Crêpe salée chinoise jianbing, végétarienne</span><b>6 €</b></div>
-              <div class="row"><span>Avec saucisse, œuf mariné ou œuf en plus</span><b>+ 1 €</b></div>
-              <div class="row"><span>Avec latiao, bacon ou poulet</span><b>+ 2 €</b></div>
-              <div class="row"><span>Avec canard laqué ou bœuf</span><b>+ 3 €</b></div>
-              <div class="row"><span>Takoyaki, 6 boules de poulpe</span><b>6,50 €</b></div>
+              <div class="row"><span data-i18n="m.sn.1">Crêpe salée chinoise jianbing, végétarienne</span><b data-price="6">6 €</b></div>
+              <div class="row"><span data-i18n="m.sn.2">Avec saucisse, œuf mariné ou œuf en plus</span><b data-price="1" data-price-prefix="+ ">+ 1 €</b></div>
+              <div class="row"><span data-i18n="m.sn.3">Avec latiao, bacon ou poulet</span><b data-price="2" data-price-prefix="+ ">+ 2 €</b></div>
+              <div class="row"><span data-i18n="m.sn.4">Avec canard laqué ou bœuf</span><b data-price="3" data-price-prefix="+ ">+ 3 €</b></div>
+              <div class="row"><span data-i18n="m.sn.5">Takoyaki, 6 boules de poulpe</span><b data-price="6.50">6,50 €</b></div>
             </div>
           </div>
           <div class="panel" role="tabpanel" id="p5" aria-labelledby="t5" hidden>
             <div class="rows">
-              <div class="row"><span>Taro balls à la gelée d'herbe, au lait de coco, bubble tea ou sirop</span><b>6 €</b></div>
-              <div class="row"><span>Gelée liangfen à l'osmanthus</span><b>5 €</b></div>
-              <div class="row"><span>Bubble waffle nature</span><b>4 €</b></div>
-              <div class="row"><span>Bubble waffle glacé</span><b>7 €</b></div>
-              <div class="row"><span>Boule de glace en plus</span><b>1 €</b></div>
+              <div class="row"><span data-i18n="m.de.1">Taro balls à la gelée d'herbe, au lait de coco, bubble tea ou sirop</span><b data-price="6">6 €</b></div>
+              <div class="row"><span data-i18n="m.de.2">Gelée liangfen à l'osmanthus</span><b data-price="5">5 €</b></div>
+              <div class="row"><span data-i18n="m.de.3">Bubble waffle nature</span><b data-price="4">4 €</b></div>
+              <div class="row"><span data-i18n="m.de.4">Bubble waffle glacé</span><b data-price="7">7 €</b></div>
+              <div class="row"><span data-i18n="m.de.5">Boule de glace en plus</span><b data-price="1">1 €</b></div>
             </div>
             <div class="groups">
-              <div><h3>Glace</h3><p>Vanille, fraise, mangue, chocolat, matcha.</p></div>
-              <div><h3>Topping et sauce</h3><p>Banane, Oreo, M&amp;M's, guimauve. Caramel, chantilly, chocolat.</p></div>
+              <div><h3 data-i18n="m.g.ice.h">Glace</h3><p data-i18n="m.g.ice.p">Vanille, fraise, mangue, chocolat, matcha.</p></div>
+              <div><h3 data-i18n="m.g.sauce.h">Topping et sauce</h3><p data-i18n="m.g.sauce.p">Banane, Oreo, M&amp;M's, guimauve. Caramel, chantilly, chocolat.</p></div>
             </div>
           </div>
         </div>
@@ -530,8 +550,8 @@ main:focus{outline:none}
 
   <section class="mamie">
     <div class="wrap">
-      <p class="bq">Les crêpes, c'est la mamie qui les fait. Deux minutes de plaque, et ça craque encore quand vous sortez.</p>
-      <p class="by">Au comptoir, tous les jours.</p>
+      <p class="bq" data-i18n="mamie.q">Les crêpes, c'est la mamie qui les fait. Deux minutes de plaque, et ça craque encore quand vous sortez.</p>
+      <p class="by" data-i18n="mamie.by">Au comptoir, tous les jours.</p>
     </div>
   </section>
 
@@ -542,35 +562,38 @@ main:focus{outline:none}
         <span class="zh" id="v">幸福食光</span>
         <span class="mr">Mr. Ye</span>
         <div class="info">
-          <span>69 avenue des Gobelins, 75013 Paris</span>
-          <span>Métro Gobelins ou Place d'Italie</span>
-          <span><a href="tel:+33980615680">09 80 61 56 80</a> ou <a href="tel:+33760256373">07 60 25 63 73</a></span>
+          <span data-i18n="visit.addr">69 avenue des Gobelins, 75013 Paris</span>
+          <span data-i18n="visit.metro">Métro Gobelins ou Place d'Italie</span>
+          <span><a href="tel:+33980615680">09 80 61 56 80</a> <span data-i18n="visit.or">ou</span> <a href="tel:+33760256373">07 60 25 63 73</a></span>
         </div>
         <div class="acts">
-          <a class="btn" href="https://www.google.com/maps/search/?api=1&query=69+Avenue+des+Gobelins+75013+Paris" target="_blank" rel="noopener">Itinéraire</a>
-          <a class="btn alt" href="tel:+33980615680">Appeler pour commander</a>
+          <a class="btn" href="https://www.google.com/maps/search/?api=1&query=69+Avenue+des+Gobelins+75013+Paris" target="_blank" rel="noopener" data-i18n="visit.directions">Itinéraire</a>
+          <a class="btn alt" href="tel:+33980615680" data-i18n="cta.call">Appeler pour commander</a>
         </div>
       </div>
     </div>
   </section>
 </main>
-<footer><div class="wrap">4,7 sur Google, plus de 600 avis.</div></footer>
+<footer><div class="wrap" data-i18n="footer">4,7 sur Google, plus de 600 avis.</div></footer>
 
-<nav class="dock" aria-label="Accès rapide">
-  <a href="#top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1.4 12H7.4z"/><path d="M5 8h14M12 8V3l3-1"/></svg>Composer</a>
-  <a href="#carte"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>La carte</a>
-  <a href="#venir"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></svg>Venir</a>
-  <a class="dock-call" href="tel:+33980615680"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Appeler</a>
+<nav class="dock" aria-label="Accès rapide" data-i18n-attr="aria-label:dock.aria">
+  <a href="#top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1.4 12H7.4z"/><path d="M5 8h14M12 8V3l3-1"/></svg><span data-i18n="dock.build">Composer</span></a>
+  <a href="#carte"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg><span data-i18n="dock.menu">La carte</span></a>
+  <a href="#venir"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></svg><span data-i18n="dock.visit">Venir</span></a>
+  <a class="dock-call" href="tel:+33980615680"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span data-i18n="dock.call">Appeler</span></a>
 </nav>
 
 <script>
+/*__I18N__*/
+</script>
+<script>
 (() => {
   const FLAVORS={
-    lait:[['nature','Nature','#a47a4e'],['fraise','Fraise','#ee8fab'],['mangue','Mangue','#f4a824'],['coco','Coco','#dccfb8'],['pasteque','Pastèque','#ee5566'],['matcha','Matcha','#729638'],['taro','Taro','#9774c6'],['vanille','Vanille','#e7c67a']],
-    fruit:[['citron','Citron','#e9e03a'],['mangue','Mangue','#f77f12'],['passion','Fruit de la passion','#f2a014'],['rose','Rose','#e04a78'],['peche','Pêche','#f4825a'],['litchi','Litchi','#e3b9ae'],['fraise','Fraise','#d82a45'],['myrtille','Myrtille','#5f2f9a'],['cerise','Cerise','#9a0f28']]
+    lait:[['nature','#a47a4e'],['fraise','#ee8fab'],['mangue','#f4a824'],['coco','#dccfb8'],['pasteque','#ee5566'],['matcha','#729638'],['taro','#9774c6'],['vanille','#e7c67a']],
+    fruit:[['citron','#e9e03a'],['mangue','#f77f12'],['passion','#f2a014'],['rose','#e04a78'],['peche','#f4825a'],['litchi','#e3b9ae'],['fraise','#d82a45'],['myrtille','#5f2f9a'],['cerise','#9a0f28']]
   };
-  const TOPS={tapioca:'perles de tapioca',multifruit:'perles multifruit',haricot:'haricot rouge',gelee:"gelée d'herbe"};
-  const PRICE={M:'5,50 €',L:'6,50 €'};
+  const PRICE={M:5.5,L:6.5};
+  const t=window.mryeT, fmtP=(n)=>MRYE_I18N_CORE.fmt(window.mryeLang(),n), flavorName=(base,id)=>t('flavor.'+base+'.'+id);
   const form=document.querySelector('.controls');
   const flav=document.getElementById('flavors');
   const tempSet=document.getElementById('tempSet');
@@ -607,7 +630,7 @@ main:focus{outline:none}
   });
   function buildFlavors(base){
     const keep=form.flavor?form.flavor.value:null;
-    flav.innerHTML=FLAVORS[base].map(([v,n,c],i)=>'<label class="opt"><input type="radio" name="flavor" value="'+v+'"'+((keep===v)||(!FLAVORS[base].some(f=>f[0]===keep)&&i===0)?' checked':'')+'><span><i style="background:'+c+'"></i>'+n+'</span></label>').join('');
+    flav.innerHTML=FLAVORS[base].map(([v,c],i)=>'<label class="opt"><input type="radio" name="flavor" value="'+v+'"'+((keep===v)||(!FLAVORS[base].some(f=>f[0]===keep)&&i===0)?' checked':'')+'><span><i style="background:'+c+'"></i>'+flavorName(base,v)+'</span></label>').join('');
   }
 
   // flame / snowflake badge: the new icon pops UP every time the temperature changes
@@ -615,7 +638,7 @@ main:focus{outline:none}
     var b = document.getElementById('tempBadge'); if (!b) return;
     var first = !b.dataset.init; b.dataset.init = '1';
     if (!first && b.classList.contains('is-hot') === hot) return;
-    b.classList.toggle('is-hot', hot); b.classList.toggle('is-cold', !hot); b.title = hot ? 'Chaud' : 'Froid';
+    b.classList.toggle('is-hot', hot); b.classList.toggle('is-cold', !hot);
     if (first || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
     var ico = b.querySelector(hot ? '.ico-hot' : '.ico-cold'), rip = b.querySelector('.ripple');
     if (!ico.animate) return;
@@ -630,18 +653,23 @@ main:focus{outline:none}
     const size=form.size.value, top=form.top.value, f=FLAVORS[base].find(x=>x[0]===form.flavor.value);
     const milk=base==='lait';
     tempSet.hidden=!milk;
-    liquid.setAttribute('fill',f[2]);
+    liquid.setAttribute('fill',f[1]);
     const topColors={tapioca:'#2a1d17',multifruit:'#f2a21c',haricot:'#5a1f19',gelee:'#14120d'};
     pearlsG.querySelectorAll('.pearl').forEach(p=>{p.setAttribute('fill',topColors[top]);p.classList.remove('off')});
     if(window.mryeCup&&mryeCup.setFlavor){mryeCup.setFlavor(base,f[0]);mryeCup.setTopping(top);mryeCup.setSize(size);}
     setTempBadge(milk&&form.temp.value==='chaud');
-    const name=milk?'Thé au lait '+f[1].toLowerCase()+', '+form.temp.value:'Thé '+f[1].toLowerCase()+' glacé, sans lait';
-    const topTxt=TOPS[top].charAt(0).toUpperCase()+TOPS[top].slice(1);
+    const hotNow=milk&&form.temp.value==='chaud', badge=document.getElementById('tempBadge');
+    if(badge)badge.title=t(hotNow?'temp.hot':'temp.cold');
+    const fname=flavorName(base,f[0]), tl=t(form.temp.value==='chaud'?'temp.hot':'temp.cold');
+    const name=milk?t('sum.milk',{flavor:fname,flavor_lc:fname.toLowerCase(),temp:tl,temp_lc:tl.toLowerCase()}):t('sum.fruit',{flavor:fname,flavor_lc:fname.toLowerCase()});
+    const topTxt=t('top.'+top), sizeTxt=t('size.'+size);
+    const price=milk?'<span class="r-p">'+fmtP(PRICE[size])+'</span>':'<span class="r-p na">'+t('sum.na')+'</span>';
     const recap=document.getElementById('recap');
-    if(recap)recap.innerHTML='<span class="r-d">'+(size==='L'?'Large 70 cl':'Medium 50 cl')+' · '+name+'</span><span class="r-t">+ '+topTxt+'</span>'+(milk?'<span class="r-p">'+PRICE[size]+'</span>':'<span class="r-p na">Prix affiché en boutique</span>');
-    out.innerHTML='<span class="o-eyebrow">Votre bubble tea</span><span>'+(size==='L'?'Large 70 cl':'Medium 50 cl')+'</span><span>'+name+'</span><span>+ '+topTxt+'</span>'+(milk?'<span class="o-price">'+PRICE[size]+'</span>':'<span class="o-price na">Prix affiché en boutique</span>');
+    if(recap)recap.innerHTML='<span class="r-d">'+sizeTxt+' · '+name+'</span><span class="r-t">+ '+topTxt+'</span>'+price;
+    out.innerHTML='<span class="o-eyebrow">'+t('sum.eyebrow')+'</span><span>'+sizeTxt+'</span><span>'+name+'</span><span>+ '+topTxt+'</span>'+price.replace('r-p','o-price');
   }
   form.addEventListener('change',render); render(); window.__mryeRender=render;
+  document.addEventListener('langchange',()=>{buildFlavors(form.base.value);render();});      // a language switch: the flavour names and the summary are built by this script
   const tabs=[...document.querySelectorAll('[role="tab"]')];
   const sel=t=>{tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;document.getElementById(x.getAttribute('aria-controls')).hidden=!on});t.focus()};
   tabs.forEach((t,i)=>{t.addEventListener('click',()=>sel(t));t.addEventListener('keydown',e=>{
@@ -651,8 +679,15 @@ main:focus{outline:none}
 </script>
 <script>
 (() => {
-  const DATA = {"dishes": [["N° 1", "碗杂面", "Nouilles au porc haché et petits pois", "Servies avec ou sans soupe.", "11,50 €", "plats"], ["N° 2", "牛肉面", "Nouilles au bœuf", "À la sauce maison ou au chou mariné.", "11,50 €", "plats"], ["N° 3", "杂酱米粉", "Pâtes de riz au porc haché", "Pâtes de riz et porc haché.", "8,90 €", "plats"], ["N° 4", "酸辣粉", "Soupe de vermicelles aigre et piquante", "Des vermicelles dans un bouillon aigre et piquant.", "8,90 €", "plats"], ["N° 5", "凉皮", "Nouilles de riz, sauce maison", "Servies froides, à la sauce maison.", "8,90 €", "plats"], ["N° 6", "卤味饭", "Riz parfumé, viande au choix", "Riz aux grains mélangés et viande aux 5 parfums, poulet ou porc.", "11,50 €", "plats"], ["N° 8", "热干面", "Nouilles à la sauce sésame", "Le petit-déjeuner de Wuhan : nouilles épaisses à la pâte de sésame.", "8,90 €", "plats"], ["N° 10", "咖喱鸡饭", "Poulet au curry avec riz", "Poulet au curry servi avec du riz.", "11,50 €", "plats"], ["N° 11", "手撕鸡", "Poulet effiloché au citron", "Servi avec du riz.", "11,50 €", "plats"], ["N° 12", "凉面", "Nouilles froides", "Nouilles servies froides.", "8,90 €", "plats"], ["N° 13", "肠粉", "Rouleaux de riz vapeur", "Version végétarienne. Avec du porc : + 1,90 €.", "7 €", "plats"], ["N° 14", "酸菜米粉", "Nouilles de riz au chou vinaigré", "Nouilles de riz et chou chinois vinaigré.", "8,90 €", "plats"], ["N° 9", "麻辣烫", "Malatang, cocotte pimentée", "Un bouillon épicé : vous choisissez ce qui plonge dedans. Viande en option : + 2,50 €.", "12,50 €", "malatang"], ["Snack", "煎饼", "Crêpe salée jianbing", "Version végétarienne. Saucisse, œuf, bacon, poulet, canard laqué ou bœuf en supplément.", "dès 6 €", "snacks"], ["Snack", "章鱼小丸子", "Takoyaki", "6 boules de poulpe, sauce et bonite.", "6,50 €", "snacks"], ["Dessert", "芋圆", "Taro balls", "Au lait de coco, au bubble tea ou au sirop, au choix.", "6 €", "desserts"], ["Dessert", "桂花凉粉", "Gelée liangfen à l’osmanthus", "Une gelée de liangfen parfumée à l’osmanthus.", "5 €", "desserts"], ["Dessert", "鸡蛋仔", "Bubble waffle nature", "La gaufre à bulles de Hong Kong.", "4 €", "desserts"], ["Dessert", "冰淇淋鸡蛋仔", "Bubble waffle glacé", "Glace au choix, topping et sauce.", "7 €", "desserts"]], "cats": {"plats": ["Plats", "#2f5d3f", "#183524"], "malatang": ["Malatang", "#c4452b", "#73200f"], "snacks": ["Crêpes et snacks", "#c08a2e", "#6f4a0e"], "desserts": ["Desserts", "#b9526f", "#6a2942"]}};
+  // the roulette: [Chinese name, category, key, dish number (0 = none), price, "from" price]. Names, descriptions and the category labels come from src/i18n/*.json (dish.<key>.name / .desc, cat.<category>)
+  const DATA = {"dishes": [["碗杂面", "plats", "n1", 1, 11.5, 0], ["牛肉面", "plats", "n2", 2, 11.5, 0], ["杂酱米粉", "plats", "n3", 3, 8.9, 0], ["酸辣粉", "plats", "n4", 4, 8.9, 0], ["凉皮", "plats", "n5", 5, 8.9, 0], ["卤味饭", "plats", "n6", 6, 11.5, 0], ["热干面", "plats", "n8", 8, 8.9, 0], ["咖喱鸡饭", "plats", "n10", 10, 11.5, 0], ["手撕鸡", "plats", "n11", 11, 11.5, 0], ["凉面", "plats", "n12", 12, 8.9, 0], ["肠粉", "plats", "n13", 13, 7, 0], ["酸菜米粉", "plats", "n14", 14, 8.9, 0], ["麻辣烫", "malatang", "n9", 9, 12.5, 0], ["煎饼", "snacks", "jianbing", 0, 6, 1], ["章鱼小丸子", "snacks", "takoyaki", 0, 6.5, 0], ["芋圆", "desserts", "taro", 0, 6, 0], ["桂花凉粉", "desserts", "liangfen", 0, 5, 0], ["鸡蛋仔", "desserts", "waffle", 0, 4, 0], ["冰淇淋鸡蛋仔", "desserts", "waffle-glace", 0, 7, 0]], "cats": {"plats": ["#2f5d3f", "#183524"], "malatang": ["#c4452b", "#73200f"], "snacks": ["#c08a2e", "#6f4a0e"], "desserts": ["#b9526f", "#6a2942"]}};
+  // dish photos by key (d[6]): filled in by build.mjs from src/dishes (files in the production build, small inline pictures in the portable one). A dish without a photo keeps its Chinese-character plate.
+  const PHOTOS = /*__DISH_PHOTOS__*/{};
   const DISHES = DATA.dishes, CATS = DATA.cats;
+  const t = window.mryeT, fmtP = (n) => MRYE_I18N_CORE.fmt(window.mryeLang(), n);
+  const dName = (d) => t('dish.' + d[2] + '.name'), dDesc = (d) => t('dish.' + d[2] + '.desc');
+  const dTag = (d) => d[3] ? t('tag.n', { n: d[3] }) : t(d[1] === 'desserts' ? 'tag.dessert' : 'tag.snack');
+  const dPrice = (d) => d[5] ? t('from', { p: fmtP(d[4]) }) : fmtP(d[4]);
   const root = document.getElementById('roulette'); if (!root) return;
   const ring = document.getElementById('ring'), pick = document.getElementById('pick'), track = root.querySelector('.rtrack');
   const catInputs = [...document.querySelectorAll('input[name="cat"]')], playB = document.getElementById('rplay');
@@ -666,11 +701,13 @@ main:focus{outline:none}
   /* ---- the plates ---- */
   let moved = false;
   const cards = DISHES.map((d, i) => {
-    const c = CATS[d[5]], el = document.createElement('div');
+    const c = CATS[d[1]], el = document.createElement('div');
     el.className = 'card'; el.id = 'dish-' + i; el.setAttribute('role', 'option'); el.setAttribute('aria-selected', 'false');
-    el.setAttribute('aria-label', d[0] + ', ' + d[2] + ', ' + d[4]);
-    el.style.setProperty('--pa', c[1]); el.style.setProperty('--pb', c[2]);
-    el.innerHTML = '<span class="floor"></span><div class="plate"><span class="num">' + d[0] + '</span><span class="zh" lang="zh" aria-hidden="true" style="--k:' + zk(d[1]) + '">' + zlines(d[1]) + '</span></div>';
+    el.setAttribute('aria-label', dTag(d) + ', ' + dName(d) + ', ' + dPrice(d));
+    el.style.setProperty('--pa', c[0]); el.style.setProperty('--pb', c[1]);
+    const ph = PHOTOS[d[2]];
+    el.innerHTML = '<span class="floor"></span><div class="plate' + (ph ? ' has-photo' : '') + '">' + (ph ? '<img class="ph" alt="" decoding="async" loading="lazy" draggable="false" src="' + ph + '">' : '') +
+      '<span class="num">' + dTag(d) + '</span><span class="zh" lang="zh" aria-hidden="true" style="--k:' + zk(d[0]) + '">' + (ph ? d[0] : zlines(d[0])) + '</span></div>';
     el.addEventListener('click', () => { if (moved) return; userTouched(); go(i); });
     ring.appendChild(el);
     return el;
@@ -700,16 +737,22 @@ main:focus{outline:none}
     const cur = mod(Math.round(pos), N);
     if (cur !== shown) show(cur);
   }
-  function show(i) {
+  function show(i, still) {
     shown = i;
-    const d = DISHES[i], c = CATS[d[5]];
-    pick.classList.remove('swap'); void pick.offsetWidth; if (!reduce) pick.classList.add('swap');
-    pick.style.setProperty('--pa', c[1]);
-    pick.innerHTML = '<p class="pk-meta"><span class="pk-dot"></span><span>' + c[0] + '</span>' + (d[0].indexOf('N°') === 0 ? '<span>' + d[0] + '</span>' : '') + '</p><h3 class="pk-name">' + d[2] + '</h3><p class="pk-desc">' + d[3] + '</p><p class="pk-price">' + d[4] + '</p>';
+    const d = DISHES[i], c = CATS[d[1]];
+    pick.classList.remove('swap'); void pick.offsetWidth; if (!reduce && !still) pick.classList.add('swap');
+    pick.style.setProperty('--pa', c[0]);
+    pick.innerHTML = '<p class="pk-meta"><span class="pk-dot"></span><span>' + t('cat.' + d[1]) + '</span>' + (d[3] ? '<span>' + dTag(d) + '</span>' : '') + '</p><h3 class="pk-name">' + dName(d) + '</h3><p class="pk-desc">' + dDesc(d) + '</p><p class="pk-price">' + dPrice(d) + '</p>';
     cards.forEach((el, k) => el.setAttribute('aria-selected', k === i ? 'true' : 'false'));
     ring.setAttribute('aria-activedescendant', 'dish-' + i);
-    catInputs.forEach(inp => { inp.checked = inp.value === d[5]; });
+    catInputs.forEach(inp => { inp.checked = inp.value === d[1]; });
   }
+  // a language switch: the plate numbers, the labels and the dish shown below the wheel are written by this script
+  document.addEventListener('langchange', () => {
+    cards.forEach((el, k) => { const d = DISHES[k]; el.setAttribute('aria-label', dTag(d) + ', ' + dName(d) + ', ' + dPrice(d)); el.querySelector('.num').textContent = dTag(d); });
+    if (shown >= 0) show(shown, true);
+    syncPlay();
+  });
 
   /* ---- motion: a damped spring, so the wheel settles like a roulette ---- */
   let raf = 0, last = 0, dragging = false;
@@ -727,7 +770,7 @@ main:focus{outline:none}
 
   /* ---- controls ---- */
   let auto = !reduce, hover = false, inView = true;
-  function syncPlay() { playB.setAttribute('aria-pressed', auto ? 'false' : 'true'); playB.querySelector('.rplay-txt').textContent = auto ? 'Pause' : 'Lecture'; }
+  function syncPlay() { playB.setAttribute('aria-pressed', auto ? 'false' : 'true'); playB.querySelector('.rplay-txt').textContent = t(auto ? 'rplay.pause' : 'rplay.play'); }
   function userTouched() { if (auto) { auto = false; syncPlay(); } }
   playB.addEventListener('click', () => { auto = !auto; syncPlay(); });
   root.querySelector('.prev').addEventListener('click', () => { userTouched(); step(-1); });
@@ -738,7 +781,7 @@ main:focus{outline:none}
     else if (e.key === 'Home') { e.preventDefault(); userTouched(); go(0); }
     else if (e.key === 'End') { e.preventDefault(); userTouched(); go(N - 1); }
   });
-  catInputs.forEach(inp => inp.addEventListener('change', () => { userTouched(); go(DISHES.findIndex(d => d[5] === inp.value)); }));
+  catInputs.forEach(inp => inp.addEventListener('change', () => { userTouched(); go(DISHES.findIndex(d => d[1] === inp.value)); }));
   let sx = 0, sp = 0, lx = 0, lt = 0, vx = 0;
   root.addEventListener('pointerdown', (e) => { if (e.target.closest('.rbtn')) return; dragging = true; moved = false; sx = lx = e.clientX; sp = pos; lt = performance.now(); vx = 0; });
   window.addEventListener('pointermove', (e) => {
@@ -757,7 +800,7 @@ main:focus{outline:none}
 
   /* ---- start on the house favourite (n° 8) ---- */
   measure();
-  pos = target = Math.max(0, DISHES.findIndex(d => d[0] === 'N° 8'));
+  pos = target = Math.max(0, DISHES.findIndex(d => d[2] === 'n8'));
   layout(); syncPlay();
   if ('ResizeObserver' in window) new ResizeObserver(() => { measure(); layout(); }).observe(root); else window.addEventListener('resize', () => { measure(); layout(); });
 })();
