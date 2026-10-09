@@ -2,7 +2,7 @@
 import subprocess, sys, time
 from pathlib import Path
 here = Path(__file__).resolve().parent
-tests = ["test_site.py", "test_containment.py", "test_roulette.py", "test_rig.py", "test_bear.py"] + ([] if "--fast" in sys.argv else ["test_stress.py"])
+tests = ["test_site.py", "test_guided_scroll.py", "test_containment.py", "test_roulette.py", "test_rig.py", "test_bear.py"] + ([] if "--fast" in sys.argv else ["test_stress.py"])
 results = []
 for t in tests:
     print(f"\n=== {t}", flush=True); t0 = time.time()
