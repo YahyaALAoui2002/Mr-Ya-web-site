@@ -2,4 +2,11 @@ node_modules/
 __pycache__/
 *.pyc
 dist/*.debug.*
+dist/site/
 .DS_Store
+
+# client photos and chat logs stay out of the public repository (see docs/reference/README.md)
+docs/reference/*
+!docs/reference/README.md
+docs/transcript/
+src/assets/_*

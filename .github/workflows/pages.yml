@@ -1,42 +1,65 @@
-name: Deploy to GitHub Pages
+name: Test and deploy to GitHub Pages
 
+# Every push and pull request is built and tested; only main is deployed, and only when the tests passed.
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Build the site (no dependencies, Node only)
-        run: node build.mjs
-      - name: Keep only the site (one self-contained index.html, no lab bench and no loose scripts)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Build, and check that the committed dist/ files are in sync with src/
         run: |
+          node build.mjs
+          git diff --exit-code -- dist/index.html dist/lab.html dist/bubbletea-3d.js || {
+            echo "::error::dist/ is out of date. Run 'node build.mjs' and commit dist/index.html, dist/lab.html and dist/bubbletea-3d.js."; exit 1; }
+      - name: Install the test tools
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Tests (the slow stress test only runs on main)
+        run: |
+          node build.mjs --debug
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then python tests/run_all.py; else python tests/run_all.py --fast; fi
+      - name: Keep only the production folder (self-hosted fonts and Three.js, no lab bench, no docs, no tests)
+        run: |
+          node build.mjs
           mkdir _site
-          cp dist/index.html _site/index.html
-          test -s _site/index.html
-      - uses: actions/configure-pages@v5
+          cp -r dist/site/. _site/
+          test -s _site/index.html && test -s _site/assets/three.min.js && test -s _site/og.png
+          if grep -q -E "googleapis|gstatic|jsdelivr" _site/index.html; then echo "::error::a third-party URL is back in the production page"; exit 1; fi
       - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main'
         with:
           path: _site
 
   deploy:
-    needs: build
+    if: github.ref == 'refs/heads/main'
+    needs: test
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

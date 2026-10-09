@@ -7,8 +7,10 @@
   "scripts": {
     "build": "node build.mjs",
     "build:debug": "node build.mjs --debug",
-    "serve": "python3 -m http.server 8080 --directory dist",
-    "test": "node build.mjs --debug && python3 tests/run_all.py",
-    "test:fast": "node build.mjs --debug && python3 tests/run_all.py --fast"
+    "serve": "python3 -m http.server 8080 --directory dist/site",
+    "test": "node build.mjs && node build.mjs --debug && python3 tests/run_all.py",
+    "test:fast": "node build.mjs && node build.mjs --debug && python3 tests/run_all.py --fast",
+    "serve:portable": "python3 -m http.server 8080 --directory dist",
+    "check:dist": "node build.mjs && git diff --exit-code -- dist/index.html dist/lab.html dist/bubbletea-3d.js"
   }
 }

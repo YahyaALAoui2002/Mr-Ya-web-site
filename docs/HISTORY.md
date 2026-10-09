@@ -1,6 +1,6 @@
 # History of the conversation (what happened, in order)
 
-The very first part of the build session is in `transcript/part-1-early-build-session.txt` (raw). Everything after it is summarised here.
+The very first part of the build session was a raw chat log, kept privately (not in this public repository; see `reference/README.md`). Everything after it is summarised here.
 
 ## Part 1 — first build (v1 → v6)
 - Client: Mr Ye 幸福食光. Brand colours taken from the real cup label photo; logo rebuilt as a CSS polygon badge; fonts chosen; page: hero builder, bubble tea stall board, tabbed menu with the real prices (from 5 menu photos), visit section.
@@ -29,3 +29,12 @@ The very first part of the build session is in `transcript/part-1-early-build-se
 19. **Connected shoulders, photo apron, site-only deploy (Claude Code)**: Yahya said the shoulders were "way separated" (trap and shoulder should connect, same wireframe as his new reference) and asked for the Mr Ye apron as in the photo, then to deploy just the site. The torso became broad to the top, the shoulder joints moved inside it, arms hug the sides, limbs got near-square quads; the apron was rebuilt against measurements of the photo; the face got a smile. Fixes from the review of item 18 were applied after testing them (pointer pitch, interrupted clips, additive idle, context restore, nod size, hidden bear). His uploaded `Mr Ye site v21.html` was byte-identical to the hand-over `dist/index.html` (nothing to merge). The Pages workflow now publishes ONLY `index.html` (no lab bench). The multi-agent review ran with a concurrency of 2, so its verification stage was stopped; its eight reviewer reports were used as leads and each adopted change was tested.
 
 Four screen recordings Yahya made of glitches (about 80 MB) are not included; their findings are in item 1.
+
+## Audit, first batch (v23)
+Done after a read-only audit of the live site and the repo:
+- Hero: headline always 2 lines ("Composez votre / bubble tea."); the intro spans the first two grid columns; tighter control rhythm so the whole order card is above the fold at 1440x900 (a denser variant for screens under 860 px tall); controls column kept at least 300 px wide at 1024.
+- Phone: a fixed bottom dock (Composer, La carte, Venir, Appeler) replaces the hidden nav and the header phone link; 44 px touch targets on coarse pointers; header links get a 44 px hit area without changing the layout; skip link.
+- Head: canonical, Open Graph and Twitter tags, SVG favicon, apple-touch-icon, theme-color (light/dark), robots.txt, sitemap.xml, share image made from the real 3D hero. The title no longer contains an em-dash.
+- Two builds: PORTABLE dist/index.html (artifact, CDN) and PRODUCTION dist/site (self-hosted Three.js and fonts, zero third-party requests, metric-matched fallback font).
+- CI: tests run on every push and pull request, the committed dist/ files must be in sync with src/, deploy only after the tests pass and only from main.
+- Repo: the client's photos and the raw chat transcript left the public repository (kept privately; see docs/reference/README.md). Git history before this change still contains them.
