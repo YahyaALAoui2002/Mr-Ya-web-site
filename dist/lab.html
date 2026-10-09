@@ -769,7 +769,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font:500 15px/1.4 "Familj
      each piece an all-quad "quad sphere" (a subdivided cube pushed onto a sphere: no poles, clean quad rings, like the reference wireframes).
      The pieces hang on a real bone hierarchy (THREE.Bone, names below) so the bear can be animated: see slice 07. The HEAD is its own node
      ("Head": head, muzzle, ears, eyes, nose, mouth all hang from it) and turns independently of the body. The branded apron hangs on the spine.
-     Rest pose and every proportion live in BONE_DEFS and PARTS: tune them against docs/reference/shop-front-with-the-bear.png. */
+     Rest pose and every proportion live in BONE_DEFS and PARTS: tune them against the shop-front photo (kept privately, see docs/reference/README.md). */
   const bClamp01 = (x) => x < 0 ? 0 : x > 1 ? 1 : x;
   const bSstep = (a, b, x) => { const t = bClamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
   const bHex = (hex) => { const c = new THREE.Color(hex); return [c.r, c.g, c.b]; };          // sRGB hex -> linear colour (vertex colours are linear)

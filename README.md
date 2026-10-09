@@ -1,7 +1,7 @@
 # Mr Ye 幸福食光 — web site
 
 ## 🌐 Live site: **https://yahyaalaoui2002.github.io/Mr-Ya-web-site/**
-Only the site is published: one self-contained `index.html`, built from `src/` by `.github/workflows/pages.yml` on every push to `main`.
+Only the production folder (`dist/site`: the page, self-hosted fonts and Three.js, share image) is published, built from `src/` by `.github/workflows/pages.yml` on every push to `main`, after the tests pass. Pull requests are built and tested too.
 
 One-page site for a bubble tea and Hubei street-food restaurant in Paris 13e: an interactive **3D bubble tea builder** (Three.js r159, no framework, no bundler), a **rigged, animated teddy-bear mascot** in the Mr Ye apron, and the menu as an oval roulette.
 
@@ -23,21 +23,21 @@ The developer bench (`npm run build && npm run serve`, then open `/lab.html`; it
 
 ## Quick start
 ```
-node build.mjs                 # -> dist/index.html (single file), dist/lab.html, dist/bubbletea-3d.js
-python3 -m http.server 8080 --directory dist     # then open http://localhost:8080
+node build.mjs                 # -> dist/site/ (production), dist/index.html (portable single file), dist/lab.html
+npm run serve                  # then open http://localhost:8080  (the production build, works offline)
 ```
-Needs internet in the browser (Three.js from jsDelivr, fonts from Google).
+The portable `dist/index.html` needs internet in the browser (Three.js from jsDelivr, fonts from Google); `dist/site/` needs none. After changing `src/`, commit the rebuilt `dist/index.html`, `dist/lab.html`, `dist/bubbletea-3d.js` (CI checks they are in sync).
 
 ## Tests
 ```
 pip install -r requirements.txt && playwright install chromium
-npm test            # or: npm run test:fast  (containment, roulette, rig, bear, stress)
+npm test            # or: npm run test:fast  (site build, containment, roulette, rig, bear, stress)
 ```
 
 ## Put it online (GitHub Pages)
-`.github/workflows/pages.yml` builds the site (`node build.mjs`) and publishes ONLY `dist/index.html` (as the site's `index.html`) on every push to `main`: no lab bench, no docs, no tests.
+`.github/workflows/pages.yml` builds the site (`node build.mjs`), checks that the committed `dist/` files are in sync, runs the tests, and publishes ONLY `dist/site/` on every push to `main`: no lab bench, no docs, no tests. A failing test blocks the deploy.
 1. One-time: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 2. Merge to `main` (or run the workflow by hand from the **Actions** tab).
-3. The site is live at `https://<user>.github.io/<repo>/` (only `index.html` is published).
+3. The site is live at `https://<user>.github.io/<repo>/`. For a custom domain, set `SITE_URL` in the workflow's build step so the canonical and share tags use it.
 
 Using it with **Claude Code**: open this folder, read `CLAUDE.md` (project memory), then `docs/BACKLOG.md`.
