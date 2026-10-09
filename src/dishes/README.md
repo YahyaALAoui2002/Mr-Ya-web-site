@@ -16,6 +16,8 @@ One square photo per plate of the roulette, named by the dish key:
 | `n12` | N° 12 Nouilles froides | | |
 | `n13` | N° 13 Rouleaux de riz vapeur | | |
 
+The current photos were **cut out by hand-fitted masks** so that only the dish stays (no chopsticks, fork, spoon, hand or table), then placed on one shared background: the brand green (`--pa` → `--pb`, lit from the top left) with a soft contact shadow, dish at ~80 % of a 720 px square. Keep that look for any new photo, so every plate of the roulette stays consistent.
+
 `<key>.webp` (720 px, served by the production site) and `small/<key>.webp` (360 px, inlined in the portable single file) are **generated**:
 put the originals in a folder, named by key (`n8.jpg`, `jianbing.png` ...), and run
 
