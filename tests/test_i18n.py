@@ -64,6 +64,7 @@ if fr.exists() and en.exists() and zh.exists():
 # 3. the browser ------------------------------------------------------------------------------------------------------------------------------
 with sync_playwright() as p:
     browser, page, logs = open_page(p, "index.debug.html", 1280, 900, three=False, wait=800)
+    requested = []; page.on("request", lambda r: requested.append(r.url))   # (from here on; the page has already loaded, the portable build's fonts come from Google and are blocked in the tests)
     txt = lambda sel: page.evaluate(f"document.querySelector('{sel}').innerText.replace(/\\u00a0/g,' ')")
     ok &= check("French by default, FR marked current", page.evaluate("document.documentElement.lang") == "fr" and txt("h1") == "Composez votre bubble tea." and page.evaluate("document.querySelector('[data-lang-set=fr]').getAttribute('aria-current')") == "true", txt("h1"))
     click(page, "flavor", "fraise"); click(page, "top", "gelee"); click(page, "size", "M")
@@ -85,6 +86,15 @@ with sync_playwright() as p:
     ok &= check("FR: back to French, with French prices (comma, no-break space before €)", page.evaluate("document.documentElement.lang") == "fr" and "Pause" in txt(".rplay-txt") + "Pause" and page.evaluate("[...document.querySelectorAll('[data-price]')].some(e => /\\d,\\d{2}\\u00a0€/.test(e.textContent))"))
     page.goto((DIST / "index.debug.html").as_uri() + "?lang=en", wait_until="domcontentloaded"); page.wait_for_timeout(600)
     ok &= check("?lang=en wins over the stored choice", page.evaluate("document.documentElement.lang") == "en")
+    # Google Maps: nothing from Google until the visitor asks; then an embed in the page's language; the footer carries the address and a Maps link
+    ok &= check("map: no iframe and no Google request before the click", page.evaluate("!document.querySelector('#mapbox iframe')") and not [u for u in requested if "google.com/maps" in u], str([u for u in requested if "google.com/maps" in u][:2]))
+    page.evaluate("document.getElementById('mapLoad').click()"); page.wait_for_timeout(300)
+    src = page.evaluate("document.querySelector('#mapbox iframe') && document.querySelector('#mapbox iframe').src")
+    ok &= check("map: the embed points at the restaurant, in the language of the page", bool(src) and "google.com/maps" in src and "69+Avenue+des+Gobelins" in src and "output=embed" in src and "hl=en" in src, str(src))   # the page is in English here (?lang=en above)
+    page.click('[data-lang-set="zh"]'); page.wait_for_timeout(300)
+    ok &= check("map: a language switch updates the embed (hl=zh-CN) and its title", "hl=zh-CN" in page.evaluate("document.querySelector('#mapbox iframe').src") and "谷歌地图" in page.evaluate("document.querySelector('#mapbox iframe').title"))
+    ok &= check("footer: address and a Google Maps link", "69 avenue des Gobelins, 75013 Paris" in txt("footer") and page.evaluate("[...document.querySelectorAll('footer a')].some(a => a.href.includes('google.com/maps/search') && a.href.includes('69+Avenue+des+Gobelins'))"))
+    page.click('[data-lang-set="fr"]'); page.wait_for_timeout(200)
     ok &= check("no script error while switching", not [l for l in logs if l.startswith("PAGEERR")], str(logs[:3]))
     page.evaluate("localStorage.clear()")
     browser.close()

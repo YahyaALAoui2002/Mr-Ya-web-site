@@ -181,5 +181,10 @@
  "visit.metro": "Métro Gobelins ou Place d'Italie",
  "visit.or": "ou",
  "visit.directions": "Itinéraire",
+ "map.title": "Carte Google Maps : Mr Ye, 69 avenue des Gobelins, Paris 13e",
+ "map.load": "Afficher la carte",
+ "map.note": "Le chargement de la carte envoie des données à Google.",
+ "foot.name": "Mr Ye 幸福食光 · 69 avenue des Gobelins, 75013 Paris",
+ "foot.maps": "Voir sur Google Maps",
  "footer": "4,7 sur Google, plus de 600 avis."
 }
