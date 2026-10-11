@@ -181,9 +181,10 @@
  "visit.metro": "地铁 Gobelins 站或 Place d'Italie 站",
  "visit.or": "或",
  "visit.directions": "路线",
- "map.title": "谷歌地图：Mr Ye，巴黎13区 69 avenue des Gobelins",
- "map.load": "显示地图",
- "map.note": "加载地图会向谷歌发送数据。",
+ "place.h": "很好找",
+ "place.p": "绿色门面，门口有一只穿围裙的小熊在等您。",
+ "place.alt": "Mr Ye 门面，位于 69 avenue des Gobelins：绿色门面，幸福食光 Mr.Ye 招牌，门口穿围裙的吉祥物小熊。",
+ "place.credit": "照片：Eric FE，谷歌地图，2020年7月",
  "foot.name": "Mr Ye 幸福食光 · 69 avenue des Gobelins, 75013 Paris",
  "foot.maps": "在谷歌地图上查看",
  "footer": "谷歌评分 4.7，600 多条评价。"

@@ -193,14 +193,15 @@ legend{font-weight:600;font-size:14px;line-height:1.25;margin-bottom:5px;padding
 footer{padding:0 0 40px;color:var(--ink-soft);font-size:14px}
 footer p{margin:0 0 4px}
 footer a{color:inherit;text-underline-offset:3px}
-.mapbox{margin-top:clamp(18px,3vw,32px);aspect-ratio:21/9;min-height:280px;border-radius:20px;overflow:hidden;border:1px solid var(--rule);background:color-mix(in srgb,var(--paper) 92%,var(--label) 8%)}
-.mapbox iframe{display:block;width:100%;height:100%;border:0}
-.map-ask{height:100%;display:grid;place-content:center;justify-items:center;gap:10px;padding:24px;text-align:center}
-.map-ask .btn{border:0;font:inherit;font-weight:600;cursor:pointer}
-.map-ask svg{width:34px;height:34px;fill:none;stroke:var(--label);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.map-addr{font-weight:600;color:var(--ink)}
-.map-ask small{color:var(--ink-soft);font-size:13px}
-@media (max-width:640px){.mapbox{aspect-ratio:4/5;min-height:0}}
+.place{margin-top:clamp(18px,3vw,32px);display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(20px,4vw,56px);align-items:center}
+.shopfront{margin:0}
+.shopfront img{display:block;width:100%;height:auto;aspect-ratio:1152/1000;object-fit:cover;border-radius:20px;border:1px solid var(--rule);background:color-mix(in srgb,var(--paper) 92%,var(--label) 8%)}
+.shopfront figcaption{margin-top:8px;color:var(--ink-soft);font-size:12.5px}
+.spot h3{font:700 clamp(26px,3vw,38px)/1.1 var(--sans);letter-spacing:-.02em;margin:0 0 .5em}
+.spot p{margin:0 0 1em;color:var(--ink-soft);font-size:clamp(16px,1.4vw,19px);line-height:1.6;max-width:36ch}
+.spot .spot-addr{display:flex;align-items:center;gap:10px;color:var(--ink);font-weight:600;margin-bottom:1.2em}
+.spot .spot-addr svg{flex:none;width:26px;height:26px;fill:none;stroke:var(--label);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:760px){.place{grid-template-columns:1fr}.spot h3{margin-top:4px}}
 
 .cup-stage{aspect-ratio:320/520;width:100%}
 .cup-stage svg{position:absolute;inset:0}
@@ -581,13 +582,16 @@ main:focus{outline:none}
           <a class="btn alt" href="tel:+33980615680" data-i18n="cta.call">Appeler pour commander</a>
         </div>
       </div>
-      <!-- Google Maps: nothing is requested from Google until the visitor asks for the map (no third-party request on load, no cookie banner needed for it) -->
-      <div class="mapbox" id="mapbox" role="group" data-i18n-attr="aria-label:map.title" aria-label="Carte Google Maps : Mr Ye, 69 avenue des Gobelins, Paris 13e">
-        <div class="map-ask">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></svg>
-          <span class="map-addr" data-i18n="visit.addr">69 avenue des Gobelins, 75013 Paris</span>
-          <button type="button" class="btn" id="mapLoad" data-i18n="map.load">Afficher la carte</button>
-          <small data-i18n="map.note">Le chargement de la carte envoie des données à Google.</small>
+      <div class="place">
+        <figure class="shopfront">
+          <img src="%%STOREFRONT%%" width="1152" height="1000" loading="lazy" decoding="async" alt="La devanture de Mr Ye au 69 avenue des Gobelins : façade verte, enseigne 幸福食光 Mr.Ye, et l’ours mascotte en tablier devant la porte." data-i18n-attr="alt:place.alt">
+          <figcaption data-i18n="place.credit">Photo : Eric FE, Google Maps, juillet 2020</figcaption>
+        </figure>
+        <div class="spot">
+          <h3 data-i18n="place.h">Facile à repérer</h3>
+          <p data-i18n="place.p">Une devanture verte, et un ours en tablier qui vous attend à la porte.</p>
+          <p class="spot-addr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5a7 7 0 0 0-14 0C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></svg><span data-i18n="visit.addr">69 avenue des Gobelins, 75013 Paris</span></p>
+          <a class="btn" href="https://www.google.com/maps/search/?api=1&query=Mr+Ye+69+Avenue+des+Gobelins+75013+Paris" target="_blank" rel="noopener" data-i18n="foot.maps">Voir sur Google Maps</a>
         </div>
       </div>
     </div>
@@ -607,21 +611,6 @@ main:focus{outline:none}
 
 <script>
 /*__I18N__*/
-</script>
-<script>
-(() => {
-  // the Google Maps embed: created only on request, in the page's language, and kept in step with a language switch
-  const box = document.getElementById('mapbox'); if (!box) return;
-  const t = window.mryeT;
-  const src = () => 'https://www.google.com/maps?q=Mr+Ye+69+Avenue+des+Gobelins+75013+Paris&hl=' + ({ fr: 'fr', en: 'en', zh: 'zh-CN' }[window.mryeLang()] || 'fr') + '&z=17&output=embed';
-  let frame = null;
-  document.getElementById('mapLoad').addEventListener('click', () => {
-    frame = document.createElement('iframe');
-    frame.title = t('map.title'); frame.loading = 'lazy'; frame.referrerPolicy = 'no-referrer-when-downgrade'; frame.allowFullscreen = true; frame.src = src();
-    box.replaceChildren(frame);
-  });
-  document.addEventListener('langchange', () => { if (frame) { frame.title = t('map.title'); frame.src = src(); } });
-})();
 </script>
 <script>
 (() => {

@@ -181,9 +181,10 @@
  "visit.metro": "Metro: Gobelins or Place d'Italie",
  "visit.or": "or",
  "visit.directions": "Directions",
- "map.title": "Google Maps: Mr Ye, 69 avenue des Gobelins, Paris 13th",
- "map.load": "Show the map",
- "map.note": "Loading the map sends data to Google.",
+ "place.h": "Easy to spot",
+ "place.p": "A green shopfront, and a bear in an apron waiting at the door.",
+ "place.alt": "The Mr Ye shopfront at 69 avenue des Gobelins: green facade, the 幸福食光 Mr.Ye sign, and the mascot bear in an apron by the door.",
+ "place.credit": "Photo: Eric FE, Google Maps, July 2020",
  "foot.name": "Mr Ye 幸福食光 · 69 avenue des Gobelins, 75013 Paris",
  "foot.maps": "View on Google Maps",
  "footer": "4.7 on Google, over 600 reviews."

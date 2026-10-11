@@ -67,6 +67,7 @@ const page = (html, parts, o = { lang: 'fr', mode: 'inline' }) => {
     .replace('<!--__THREE__-->', () => parts.three)
     .replace('<!--__SITE_HEAD__-->', () => parts.siteHead)
     .replace('/*__DISH_PHOTOS__*/{}', () => JSON.stringify(parts.photos))
+    .replace('%%STOREFRONT%%', () => parts.storefront)
     .replace('%%HTMLLANG%%', C.HTML_LANG[o.lang]).replace('%%LANG%%', o.lang).replace('%%LANGMODE%%', o.mode)
     .replace('%%OGLOCALE%%', C.OG_LOCALE[o.lang])
     .replaceAll('%%CANON%%', o.canon || SITE_URL)
@@ -85,7 +86,7 @@ const inline = Object.fromEntries(bigPhotos.map((f) => {
   return [f.replace('.webp', ''), `data:image/webp;base64,${readFileSync(src).toString('base64')}`];
 }));
 const files = Object.fromEntries(bigPhotos.map((f) => [f.replace('.webp', ''), `assets/dishes/${f}`]));
-const portable = { fonts: read('src/partials/fonts-portable.html').trimEnd(), three: read('src/partials/three-portable.html').trimEnd(), siteHead: '', photos: inline };
+const portable = { fonts: read('src/partials/fonts-portable.html').trimEnd(), three: read('src/partials/three-portable.html').trimEnd(), siteHead: '', photos: inline, storefront: `data:image/webp;base64,${readFileSync(join(root, 'src/assets/storefront.webp')).toString('base64')}` };
 for (const [tpl, out] of [['site.template.html', 'index'], ['lab.template.html', 'lab']]) {
   const html = read('src', tpl);
   if (!html.includes(PLACEHOLDER)) throw new Error(`${tpl}: placeholder missing`);
@@ -113,7 +114,9 @@ if (!debug) {
     three: `<script src="${up}assets/three.min.js"></script>`,
     siteHead: `<link rel="apple-touch-icon" href="${up}apple-touch-icon.png">`,
     photos: Object.fromEntries(Object.entries(files).map(([k, v]) => [k, up + v])),
+    storefront: `${up}assets/storefront.webp`,
   });
+  copyFileSync(join(root, 'src/assets/storefront.webp'), join(site, 'assets/storefront.webp'));
   if (bigPhotos.length) mkdirSync(join(site, 'assets/dishes'), { recursive: true });
   for (const f of bigPhotos) copyFileSync(join(DISH_DIR, f), join(site, 'assets/dishes', f));
   const dirOf = { fr: '', en: 'en/', zh: 'zh/' };
