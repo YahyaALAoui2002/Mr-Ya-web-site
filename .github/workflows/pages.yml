@@ -46,8 +46,8 @@ jobs:
           node build.mjs
           mkdir _site
           cp -r dist/site/. _site/
-          test -s _site/index.html && test -s _site/assets/three.min.js && test -s _site/og.png
-          if grep -q -E "googleapis|gstatic|jsdelivr" _site/index.html; then echo "::error::a third-party URL is back in the production page"; exit 1; fi
+          test -s _site/index.html && test -s _site/en/index.html && test -s _site/zh/index.html && test -s _site/assets/three.min.js && test -s _site/og.png
+          if grep -q -E "googleapis|gstatic|jsdelivr" _site/index.html _site/en/index.html _site/zh/index.html; then echo "::error::a third-party URL is back in the production page"; exit 1; fi
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main'
         with:

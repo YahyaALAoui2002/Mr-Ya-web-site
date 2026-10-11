@@ -1,6 +1,8 @@
 # Mr Ye 幸福食光 — web site
 
 ## 🌐 Live site: **https://yahyaalaoui2002.github.io/Mr-Ya-web-site/**
+
+https://claude.ai/artifact/UW4U6Z9EdRHreHQP6cG3Xm
 Only the production folder (`dist/site`: the page, self-hosted fonts and Three.js, share image) is published, built from `src/` by `.github/workflows/pages.yml` on every push to `main`, after the tests pass. Pull requests are built and tested too.
 
 One-page site for a bubble tea and Hubei street-food restaurant in Paris 13e: an interactive **3D bubble tea builder** (Three.js r159, no framework, no bundler), a **rigged, animated teddy-bear mascot** in the Mr Ye apron, and the menu as an oval roulette.

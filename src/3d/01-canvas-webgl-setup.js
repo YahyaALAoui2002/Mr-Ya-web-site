@@ -2,13 +2,14 @@
 (function () {
   const host = document.getElementById('cup3d');
   if (!host) return;
-  const showFallback = (msg) => { if (!(host.parentElement && host.parentElement.querySelector('svg'))) host.insertAdjacentHTML('beforeend', '<div class="fallback-3d">' + msg + '</div>'); };
-  if (!window.THREE) { showFallback('Impossible de charger le moteur 3D.'); return; }
+  // the message comes from src/i18n (window.mryeT); the key is kept on the element so a language switch can rewrite it
+  const showFallback = (key, text) => { if (!(host.parentElement && host.parentElement.querySelector('svg'))) host.insertAdjacentHTML('beforeend', '<div class="fallback-3d" data-i18n="' + key + '">' + (window.mryeT ? window.mryeT(key) : text) + '</div>'); };
+  if (!window.THREE) { showFallback('fallback3d.load', 'Impossible de charger le moteur 3D.'); return; }
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-  } catch (e) { console.error('Mr Ye 3D: WebGL indisponible', e); showFallback('La prévisualisation 3D n’est pas disponible sur cet appareil.'); return; }
-  if (!renderer.getContext()) { showFallback('La prévisualisation 3D n’est pas disponible sur cet appareil.'); return; }
+  } catch (e) { console.error('Mr Ye 3D: WebGL indisponible', e); showFallback('fallback3d', 'La prévisualisation 3D n’est pas disponible sur cet appareil.'); return; }
+  if (!renderer.getContext()) { showFallback('fallback3d', 'La prévisualisation 3D n’est pas disponible sur cet appareil.'); return; }
 
   const L = (h) => new THREE.Color(h);   // r159: hex is treated as sRGB and converted automatically
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
